@@ -10,7 +10,7 @@
 
 getgenv().QuocdatHub = {
     Settings = {
-        AutoFarmLevel = false,
+        AutoFarmLevel = true,
         AutoFarmDFMastery = false,
         AutoFarmBones = false,
         AutoFarmBeli = false,
