@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bio Page</title>
+  <title>Bio Link</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
   <style>
     * {
@@ -14,36 +14,46 @@
     }
 
     body {
-      background-color: #0d0e12;
+      background-color: #090a0f;
       color: #ffffff;
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       background-image: 
-        radial-gradient(circle at 50% 30%, rgba(120, 119, 198, 0.15), transparent 60%),
-        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05), transparent 40%);
+        radial-gradient(circle at 50% 20%, rgba(99, 102, 241, 0.15), transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.1), transparent 50%);
       padding: 20px;
+      overflow-x: hidden;
     }
 
-    .container {
+    /* Container hiệu ứng mờ kính (Glassmorphism) */
+    .card {
       width: 100%;
       max-width: 420px;
-      background: rgba(18, 19, 26, 0.65);
+      background: rgba(18, 19, 26, 0.6);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-radius: 24px;
-      padding: 32px 24px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 28px;
+      padding: 36px 28px;
       text-align: center;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      animation: fadeIn 0.8s ease-out;
     }
 
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Bố cục Avatar & Tích xanh */
     .avatar-wrapper {
       position: relative;
-      width: 96px;
-      height: 96px;
-      margin: 0 auto 16px;
+      width: 104px;
+      height: 104px;
+      margin: 0 auto 20px;
     }
 
     .avatar {
@@ -51,7 +61,8 @@
       height: 100%;
       border-radius: 50%;
       object-fit: cover;
-      border: 2px solid rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
 
     .badge {
@@ -59,97 +70,121 @@
       bottom: 2px;
       right: 2px;
       background: #6366f1;
-      width: 22px;
-      height: 22px;
+      color: #fff;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 11px;
-      border: 2px solid #0d0e12;
+      border: 3px solid #090a0f;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.5);
     }
 
     .name {
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 700;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       letter-spacing: -0.5px;
+      text-shadow: 0 2px 10px rgba(255, 255, 255, 0.2);
     }
 
     .bio {
       font-size: 14px;
       color: #a1a1aa;
-      margin-bottom: 24px;
-      line-height: 1.5;
+      margin-bottom: 28px;
+      line-height: 1.6;
+      font-weight: 400;
     }
 
+    /* Các nút mạng xã hội */
     .socials {
       display: flex;
       justify-content: center;
-      gap: 12px;
-      margin-bottom: 28px;
+      gap: 14px;
+      margin-bottom: 32px;
     }
 
     .social-btn {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.05);
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      color: #e4e4e7;
+      color: #d4d4d8;
       display: flex;
       align-items: center;
       justify-content: center;
       text-decoration: none;
       font-size: 18px;
-      transition: all 0.2s ease;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .social-btn:hover {
       background: rgba(255, 255, 255, 0.12);
-      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.2);
       color: #ffffff;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
     }
 
+    /* Danh sách Link / File Share */
     .links-list {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
     }
 
     .link-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 18px;
-      border-radius: 14px;
+      padding: 16px 20px;
+      border-radius: 16px;
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.06);
       color: #ffffff;
       text-decoration: none;
       font-weight: 500;
       font-size: 15px;
-      transition: all 0.2s ease;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .link-item:hover {
       background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.18);
       transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
     }
 
     .link-info {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
     }
 
     .link-icon {
-      font-size: 16px;
-      color: #a1a1aa;
+      font-size: 18px;
+      color: #818cf8;
+      width: 20px;
+      text-align: center;
     }
 
     .arrow-icon {
+      font-size: 12px;
+      color: #52525b;
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+
+    .link-item:hover .arrow-icon {
+      color: #a1a1aa;
+      transform: translate(2px, -2px);
+    }
+
+    /* Footer nhẹ */
+    .footer {
+      margin-top: 28px;
       font-size: 12px;
       color: #52525b;
     }
@@ -157,74 +192,72 @@
 </head>
 <body>
 
-  <div class="container">
+  <div class="card">
+    <!-- Avatar -->
     <div class="avatar-wrapper">
-      <img id="avatar" src="https://via.placeholder.com/150" alt="Avatar" class="avatar" />
+      <img src="https://info.digitalsmod.site/file_00000000ff188206b1ba97817561a577.png" alt="Avatar" class="avatar" />
       <div class="badge"><i class="fa-solid fa-check"></i></div>
     </div>
-    <h1 id="name" class="name">Đang tải...</h1>
-    <p id="bio" class="bio"></p>
 
-    <div id="socials" class="socials"></div>
-    <div id="links" class="links-list"></div>
+    <!-- Tên & Bio -->
+    <h1 class="name">DigitalXiao</h1>
+    <p class="bio">Developer & Modder • Web Creator & Android Customization</p>
+
+    <!-- Icon Mạng Xã Hội -->
+    <div class="socials">
+      <a href="https://telegram.org" target="_blank" class="social-btn" title="Telegram">
+        <i class="fa-brands fa-telegram"></i>
+      </a>
+      <a href="https://github.com" target="_blank" class="social-btn" title="GitHub">
+        <i class="fa-brands fa-github"></i>
+      </a>
+      <a href="https://facebook.com" target="_blank" class="social-btn" title="Facebook">
+        <i class="fa-brands fa-facebook"></i>
+      </a>
+      <a href="https://discord.com" target="_blank" class="social-btn" title="Discord">
+        <i class="fa-brands fa-discord"></i>
+      </a>
+    </div>
+
+    <!-- Danh Sách Link / File Share -->
+    <div class="links-list">
+      <a href="#" target="_blank" class="link-item">
+        <div class="link-info">
+          <i class="fa-solid fa-download link-icon"></i>
+          <span>Tải File Custom ROM / Mod</span>
+        </div>
+        <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+      </a>
+
+      <a href="#" target="_blank" class="link-item">
+        <div class="link-info">
+          <i class="fa-solid fa-code link-icon"></i>
+          <span>Project Web Interface</span>
+        </div>
+        <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+      </a>
+
+      <a href="#" target="_blank" class="link-item">
+        <div class="link-info">
+          <i class="fa-solid fa-layer-group link-icon"></i>
+          <span>Kênh Cập Nhật Telegram</span>
+        </div>
+        <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+      </a>
+
+      <a href="#" target="_blank" class="link-item">
+        <div class="link-info">
+          <i class="fa-solid fa-globe link-icon"></i>
+          <span>Trang Chủ DigitalsMod</span>
+        </div>
+        <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+      </a>
+    </div>
+
+    <div class="footer">
+      © 2026 DigitalXiao. All rights reserved.
+    </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDaHJ9fn6wWsRfoFYIVmWtJmmIpZ2R51nY",
-      authDomain: "xiao-385da.firebaseapp.com",
-      projectId: "xiao-385da",
-      storageBucket: "xiao-385da.firebasestorage.app",
-      messagingSenderId: "93563751266",
-      appId: "1:93563751266:web:067377367699ee4acdfa3b",
-      measurementId: "G-DLPFRYNNX3"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    const bioRef = ref(db, 'bioData');
-    onValue(bioRef, (snapshot) => {
-      const data = snapshot.val();
-      if (!data) return;
-
-      document.getElementById('avatar').src = data.profile?.avatar || 'https://via.placeholder.com/150';
-      document.getElementById('name').textContent = data.profile?.name || 'Your Name';
-      document.getElementById('bio').textContent = data.profile?.bio || '';
-
-      // Render Social Icons
-      const socialsContainer = document.getElementById('socials');
-      socialsContainer.innerHTML = '';
-      if (data.socials) {
-        Object.values(data.socials).forEach(item => {
-          socialsContainer.innerHTML += `
-            <a href="${item.url}" target="_blank" class="social-btn">
-              <i class="${item.icon}"></i>
-            </a>
-          `;
-        });
-      }
-
-      // Render Custom Links / Share Files
-      const linksContainer = document.getElementById('links');
-      linksContainer.innerHTML = '';
-      if (data.links) {
-        Object.values(data.links).forEach(item => {
-          linksContainer.innerHTML += `
-            <a href="${item.url}" target="_blank" class="link-item">
-              <div class="link-info">
-                <i class="${item.icon || 'fa-solid fa-link'} link-icon"></i>
-                <span>${item.title}</span>
-              </div>
-              <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
-            </a>
-          `;
-        });
-      }
-    });
-  </script>
 </body>
 </html>
