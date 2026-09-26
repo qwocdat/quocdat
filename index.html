@@ -130,35 +130,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* --- HOẠ TIẾT RÊU PHONG VÀ LÁ CÂY TU TIÊN (MOSS & LEAVES) --- */
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: 
-        radial-gradient(circle at 5% 120px, rgba(34, 197, 94, 0.35) 0%, transparent 45px),
-        radial-gradient(circle at 95% 140px, rgba(16, 185, 129, 0.3) 0%, transparent 50px),
-        radial-gradient(circle at 10% 260px, rgba(20, 83, 45, 0.25) 0%, transparent 40px);
-      pointer-events: none;
-      z-index: 5;
-    }
-
-    /* Họa tiết lá cây tu tiên viền góc */
-    .moss-leaf-left, .moss-leaf-right {
-      position: absolute;
-      top: 130px;
-      font-size: 18px;
-      color: rgba(74, 222, 128, 0.6);
-      z-index: 6;
-      pointer-events: none;
-      filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.5));
-    }
-    .moss-leaf-left { left: 8px; transform: rotate(-25deg); }
-    .moss-leaf-right { right: 8px; transform: rotate(35deg); }
-
     /* Banner Ảnh Bìa MP4 */
     .banner-container {
       position: relative;
@@ -178,7 +149,7 @@
       background: linear-gradient(to bottom, rgba(18, 19, 26, 0) 0%, rgba(18, 19, 26, 0.8) 70%, rgba(18, 19, 26, 1) 100%);
     }
 
-    /* --- CÁC VẾT NỨT TỰ NHIÊN PHÁT SÁNG & TỰ HÀN TỤ (CRACKS) --- */
+    /* CÁC VẾT NỨT PHÁT SÁNG & HÀN TỤ */
     .crack-overlay {
       position: absolute;
       bottom: -10px;
@@ -202,33 +173,12 @@
       clip-path: polygon(90% 0%, 75% 18%, 85% 38%, 60% 58%, 80% 78%, 55% 100%, 65% 100%, 90% 72%, 72% 52%, 95% 32%, 82% 14%, 100% 0%);
     }
 
-    /* Chu kỳ nứt ra -> Phát sáng chói -> Liền lại hoàn toàn */
     @keyframes crackGlowPulse {
-      0% {
-        opacity: 0;
-        transform: scale(0.6) translateY(-10px);
-        filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0));
-      }
-      35% {
-        opacity: 0.7;
-        transform: scale(0.95) translateY(0);
-        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
-      }
-      50% {
-        opacity: 1;
-        transform: scale(1.1) translateY(3px);
-        filter: drop-shadow(0 0 22px rgba(255, 255, 255, 1)) drop-shadow(0 0 35px rgba(165, 180, 252, 0.9));
-      }
-      70% {
-        opacity: 0.4;
-        transform: scale(0.85) translateY(1px);
-        filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5));
-      }
-      100% {
-        opacity: 0;
-        transform: scale(0.6) translateY(-10px);
-        filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0));
-      }
+      0% { opacity: 0; transform: scale(0.6) translateY(-10px); filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0)); }
+      35% { opacity: 0.7; transform: scale(0.95) translateY(0); filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8)); }
+      50% { opacity: 1; transform: scale(1.1) translateY(3px); filter: drop-shadow(0 0 22px rgba(255, 255, 255, 1)) drop-shadow(0 0 35px rgba(165, 180, 252, 0.9)); }
+      70% { opacity: 0.4; transform: scale(0.85) translateY(1px); filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5)); }
+      100% { opacity: 0; transform: scale(0.6) translateY(-10px); filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0)); }
     }
 
     /* Avatar GIF thò 1/2 vào ảnh bìa */
@@ -253,39 +203,167 @@
       padding: 0 24px 28px;
     }
 
-    /* Tên & Tích xanh */
+    /* --- HIỆU ỨNG TÊN NHOÈ VÀ NHẤP NHÁY (NEON BLUR FLICKER) --- */
     .name-wrapper {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 10px;
       margin-bottom: 8px;
     }
 
     .name {
       font-size: 24px;
-      font-weight: 700;
+      font-weight: 800;
       letter-spacing: -0.5px;
-      text-shadow: 0 2px 10px rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      animation: glowFlicker 3s infinite ease-in-out;
     }
 
+    @keyframes glowFlicker {
+      0%, 100% {
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.8),
+                     0 0 16px rgba(99, 102, 241, 0.6),
+                     0 0 24px rgba(99, 102, 241, 0.4);
+        filter: blur(0px);
+        opacity: 1;
+      }
+      20% {
+        text-shadow: 0 0 15px rgba(255, 255, 255, 1),
+                     0 0 30px rgba(168, 85, 247, 0.9);
+        filter: blur(1.5px);
+        opacity: 0.85;
+      }
+      22% {
+        text-shadow: none;
+        filter: blur(0px);
+        opacity: 0.4;
+      }
+      25% {
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.9),
+                     0 0 20px rgba(99, 102, 241, 0.8);
+        filter: blur(0.5px);
+        opacity: 1;
+      }
+      60% {
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.9),
+                     0 0 35px rgba(129, 140, 248, 0.7);
+        filter: blur(1px);
+        opacity: 0.9;
+      }
+    }
+
+    /* TÍCH XANH CÓ THỂ BẤM POPUP */
     .badge-inline {
       background: #6366f1;
       color: #fff;
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 10px;
+      font-size: 11px;
       box-shadow: 0 0 10px rgba(99, 102, 241, 0.8);
+      cursor: pointer;
+      transition: transform 0.2s ease;
       animation: badgePulse 2s infinite ease-in-out;
+    }
+
+    .badge-inline:hover {
+      transform: scale(1.2) rotate(10deg);
     }
 
     @keyframes badgePulse {
       0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(99, 102, 241, 0.6); }
       50% { transform: scale(1.15); box-shadow: 0 0 16px rgba(99, 102, 241, 0.9); }
+    }
+
+    /* --- POPUP MIÊU TẢ HUY HIỆU KHẲNG ĐỊNH UY TÍN --- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-card {
+      background: rgba(18, 19, 26, 0.9);
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      border-radius: 24px;
+      padding: 28px 24px;
+      max-width: 340px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8),
+                  0 0 30px rgba(99, 102, 241, 0.3);
+      transform: scale(0.85);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-icon {
+      width: 50px;
+      height: 50px;
+      background: #6366f1;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin: 0 auto 16px;
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.8);
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #ffffff;
+    }
+
+    .modal-desc {
+      font-size: 13px;
+      color: #a1a1aa;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .modal-close-btn {
+      background: #6366f1;
+      color: #ffffff;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+    }
+
+    .modal-close-btn:hover {
+      background: #4f46e5;
+      transform: translateY(-2px);
     }
 
     .bio {
@@ -339,7 +417,6 @@
       text-align: left;
     }
 
-    /* Nửa trên nhạc (Màu đen nhám) */
     .player-top {
       position: relative;
       z-index: 3;
@@ -357,7 +434,6 @@
       flex-shrink: 0;
     }
 
-    /* Ảnh đĩa nhạc xoay tròn */
     .album-art {
       width: 100%;
       height: 100%;
@@ -412,7 +488,6 @@
       text-overflow: ellipsis;
     }
 
-    /* Nửa dưới nhạc */
     .player-bottom-wrapper {
       position: relative;
       width: 100%;
@@ -602,11 +677,22 @@
   <!-- Audio ẩn -->
   <audio id="audio-player" src="tiktok_audio.mp3" loop></audio>
 
+  <!-- POPUP UY TÍN TÍCH XANH -->
+  <div id="verify-modal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-card">
+      <div class="modal-icon">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <h3 class="modal-title">Huy Hiệu Xác Nhận Uy Tín</h3>
+      <p class="modal-desc">
+        Huy hiệu tích xanh khẳng định chính chủ **DigitalXiao**. Đã được xác minh danh tính và đảm bảo độ uy tín 100% trong tất cả các dịch vụ, dự án và giao dịch!
+      </p>
+      <button class="modal-close-btn" onclick="toggleModal(false)">Đã Hiểu</button>
+    </div>
+  </div>
+
   <!-- Card Giao diện Main -->
   <div class="card">
-    <!-- Lá cây rêu phong cổ điển -->
-    <i class="fa-solid fa-leaf moss-leaf-left"></i>
-    <i class="fa-solid fa-leaf moss-leaf-right"></i>
 
     <!-- Banner Ảnh Bìa MP4 -->
     <div class="banner-container">
@@ -626,10 +712,12 @@
     </div>
 
     <div class="card-body">
-      <!-- Tên & Tích xanh -->
+      <!-- Tên nhoè nhấp nháy & Tích xanh có Popup -->
       <div class="name-wrapper">
         <h1 class="name">DigitalXiao</h1>
-        <div class="badge-inline" title="Verified"><i class="fa-solid fa-check"></i></div>
+        <div class="badge-inline" title="Xác minh Uy Tín" onclick="toggleModal(true)">
+          <i class="fa-solid fa-check"></i>
+        </div>
       </div>
 
       <p class="bio">xin chào!</p>
@@ -731,6 +819,22 @@
   </div>
 
   <script>
+    // Hàm đóng mở Modal Popup Uy Tín
+    function toggleModal(show) {
+      const modal = document.getElementById('verify-modal');
+      if (show) {
+        modal.classList.add('active');
+      } else {
+        modal.classList.remove('active');
+      }
+    }
+
+    function closeModal(e) {
+      if (e.target.id === 'verify-modal') {
+        toggleModal(false);
+      }
+    }
+
     // Hiệu ứng Click / Tap Ripple
     window.addEventListener('pointerdown', (e) => {
       const ripple = document.createElement('div');
