@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bio Link</title>
+  <title>Bio Link - DigitalXiao</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
   <style>
     * {
@@ -21,11 +21,23 @@
       justify-content: center;
       align-items: center;
       padding: 20px;
-      overflow: hidden;
+      overflow-x: hidden;
       position: relative;
     }
 
-    /* Canvas hiệu ứng Tuyết va chạm */
+    /* Đốm mờ phía sau giúp nổi bật kính trong suốt */
+    .bg-glow {
+      position: absolute;
+      width: 350px;
+      height: 350px;
+      background: rgba(255, 255, 255, 0.06);
+      filter: blur(80px);
+      border-radius: 50%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Canvas Hiệu ứng Tuyết Bật Tường */
     #snow-canvas {
       position: fixed;
       top: 0;
@@ -70,7 +82,7 @@
       50% { opacity: 1; transform: scale(1.02); }
     }
 
-    /* Card giao diện chính */
+    /* Card Giao diện Chính */
     .card {
       position: relative;
       z-index: 2;
@@ -93,7 +105,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Banner Ảnh Bìa Video MP4 (anhbia.mp4) & Gradient mờ chiều sâu */
+    /* Banner Ảnh Bìa MP4 */
     .banner-container {
       position: relative;
       width: 100%;
@@ -112,7 +124,7 @@
       background: linear-gradient(to bottom, rgba(18, 19, 26, 0) 0%, rgba(18, 19, 26, 0.8) 70%, rgba(18, 19, 26, 1) 100%);
     }
 
-    /* Bố cục Avatar GIF thò 1/2 vào ảnh bìa */
+    /* Avatar GIF thò 1/2 vào ảnh bìa */
     .avatar-wrapper {
       position: relative;
       width: 100px;
@@ -130,11 +142,11 @@
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     }
 
-    /* Tiêu đề & Tích xanh kế bên */
     .card-body {
-      padding: 0 28px 36px;
+      padding: 0 24px 28px;
     }
 
+    /* Tên & Tích xanh */
     .name-wrapper {
       display: inline-flex;
       align-items: center;
@@ -172,17 +184,17 @@
     .bio {
       font-size: 14px;
       color: #a1a1aa;
-      margin-bottom: 28px;
+      margin-bottom: 20px;
       line-height: 1.6;
       font-weight: 400;
     }
 
-    /* Các nút mạng xã hội */
+    /* Icon Mạng Xã Hội */
     .socials {
       display: flex;
       justify-content: center;
       gap: 14px;
-      margin-bottom: 32px;
+      margin-bottom: 24px;
     }
 
     .social-btn {
@@ -197,7 +209,7 @@
       justify-content: center;
       text-decoration: none;
       font-size: 18px;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.25s ease;
     }
 
     .social-btn:hover {
@@ -205,10 +217,205 @@
       border-color: rgba(255, 255, 255, 0.2);
       color: #ffffff;
       transform: translateY(-3px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
     }
 
-    /* Danh sách Link / File Share */
+    /* --- KHUNG PHÁT NHẠC IOS 27 (TU TIÊN / GLASS) --- */
+    .player-widget {
+      position: relative;
+      width: 100%;
+      border-radius: 24px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1),
+                  0 15px 35px rgba(0, 0, 0, 0.6);
+
+      /* Nền 2 tầng: Nửa trên đen, nửa dưới kính lỏng */
+      background: linear-gradient(
+        180deg, 
+        rgba(10, 10, 12, 0.96) 0%, 
+        rgba(10, 10, 12, 0.92) 44%, 
+        rgba(255, 255, 255, 0.18) 44%, 
+        rgba(255, 255, 255, 0.08) 100%
+      );
+      backdrop-filter: blur(25px) saturate(180%);
+      -webkit-backdrop-filter: blur(25px) saturate(180%);
+      text-align: left;
+    }
+
+    /* Đường nối nằm ngang 100% ở giữa */
+    .player-widget::before {
+      content: '';
+      position: absolute;
+      top: 44%;
+      left: 0;
+      width: 100%;
+      height: 10px;
+      transform: translateY(-50%);
+      background: linear-gradient(
+        180deg,
+        rgba(10, 10, 12, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      filter: blur(3px);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Nửa trên nhạc (Màu đen) */
+    .player-top {
+      position: relative;
+      z-index: 3;
+      padding: 18px 20px 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .album-art-wrapper {
+      position: relative;
+      width: 54px;
+      height: 54px;
+      flex-shrink: 0;
+    }
+
+    /* Ảnh đĩa nhạc xoay tròn */
+    .album-art {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      animation: rotateDisc 10s linear infinite;
+      animation-play-state: paused; /* Mặc định dừng xoay */
+    }
+
+    .album-art.playing {
+      animation-play-state: running; /* Đang phát nhạc thì xoay */
+    }
+
+    @keyframes rotateDisc {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .rune-tag {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      background: #ffffff;
+      color: #000000;
+      font-size: 8px;
+      font-weight: 800;
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+
+    .song-info {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .song-title {
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .artist-name {
+      color: #a1a1aa;
+      font-size: 12px;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Nửa dưới nhạc (Kính Lỏng) */
+    .player-bottom {
+      position: relative;
+      z-index: 3;
+      padding: 12px 20px 18px;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      margin-bottom: 12px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+      transition: width 0.1s linear;
+    }
+
+    .time-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #e4e4e7;
+      margin-top: 5px;
+      font-weight: 500;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px;
+    }
+
+    .btn-music {
+      background: none;
+      border: none;
+      color: #ffffff;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+
+    .btn-music:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-play-main {
+      width: 44px;
+      height: 44px;
+      background: #ffffff;
+      color: #000000;
+      font-size: 16px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+    }
+
+    .btn-play-main:hover {
+      background: #e4e4e7;
+      color: #000000;
+    }
+
+    /* Danh sách Link Share */
     .links-list {
       display: flex;
       flex-direction: column;
@@ -227,14 +434,13 @@
       text-decoration: none;
       font-weight: 500;
       font-size: 15px;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.25s ease;
     }
 
     .link-item:hover {
       background: rgba(255, 255, 255, 0.08);
       border-color: rgba(255, 255, 255, 0.18);
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
     }
 
     .link-info {
@@ -261,7 +467,6 @@
       transform: translate(2px, -2px);
     }
 
-    /* Footer */
     .footer {
       margin-top: 28px;
       font-size: 12px;
@@ -271,17 +476,17 @@
 </head>
 <body>
 
-  <!-- Canvas Tuyết -->
+  <div class="bg-glow"></div>
+
   <canvas id="snow-canvas"></canvas>
 
-  <!-- Màn hình Click to Enter -->
   <div id="enter-screen" onclick="enterSite()">
     <div class="enter-text">[ Click to enter ]</div>
   </div>
 
-  <!-- Card Giao diện -->
+  <audio id="audio-player" src="tiktok_audio.mp3" loop></audio>
+
   <div class="card">
-    <!-- Video Ảnh Bìa MP4 (Đã tắt âm thanh) -->
     <div class="banner-container">
       <video class="banner" autoplay loop muted playsinline>
         <source src="anhbia.mp4" type="video/mp4" />
@@ -289,13 +494,11 @@
       <div class="banner-overlay"></div>
     </div>
 
-    <!-- Avatar GIF (Giữ nguyên) -->
     <div class="avatar-wrapper">
       <img src="avatar.gif" alt="Avatar" class="avatar" />
     </div>
 
     <div class="card-body">
-      <!-- Tên kèm Tích xanh chuyển động bên cạnh -->
       <div class="name-wrapper">
         <h1 class="name">DigitalXiao</h1>
         <div class="badge-inline" title="Verified"><i class="fa-solid fa-check"></i></div>
@@ -303,7 +506,6 @@
 
       <p class="bio">Developer & Modder • Web Creator & Android Customization</p>
 
-      <!-- Icon Mạng Xã Hội -->
       <div class="socials">
         <a href="https://telegram.org" target="_blank" class="social-btn" title="Telegram">
           <i class="fa-brands fa-telegram"></i>
@@ -319,7 +521,39 @@
         </a>
       </div>
 
-      <!-- Danh Sách Link / File Share -->
+      <div class="player-widget">
+        <div class="player-top">
+          <div class="album-art-wrapper">
+            <img id="disc-art" src="avatar.gif" alt="Cover" class="album-art" />
+            <div class="rune-tag">仙</div>
+          </div>
+          <div class="song-info">
+            <div class="song-title">TikTok Audio Stream</div>
+            <div class="artist-name">DigitalXiao • Background Music</div>
+          </div>
+        </div>
+
+        <div class="player-bottom">
+          <div class="progress-bar-container" onclick="seekAudio(event)">
+            <div class="progress-bar">
+              <div id="progress-fill" class="progress-fill"></div>
+            </div>
+            <div class="time-info">
+              <span id="current-time">00:00</span>
+              <span id="duration-time">00:00</span>
+            </div>
+          </div>
+
+          <div class="controls">
+            <button class="btn-music" onclick="toggleMute()"><i id="mute-icon" class="fa-solid fa-volume-high"></i></button>
+            <button class="btn-music" onclick="rewindAudio()"><i class="fa-solid fa-backward-step"></i></button>
+            <button class="btn-music btn-play-main" onclick="togglePlay()"><i id="play-icon" class="fa-solid fa-play"></i></button>
+            <button class="btn-music" onclick="forwardAudio()"><i class="fa-solid fa-forward-step"></i></button>
+            <button class="btn-music" onclick="restartAudio()"><i class="fa-solid fa-rotate-right"></i></button>
+          </div>
+        </div>
+      </div>
+
       <div class="links-list">
         <a href="#" target="_blank" class="link-item">
           <div class="link-info">
@@ -361,15 +595,81 @@
   </div>
 
   <script>
-    // Hàm Click to Enter
+    const audio = document.getElementById('audio-player');
+    const playIcon = document.getElementById('play-icon');
+    const discArt = document.getElementById('disc-art');
+    const progressFill = document.getElementById('progress-fill');
+    const currentTimeEl = document.getElementById('current-time');
+    const durationTimeEl = document.getElementById('duration-time');
+
+    // Click to Enter
     function enterSite() {
       document.getElementById('enter-screen').classList.add('hidden');
+      audio.play().then(() => {
+        updatePlayState(true);
+      }).catch(() => {
+        updatePlayState(false);
+      });
     }
 
-    // Canvas Hiệu Ứng Tuyết Bật Tường (Physics Snow)
+    // Điều khiển Phát / Tạm dừng
+    function togglePlay() {
+      if (audio.paused) {
+        audio.play();
+        updatePlayState(true);
+      } else {
+        audio.pause();
+        updatePlayState(false);
+      }
+    }
+
+    function updatePlayState(isPlaying) {
+      if (isPlaying) {
+        playIcon.className = 'fa-solid fa-pause';
+        discArt.classList.add('playing');
+      } else {
+        playIcon.className = 'fa-solid fa-play';
+        discArt.classList.remove('playing');
+      }
+    }
+
+    // Cập nhật tiến trình nhạc
+    audio.addEventListener('timeupdate', () => {
+      if (audio.duration) {
+        const percent = (audio.currentTime / audio.duration) * 100;
+        progressFill.style.width = percent + '%';
+        currentTimeEl.textContent = formatTime(audio.currentTime);
+        durationTimeEl.textContent = formatTime(audio.duration);
+      }
+    });
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    function seekAudio(e) {
+      const container = e.currentTarget;
+      const clickX = e.offsetX;
+      const width = container.clientWidth;
+      if (audio.duration) {
+        audio.currentTime = (clickX / width) * audio.duration;
+      }
+    }
+
+    function rewindAudio() { audio.currentTime = Math.max(0, audio.currentTime - 5); }
+    function forwardAudio() { audio.currentTime = Math.min(audio.duration, audio.currentTime + 5); }
+    function restartAudio() { audio.currentTime = 0; audio.play(); updatePlayState(true); }
+
+    function toggleMute() {
+      audio.muted = !audio.muted;
+      document.getElementById('mute-icon').className = audio.muted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
+    }
+
+    // Canvas Tuyết va chạm
     const canvas = document.getElementById('snow-canvas');
     const ctx = canvas.getContext('2d');
-
     let width = canvas.width = window.innerWidth;
     let height = canvas.height = window.innerHeight;
 
@@ -382,10 +682,7 @@
     const flakes = [];
 
     class Flake {
-      constructor() {
-        this.reset();
-      }
-
+      constructor() { this.reset(); }
       reset() {
         this.x = Math.random() * width;
         this.y = Math.random() * height;
@@ -394,28 +691,12 @@
         this.vy = Math.random() * 1 + 0.5;
         this.alpha = Math.random() * 0.7 + 0.3;
       }
-
       update() {
         this.x += this.vx;
         this.y += this.vy;
-
-        if (this.x - this.radius <= 0) {
-          this.x = this.radius;
-          this.vx *= -1;
-        } else if (this.x + this.radius >= width) {
-          this.x = width - this.radius;
-          this.vx *= -1;
-        }
-
-        if (this.y - this.radius <= 0) {
-          this.y = this.radius;
-          this.vy *= -1;
-        } else if (this.y + this.radius >= height) {
-          this.y = height - this.radius;
-          this.vy *= -1;
-        }
+        if (this.x - this.radius <= 0 || this.x + this.radius >= width) this.vx *= -1;
+        if (this.y - this.radius <= 0 || this.y + this.radius >= height) this.vy *= -1;
       }
-
       draw() {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
@@ -424,9 +705,7 @@
       }
     }
 
-    for (let i = 0; i < maxFlakes; i++) {
-      flakes.push(new Flake());
-    }
+    for (let i = 0; i < maxFlakes; i++) flakes.push(new Flake());
 
     function animate() {
       ctx.clearRect(0, 0, width, height);
@@ -436,7 +715,6 @@
       }
       requestAnimationFrame(animate);
     }
-
     animate();
   </script>
 </body>
