@@ -20,23 +20,68 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background-image: 
-        radial-gradient(circle at 50% 20%, rgba(99, 102, 241, 0.15), transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.1), transparent 50%);
       padding: 20px;
-      overflow-x: hidden;
+      overflow: hidden;
+      position: relative;
     }
 
-    /* Container hiệu ứng mờ kính (Glassmorphism) */
+    /* Canvas hiệu ứng Tuyết va chạm */
+    #snow-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Màn hình Click to Enter */
+    #enter-screen {
+      position: fixed;
+      inset: 0;
+      background: rgba(9, 10, 15, 0.95);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      z-index: 999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+
+    #enter-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .enter-text {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      color: #e4e4e7;
+      text-transform: uppercase;
+      animation: pulseText 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseText {
+      0%, 100% { opacity: 0.3; transform: scale(0.98); }
+      50% { opacity: 1; transform: scale(1.02); }
+    }
+
+    /* Card giao diện chính */
     .card {
+      position: relative;
+      z-index: 2;
       width: 100%;
       max-width: 420px;
-      background: rgba(18, 19, 26, 0.6);
+      background: rgba(18, 19, 26, 0.65);
       border: 1px solid rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-radius: 28px;
-      padding: 36px 28px;
+      overflow: hidden;
       text-align: center;
       box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6),
                   inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -48,12 +93,32 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Bố cục Avatar & Tích xanh */
+    /* Banner Ảnh Bìa Video MP4 (anhbia.mp4) & Gradient mờ chiều sâu */
+    .banner-container {
+      position: relative;
+      width: 100%;
+      height: 160px;
+    }
+
+    .banner {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .banner-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(18, 19, 26, 0) 0%, rgba(18, 19, 26, 0.8) 70%, rgba(18, 19, 26, 1) 100%);
+    }
+
+    /* Bố cục Avatar GIF thò 1/2 vào ảnh bìa */
     .avatar-wrapper {
       position: relative;
-      width: 104px;
-      height: 104px;
-      margin: 0 auto 20px;
+      width: 100px;
+      height: 100px;
+      margin: -50px auto 16px;
+      z-index: 3;
     }
 
     .avatar {
@@ -61,33 +126,47 @@
       height: 100%;
       border-radius: 50%;
       object-fit: cover;
-      border: 2px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      border: 3px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     }
 
-    .badge {
-      position: absolute;
-      bottom: 2px;
-      right: 2px;
-      background: #6366f1;
-      color: #fff;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      display: flex;
+    /* Tiêu đề & Tích xanh kế bên */
+    .card-body {
+      padding: 0 28px 36px;
+    }
+
+    .name-wrapper {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
-      border: 3px solid #090a0f;
-      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.5);
+      gap: 8px;
+      margin-bottom: 8px;
     }
 
     .name {
       font-size: 24px;
       font-weight: 700;
-      margin-bottom: 8px;
       letter-spacing: -0.5px;
       text-shadow: 0 2px 10px rgba(255, 255, 255, 0.2);
+    }
+
+    .badge-inline {
+      background: #6366f1;
+      color: #fff;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.8);
+      animation: badgePulse 2s infinite ease-in-out;
+    }
+
+    @keyframes badgePulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(99, 102, 241, 0.6); }
+      50% { transform: scale(1.15); box-shadow: 0 0 16px rgba(99, 102, 241, 0.9); }
     }
 
     .bio {
@@ -192,68 +271,173 @@
 </head>
 <body>
 
+  <!-- Canvas Tuyết -->
+  <canvas id="snow-canvas"></canvas>
+
+  <!-- Màn hình Click to Enter -->
+  <div id="enter-screen" onclick="enterSite()">
+    <div class="enter-text">[ Click to enter ]</div>
+  </div>
+
+  <!-- Card Giao diện -->
   <div class="card">
+    <!-- Video Ảnh Bìa MP4 (Đã tắt âm thanh) -->
+    <div class="banner-container">
+      <video class="banner" autoplay loop muted playsinline>
+        <source src="anhbia.mp4" type="video/mp4" />
+      </video>
+      <div class="banner-overlay"></div>
+    </div>
+
+    <!-- Avatar GIF (Giữ nguyên) -->
     <div class="avatar-wrapper">
       <img src="avatar.gif" alt="Avatar" class="avatar" />
-      <div class="badge"><i class="fa-solid fa-check"></i></div>
     </div>
 
-    <h1 class="name">DigitalXiao</h1>
-    <p class="bio">Developer & Modder • Web Creator & Android Customization</p>
+    <div class="card-body">
+      <!-- Tên kèm Tích xanh chuyển động bên cạnh -->
+      <div class="name-wrapper">
+        <h1 class="name">DigitalXiao</h1>
+        <div class="badge-inline" title="Verified"><i class="fa-solid fa-check"></i></div>
+      </div>
 
-    <div class="socials">
-      <a href="https://telegram.org" target="_blank" class="social-btn" title="Telegram">
-        <i class="fa-brands fa-telegram"></i>
-      </a>
-      <a href="https://github.com" target="_blank" class="social-btn" title="GitHub">
-        <i class="fa-brands fa-github"></i>
-      </a>
-      <a href="https://facebook.com" target="_blank" class="social-btn" title="Facebook">
-        <i class="fa-brands fa-facebook"></i>
-      </a>
-      <a href="https://discord.com" target="_blank" class="social-btn" title="Discord">
-        <i class="fa-brands fa-discord"></i>
-      </a>
-    </div>
+      <p class="bio">Developer & Modder • Web Creator & Android Customization</p>
 
-    <div class="links-list">
-      <a href="#" target="_blank" class="link-item">
-        <div class="link-info">
-          <i class="fa-solid fa-download link-icon"></i>
-          <span>Tải File Custom ROM / Mod</span>
-        </div>
-        <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
-      </a>
+      <!-- Icon Mạng Xã Hội -->
+      <div class="socials">
+        <a href="https://telegram.org" target="_blank" class="social-btn" title="Telegram">
+          <i class="fa-brands fa-telegram"></i>
+        </a>
+        <a href="https://github.com" target="_blank" class="social-btn" title="GitHub">
+          <i class="fa-brands fa-github"></i>
+        </a>
+        <a href="https://facebook.com" target="_blank" class="social-btn" title="Facebook">
+          <i class="fa-brands fa-facebook"></i>
+        </a>
+        <a href="https://discord.com" target="_blank" class="social-btn" title="Discord">
+          <i class="fa-brands fa-discord"></i>
+        </a>
+      </div>
 
-      <a href="#" target="_blank" class="link-item">
-        <div class="link-info">
-          <i class="fa-solid fa-code link-icon"></i>
-          <span>Project Web Interface</span>
-        </div>
-        <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
-      </a>
+      <!-- Danh Sách Link / File Share -->
+      <div class="links-list">
+        <a href="#" target="_blank" class="link-item">
+          <div class="link-info">
+            <i class="fa-solid fa-download link-icon"></i>
+            <span>Tải File Custom ROM / Mod</span>
+          </div>
+          <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+        </a>
 
-      <a href="#" target="_blank" class="link-item">
-        <div class="link-info">
-          <i class="fa-solid fa-layer-group link-icon"></i>
-          <span>Kênh Cập Nhật Telegram</span>
-        </div>
-        <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
-      </a>
+        <a href="#" target="_blank" class="link-item">
+          <div class="link-info">
+            <i class="fa-solid fa-code link-icon"></i>
+            <span>Project Web Interface</span>
+          </div>
+          <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+        </a>
 
-      <a href="#" target="_blank" class="link-item">
-        <div class="link-info">
-          <i class="fa-solid fa-globe link-icon"></i>
-          <span>Trang Chủ DigitalsMod</span>
-        </div>
-        <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
-      </a>
-    </div>
+        <a href="#" target="_blank" class="link-item">
+          <div class="link-info">
+            <i class="fa-solid fa-layer-group link-icon"></i>
+            <span>Kênh Cập Nhật Telegram</span>
+          </div>
+          <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+        </a>
 
-    <div class="footer">
-      © 2026 DigitalXiao. All rights reserved.
+        <a href="#" target="_blank" class="link-item">
+          <div class="link-info">
+            <i class="fa-solid fa-globe link-icon"></i>
+            <span>Trang Chủ DigitalsMod</span>
+          </div>
+          <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+        </a>
+      </div>
+
+      <div class="footer">
+        © 2026 DigitalXiao. All rights reserved.
+      </div>
     </div>
   </div>
 
+  <script>
+    // Hàm Click to Enter
+    function enterSite() {
+      document.getElementById('enter-screen').classList.add('hidden');
+    }
+
+    // Canvas Hiệu Ứng Tuyết Bật Tường (Physics Snow)
+    const canvas = document.getElementById('snow-canvas');
+    const ctx = canvas.getContext('2d');
+
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    const maxFlakes = 500;
+    const flakes = [];
+
+    class Flake {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.radius = Math.random() * 2 + 1;
+        this.vx = (Math.random() - 0.5) * 1.5;
+        this.vy = Math.random() * 1 + 0.5;
+        this.alpha = Math.random() * 0.7 + 0.3;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        if (this.x - this.radius <= 0) {
+          this.x = this.radius;
+          this.vx *= -1;
+        } else if (this.x + this.radius >= width) {
+          this.x = width - this.radius;
+          this.vx *= -1;
+        }
+
+        if (this.y - this.radius <= 0) {
+          this.y = this.radius;
+          this.vy *= -1;
+        } else if (this.y + this.radius >= height) {
+          this.y = height - this.radius;
+          this.vy *= -1;
+        }
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < maxFlakes; i++) {
+      flakes.push(new Flake());
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+      for (let i = 0; i < maxFlakes; i++) {
+        flakes[i].update();
+        flakes[i].draw();
+      }
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
 </body>
 </html>
