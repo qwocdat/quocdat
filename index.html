@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bio Page</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #0d0e12;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-image: 
+        radial-gradient(circle at 50% 30%, rgba(120, 119, 198, 0.15), transparent 60%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05), transparent 40%);
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(18, 19, 26, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 32px 24px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .avatar-wrapper {
+      position: relative;
+      width: 96px;
+      height: 96px;
+      margin: 0 auto 16px;
+    }
+
+    .avatar {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .badge {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      background: #6366f1;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      border: 2px solid #0d0e12;
+    }
+
+    .name {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+
+    .bio {
+      font-size: 14px;
+      color: #a1a1aa;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .socials {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .social-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #e4e4e7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-size: 18px;
+      transition: all 0.2s ease;
+    }
+
+    .social-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      transform: translateY(-2px);
+      color: #ffffff;
+    }
+
+    .links-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .link-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 15px;
+      transition: all 0.2s ease;
+    }
+
+    .link-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .link-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .link-icon {
+      font-size: 16px;
+      color: #a1a1aa;
+    }
+
+    .arrow-icon {
+      font-size: 12px;
+      color: #52525b;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="avatar-wrapper">
+      <img id="avatar" src="https://via.placeholder.com/150" alt="Avatar" class="avatar" />
+      <div class="badge"><i class="fa-solid fa-check"></i></div>
+    </div>
+    <h1 id="name" class="name">Đang tải...</h1>
+    <p id="bio" class="bio"></p>
+
+    <div id="socials" class="socials"></div>
+    <div id="links" class="links-list"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAUuV5euNNLHE2Cf6tXzUHV-ChKwNF593Y",
+      authDomain: "quocdat-396fe.firebaseapp.com",
+      databaseURL: "https://quocdat-396fe-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "quocdat-396fe",
+      storageBucket: "quocdat-396fe.firebasestorage.app",
+      messagingSenderId: "685476439350",
+      appId: "1:685476439350:web:949054ecba7f0a0c383f97"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const bioRef = ref(db, 'bioData');
+    onValue(bioRef, (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
+
+      document.getElementById('avatar').src = data.profile.avatar || 'https://via.placeholder.com/150';
+      document.getElementById('name').textContent = data.profile.name || 'Your Name';
+      document.getElementById('bio').textContent = data.profile.bio || '';
+
+      // Render Social Icons
+      const socialsContainer = document.getElementById('socials');
+      socialsContainer.innerHTML = '';
+      if (data.socials) {
+        Object.values(data.socials).forEach(item => {
+          socialsContainer.innerHTML += `
+            <a href="${item.url}" target="_blank" class="social-btn">
+              <i class="${item.icon}"></i>
+            </a>
+          `;
+        });
+      }
+
+      // Render Custom Links / Share Files
+      const linksContainer = document.getElementById('links');
+      linksContainer.innerHTML = '';
+      if (data.links) {
+        Object.values(data.links).forEach(item => {
+          linksContainer.innerHTML += `
+            <a href="${item.url}" target="_blank" class="link-item">
+              <div class="link-info">
+                <i class="${item.icon || 'fa-solid fa-link'} link-icon"></i>
+                <span>${item.title}</span>
+              </div>
+              <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+            </a>
+          `;
+        });
+      }
+    });
+  </script>
+</body>
+</html>
