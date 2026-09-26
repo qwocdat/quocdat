@@ -174,13 +174,13 @@
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyAUuV5euNNLHE2Cf6tXzUHV-ChKwNF593Y",
-      authDomain: "quocdat-396fe.firebaseapp.com",
-      databaseURL: "https://quocdat-396fe-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "quocdat-396fe",
-      storageBucket: "quocdat-396fe.firebasestorage.app",
-      messagingSenderId: "685476439350",
-      appId: "1:685476439350:web:949054ecba7f0a0c383f97"
+      apiKey: "AIzaSyDaHJ9fn6wWsRfoFYIVmWtJmmIpZ2R51nY",
+      authDomain: "xiao-385da.firebaseapp.com",
+      projectId: "xiao-385da",
+      storageBucket: "xiao-385da.firebasestorage.app",
+      messagingSenderId: "93563751266",
+      appId: "1:93563751266:web:067377367699ee4acdfa3b",
+      measurementId: "G-DLPFRYNNX3"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -191,9 +191,9 @@
       const data = snapshot.val();
       if (!data) return;
 
-      document.getElementById('avatar').src = data.profile.avatar || 'https://via.placeholder.com/150';
-      document.getElementById('name').textContent = data.profile.name || 'Your Name';
-      document.getElementById('bio').textContent = data.profile.bio || '';
+      document.getElementById('avatar').src = data.profile?.avatar || 'https://via.placeholder.com/150';
+      document.getElementById('name').textContent = data.profile?.name || 'Your Name';
+      document.getElementById('bio').textContent = data.profile?.bio || '';
 
       // Render Social Icons
       const socialsContainer = document.getElementById('socials');
