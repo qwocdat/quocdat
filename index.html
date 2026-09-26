@@ -25,15 +25,16 @@
       position: relative;
     }
 
-    /* Đốm mờ phía sau giúp nổi bật kính trong suốt */
-    .bg-glow {
-      position: absolute;
-      width: 350px;
-      height: 350px;
-      background: rgba(255, 255, 255, 0.06);
-      filter: blur(80px);
-      border-radius: 50%;
-      z-index: 1;
+    /* Video Background toàn trang web */
+    #bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: 0;
+      filter: brightness(0.4) contrast(1.1);
       pointer-events: none;
     }
 
@@ -219,7 +220,7 @@
       transform: translateY(-3px);
     }
 
-    /* --- KHUNG PHÁT NHẠC IOS 27 (TU TIÊN / GLASS) --- */
+    /* --- KHUNG PHÁT NHẠC IOS 27 (NỬA DƯỚI DÙNG VIDEO backgroundnhac.mp4) --- */
     .player-widget {
       position: relative;
       width: 100%;
@@ -229,17 +230,6 @@
       border: 1px solid rgba(255, 255, 255, 0.22);
       box-shadow: 0 0 15px rgba(255, 255, 255, 0.1),
                   0 15px 35px rgba(0, 0, 0, 0.6);
-
-      /* Nền 2 tầng: Nửa trên đen, nửa dưới kính lỏng */
-      background: linear-gradient(
-        180deg, 
-        rgba(10, 10, 12, 0.96) 0%, 
-        rgba(10, 10, 12, 0.92) 44%, 
-        rgba(255, 255, 255, 0.18) 44%, 
-        rgba(255, 255, 255, 0.08) 100%
-      );
-      backdrop-filter: blur(25px) saturate(180%);
-      -webkit-backdrop-filter: blur(25px) saturate(180%);
       text-align: left;
     }
 
@@ -255,15 +245,15 @@
       background: linear-gradient(
         180deg,
         rgba(10, 10, 12, 0) 0%,
-        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0.4) 50%,
         rgba(255, 255, 255, 0) 100%
       );
       filter: blur(3px);
       pointer-events: none;
-      z-index: 2;
+      z-index: 4;
     }
 
-    /* Nửa trên nhạc (Màu đen) */
+    /* Nửa trên nhạc (Màu đen nhám) */
     .player-top {
       position: relative;
       z-index: 3;
@@ -271,6 +261,7 @@
       display: flex;
       align-items: center;
       gap: 14px;
+      background: rgba(10, 10, 12, 0.95);
     }
 
     .album-art-wrapper {
@@ -288,11 +279,11 @@
       object-fit: cover;
       border: 2px solid rgba(255, 255, 255, 0.25);
       animation: rotateDisc 10s linear infinite;
-      animation-play-state: paused; /* Mặc định dừng xoay */
+      animation-play-state: paused;
     }
 
     .album-art.playing {
-      animation-play-state: running; /* Đang phát nhạc thì xoay */
+      animation-play-state: running;
     }
 
     @keyframes rotateDisc {
@@ -335,11 +326,31 @@
       text-overflow: ellipsis;
     }
 
-    /* Nửa dưới nhạc (Kính Lỏng) */
+    /* Nửa dưới nhạc (Lồng Video backgroundnhac.mp4) */
+    .player-bottom-wrapper {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .music-bg-video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+      filter: brightness(0.6) contrast(1.1);
+    }
+
     .player-bottom {
       position: relative;
       z-index: 3;
-      padding: 12px 20px 18px;
+      padding: 14px 20px 18px;
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
 
     .progress-bar-container {
@@ -350,7 +361,7 @@
     .progress-bar {
       width: 100%;
       height: 5px;
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.25);
       border-radius: 10px;
       position: relative;
       cursor: pointer;
@@ -476,17 +487,25 @@
 </head>
 <body>
 
-  <div class="bg-glow"></div>
+  <!-- Video Background toàn trang web -->
+  <video id="bg-video" autoplay loop muted playsinline>
+    <source src="background.mp4" type="video/mp4" />
+  </video>
 
+  <!-- Canvas Tuyết -->
   <canvas id="snow-canvas"></canvas>
 
+  <!-- Màn hình Click to Enter -->
   <div id="enter-screen" onclick="enterSite()">
     <div class="enter-text">[ Click to enter ]</div>
   </div>
 
+  <!-- Audio ẩn (Phát tiktok_audio.mp3, tự động loop) -->
   <audio id="audio-player" src="tiktok_audio.mp3" loop></audio>
 
+  <!-- Card Giao diện Main -->
   <div class="card">
+    <!-- Banner Ảnh Bìa MP4 -->
     <div class="banner-container">
       <video class="banner" autoplay loop muted playsinline>
         <source src="anhbia.mp4" type="video/mp4" />
@@ -494,11 +513,13 @@
       <div class="banner-overlay"></div>
     </div>
 
+    <!-- Avatar GIF -->
     <div class="avatar-wrapper">
       <img src="avatar.gif" alt="Avatar" class="avatar" />
     </div>
 
     <div class="card-body">
+      <!-- Tên & Tích xanh -->
       <div class="name-wrapper">
         <h1 class="name">DigitalXiao</h1>
         <div class="badge-inline" title="Verified"><i class="fa-solid fa-check"></i></div>
@@ -506,6 +527,7 @@
 
       <p class="bio">Developer & Modder • Web Creator & Android Customization</p>
 
+      <!-- Icon Mạng Xã Hội -->
       <div class="socials">
         <a href="https://telegram.org" target="_blank" class="social-btn" title="Telegram">
           <i class="fa-brands fa-telegram"></i>
@@ -521,7 +543,9 @@
         </a>
       </div>
 
+      <!-- KHUNG PHÁT NHẠC IOS 27 -->
       <div class="player-widget">
+        <!-- Nửa trên (Đen nhám) -->
         <div class="player-top">
           <div class="album-art-wrapper">
             <img id="disc-art" src="avatar.gif" alt="Cover" class="album-art" />
@@ -533,27 +557,34 @@
           </div>
         </div>
 
-        <div class="player-bottom">
-          <div class="progress-bar-container" onclick="seekAudio(event)">
-            <div class="progress-bar">
-              <div id="progress-fill" class="progress-fill"></div>
+        <!-- Nửa dưới (Lồng Video backgroundnhac.mp4) -->
+        <div class="player-bottom-wrapper">
+          <video class="music-bg-video" autoplay loop muted playsinline>
+            <source src="backgroundnhac.mp4" type="video/mp4" />
+          </video>
+          <div class="player-bottom">
+            <div class="progress-bar-container" onclick="seekAudio(event)">
+              <div class="progress-bar">
+                <div id="progress-fill" class="progress-fill"></div>
+              </div>
+              <div class="time-info">
+                <span id="current-time">00:00</span>
+                <span id="duration-time">00:00</span>
+              </div>
             </div>
-            <div class="time-info">
-              <span id="current-time">00:00</span>
-              <span id="duration-time">00:00</span>
-            </div>
-          </div>
 
-          <div class="controls">
-            <button class="btn-music" onclick="toggleMute()"><i id="mute-icon" class="fa-solid fa-volume-high"></i></button>
-            <button class="btn-music" onclick="rewindAudio()"><i class="fa-solid fa-backward-step"></i></button>
-            <button class="btn-music btn-play-main" onclick="togglePlay()"><i id="play-icon" class="fa-solid fa-play"></i></button>
-            <button class="btn-music" onclick="forwardAudio()"><i class="fa-solid fa-forward-step"></i></button>
-            <button class="btn-music" onclick="restartAudio()"><i class="fa-solid fa-rotate-right"></i></button>
+            <div class="controls">
+              <button class="btn-music" onclick="toggleMute()"><i id="mute-icon" class="fa-solid fa-volume-high"></i></button>
+              <button class="btn-music" onclick="rewindAudio()"><i class="fa-solid fa-backward-step"></i></button>
+              <button class="btn-music btn-play-main" onclick="togglePlay()"><i id="play-icon" class="fa-solid fa-play"></i></button>
+              <button class="btn-music" onclick="forwardAudio()"><i class="fa-solid fa-forward-step"></i></button>
+              <button class="btn-music" onclick="restartAudio()"><i class="fa-solid fa-rotate-right"></i></button>
+            </div>
           </div>
         </div>
       </div>
 
+      <!-- Danh Sách Link / File Share -->
       <div class="links-list">
         <a href="#" target="_blank" class="link-item">
           <div class="link-info">
