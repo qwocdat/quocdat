@@ -149,38 +149,6 @@
       background: linear-gradient(to bottom, rgba(18, 19, 26, 0) 0%, rgba(18, 19, 26, 0.8) 70%, rgba(18, 19, 26, 1) 100%);
     }
 
-    /* CÁC VẾT NỨT PHÁT SÁNG & HÀN TỤ */
-    .crack-overlay {
-      position: absolute;
-      bottom: -10px;
-      width: 90px;
-      height: 110px;
-      z-index: 4;
-      pointer-events: none;
-      opacity: 0;
-      animation: crackGlowPulse 6s infinite ease-in-out;
-    }
-
-    .crack-left {
-      left: 10px;
-      background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.9) 0%, rgba(224, 231, 255, 0.4) 40%, transparent 80%);
-      clip-path: polygon(10% 0%, 25% 15%, 15% 35%, 40% 55%, 20% 75%, 45% 100%, 35% 100%, 10% 70%, 28% 50%, 5% 30%, 18% 12%, 0% 0%);
-    }
-
-    .crack-right {
-      right: 10px;
-      background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.9) 0%, rgba(224, 231, 255, 0.4) 40%, transparent 80%);
-      clip-path: polygon(90% 0%, 75% 18%, 85% 38%, 60% 58%, 80% 78%, 55% 100%, 65% 100%, 90% 72%, 72% 52%, 95% 32%, 82% 14%, 100% 0%);
-    }
-
-    @keyframes crackGlowPulse {
-      0% { opacity: 0; transform: scale(0.6) translateY(-10px); filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0)); }
-      35% { opacity: 0.7; transform: scale(0.95) translateY(0); filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8)); }
-      50% { opacity: 1; transform: scale(1.1) translateY(3px); filter: drop-shadow(0 0 22px rgba(255, 255, 255, 1)) drop-shadow(0 0 35px rgba(165, 180, 252, 0.9)); }
-      70% { opacity: 0.4; transform: scale(0.85) translateY(1px); filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5)); }
-      100% { opacity: 0; transform: scale(0.6) translateY(-10px); filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0)); }
-    }
-
     /* Avatar GIF thò 1/2 vào ảnh bìa */
     .avatar-wrapper {
       position: relative;
@@ -661,23 +629,18 @@
 </head>
 <body>
 
-  <!-- Video Background toàn trang web -->
   <video id="bg-video" autoplay loop muted playsinline>
     <source src="background.mp4" type="video/mp4" />
   </video>
 
-  <!-- Canvas Tuyết + Motion Blur -->
   <canvas id="snow-canvas"></canvas>
 
-  <!-- Màn hình Click to Enter -->
   <div id="enter-screen" onclick="enterSite()">
     <div class="enter-text">[ Click to enter ]</div>
   </div>
 
-  <!-- Audio ẩn -->
   <audio id="audio-player" src="tiktok_audio.mp3" loop></audio>
 
-  <!-- POPUP UY TÍN TÍCH XANH -->
   <div id="verify-modal" class="modal-overlay" onclick="closeModal(event)">
     <div class="modal-card">
       <div class="modal-icon">
@@ -685,34 +648,26 @@
       </div>
       <h3 class="modal-title">Huy Hiệu Xác Nhận Uy Tín</h3>
       <p class="modal-desc">
-        Huy hiệu tích xanh khẳng định chính chủ **DigitalXiao**. Đã được xác minh danh tính và đảm bảo độ uy tín 100% trong tất cả các dịch vụ, dự án và giao dịch!
+        Huy hiệu tích xanh khẳng định chính chủ DigitalXiao. Đã được xác minh danh tính và đảm bảo độ uy tín 100% trong tất cả các dịch vụ, dự án và giao dịch!
       </p>
       <button class="modal-close-btn" onclick="toggleModal(false)">Đã Hiểu</button>
     </div>
   </div>
 
-  <!-- Card Giao diện Main -->
   <div class="card">
 
-    <!-- Banner Ảnh Bìa MP4 -->
     <div class="banner-container">
       <video class="banner" autoplay loop muted playsinline>
         <source src="anhbia.mp4" type="video/mp4" />
       </video>
       <div class="banner-overlay"></div>
-
-      <!-- Vết nứt tự nhiên phát sáng & tự hàn tụ -->
-      <div class="crack-overlay crack-left"></div>
-      <div class="crack-overlay crack-right"></div>
     </div>
 
-    <!-- Avatar GIF -->
     <div class="avatar-wrapper">
       <img src="avatar.gif" alt="Avatar" class="avatar" />
     </div>
 
     <div class="card-body">
-      <!-- Tên nhoè nhấp nháy & Tích xanh có Popup -->
       <div class="name-wrapper">
         <h1 class="name">DigitalXiao</h1>
         <div class="badge-inline" title="Xác minh Uy Tín" onclick="toggleModal(true)">
@@ -722,7 +677,6 @@
 
       <p class="bio">xin chào!</p>
 
-      <!-- Icon Mạng Xã Hội -->
       <div class="socials">
         <a href="https://t.me/+n5YkP6ih2RgzNGQ1" target="_blank" class="social-btn" title="Telegram">
           <i class="fa-brands fa-telegram"></i>
@@ -732,7 +686,6 @@
         </a>
       </div>
 
-      <!-- KHUNG PHÁT NHẠC IOS 27 -->
       <div class="player-widget">
         <div class="player-top">
           <div class="album-art-wrapper">
@@ -771,9 +724,8 @@
         </div>
       </div>
 
-      <!-- Danh Sách Link Share -->
       <div class="links-list">
-        <a href="#" target="_blank" class="link-item">
+        <a href="https://quocdat.online/" target="_blank" class="link-item">
           <div class="link-info">
             <i class="fa-solid fa-download link-icon"></i>
             <span>Tải App Tiện Ích Trên Video</span>
@@ -781,7 +733,7 @@
           <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
         </a>
 
-        <a href="#" target="_blank" class="link-item">
+        <a href="https://xiao.digitalsmod.site/policy.html" target="_blank" class="link-item">
           <div class="link-info">
             <i class="fa-solid fa-code link-icon"></i>
             <span>Chính Sách & Điều Khoản</span>
@@ -789,7 +741,7 @@
           <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
         </a>
 
-        <a href="#" target="_blank" class="link-item">
+        <a href="https://t.me/+n5YkP6ih2RgzNGQ1" target="_blank" class="link-item">
           <div class="link-info">
             <i class="fa-solid fa-layer-group link-icon"></i>
             <span>Kênh Cập Nhật Telegram</span>
@@ -797,7 +749,7 @@
           <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
         </a>
 
-        <a href="#" target="_blank" class="link-item">
+        <a href="https://digitalsmod.site" target="_blank" class="link-item">
           <div class="link-info">
             <i class="fa-solid fa-globe link-icon"></i>
             <span>Trang Chủ DigitalsMod</span>
