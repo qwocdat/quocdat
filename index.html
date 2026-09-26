@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bio Link - DigitalXiao</title>
+  <title>DigitalXiao</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
   <style>
     * {
@@ -220,7 +220,7 @@
       transform: translateY(-3px);
     }
 
-    /* --- KHUNG PHÁT NHẠC IOS 27 (NỬA DƯỚI DÙNG VIDEO backgroundnhac.mp4) --- */
+    /* --- KHUNG PHÁT NHẠC IOS 27 --- */
     .player-widget {
       position: relative;
       width: 100%;
@@ -231,26 +231,6 @@
       box-shadow: 0 0 15px rgba(255, 255, 255, 0.1),
                   0 15px 35px rgba(0, 0, 0, 0.6);
       text-align: left;
-    }
-
-    /* Đường nối nằm ngang 100% ở giữa */
-    .player-widget::before {
-      content: '';
-      position: absolute;
-      top: 44%;
-      left: 0;
-      width: 100%;
-      height: 10px;
-      transform: translateY(-50%);
-      background: linear-gradient(
-        180deg,
-        rgba(10, 10, 12, 0) 0%,
-        rgba(255, 255, 255, 0.4) 50%,
-        rgba(255, 255, 255, 0) 100%
-      );
-      filter: blur(3px);
-      pointer-events: none;
-      z-index: 4;
     }
 
     /* Nửa trên nhạc (Màu đen nhám) */
@@ -326,11 +306,24 @@
       text-overflow: ellipsis;
     }
 
-    /* Nửa dưới nhạc (Lồng Video backgroundnhac.mp4) */
+    /* Nửa dưới nhạc (Video Hiển Thị Rõ Nét 100% & Làm mờ ở viền chia đôi) */
     .player-bottom-wrapper {
       position: relative;
       width: 100%;
       overflow: hidden;
+    }
+
+    /* Hiệu ứng mờ dốc (Gradient Blur) ngay viền chia đôi giữa 2 phần */
+    .player-bottom-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 18px;
+      background: linear-gradient(to bottom, rgba(10, 10, 12, 0.95) 0%, rgba(10, 10, 12, 0) 100%);
+      z-index: 2;
+      pointer-events: none;
     }
 
     .music-bg-video {
@@ -341,16 +334,14 @@
       height: 100%;
       object-fit: cover;
       z-index: 1;
-      filter: brightness(0.6) contrast(1.1);
+      filter: brightness(0.85) contrast(1.05); /* Giữ video hiển thị rõ nét */
     }
 
     .player-bottom {
       position: relative;
       z-index: 3;
       padding: 14px 20px 18px;
-      background: rgba(0, 0, 0, 0.25);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(0, 0, 0, 0.15); /* Độ trong suốt tối thiểu để bọc chữ */
     }
 
     .progress-bar-container {
@@ -361,7 +352,7 @@
     .progress-bar {
       width: 100%;
       height: 5px;
-      background: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.3);
       border-radius: 10px;
       position: relative;
       cursor: pointer;
@@ -373,7 +364,7 @@
       height: 100%;
       background: #ffffff;
       border-radius: 10px;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
       transition: width 0.1s linear;
     }
 
@@ -381,9 +372,10 @@
       display: flex;
       justify-content: space-between;
       font-size: 11px;
-      color: #e4e4e7;
+      color: #ffffff;
       margin-top: 5px;
-      font-weight: 500;
+      font-weight: 600;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
     }
 
     .controls {
@@ -406,10 +398,11 @@
       height: 36px;
       border-radius: 50%;
       transition: background 0.2s;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
     }
 
     .btn-music:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.25);
     }
 
     .btn-play-main {
@@ -418,7 +411,8 @@
       background: #ffffff;
       color: #000000;
       font-size: 16px;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+      filter: none;
     }
 
     .btn-play-main:hover {
@@ -525,7 +519,7 @@
         <div class="badge-inline" title="Verified"><i class="fa-solid fa-check"></i></div>
       </div>
 
-      <p class="bio">Developer & Modder • Web Creator & Android Customization</p>
+      <p class="bio">xin chào!</p>
 
       <!-- Icon Mạng Xã Hội -->
       <div class="socials">
@@ -552,12 +546,12 @@
             <div class="rune-tag">仙</div>
           </div>
           <div class="song-info">
-            <div class="song-title">TikTok Audio Stream</div>
-            <div class="artist-name">DigitalXiao • Background Music</div>
+            <div class="song-title">MusicPlayer</div>
+            <div class="artist-name">DigitalXiao • DigitalsMod</div>
           </div>
         </div>
 
-        <!-- Nửa dưới (Lồng Video backgroundnhac.mp4) -->
+        <!-- Nửa dưới (Lồng Video backgroundnhac.mp4 RÕ NÉT & MỜ Ở VIỀN TRÊN) -->
         <div class="player-bottom-wrapper">
           <video class="music-bg-video" autoplay loop muted playsinline>
             <source src="backgroundnhac.mp4" type="video/mp4" />
@@ -584,7 +578,7 @@
         </div>
       </div>
 
-      <!-- Danh Sách Link / File Share -->
+      <!-- Danh Sách Link Share -->
       <div class="links-list">
         <a href="#" target="_blank" class="link-item">
           <div class="link-info">
