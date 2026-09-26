@@ -11,6 +11,11 @@
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
@@ -23,6 +28,25 @@
       padding: 20px;
       overflow-x: hidden;
       position: relative;
+    }
+
+    /* Hiệu ứng Click Ripple */
+    .click-ripple {
+      position: fixed;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%) scale(0);
+      animation: rippleAnim 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+    }
+
+    @keyframes rippleAnim {
+      to {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0;
+      }
     }
 
     /* Video Background toàn trang web */
@@ -38,7 +62,7 @@
       pointer-events: none;
     }
 
-    /* Canvas Hiệu ứng Tuyết Bật Tường */
+    /* Canvas Tuyết Bật Tường + Motion Blur */
     #snow-canvas {
       position: fixed;
       top: 0;
@@ -106,6 +130,35 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* --- HOẠ TIẾT RÊU PHONG VÀ LÁ CÂY TU TIÊN (MOSS & LEAVES) --- */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(circle at 5% 120px, rgba(34, 197, 94, 0.35) 0%, transparent 45px),
+        radial-gradient(circle at 95% 140px, rgba(16, 185, 129, 0.3) 0%, transparent 50px),
+        radial-gradient(circle at 10% 260px, rgba(20, 83, 45, 0.25) 0%, transparent 40px);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* Họa tiết lá cây tu tiên viền góc */
+    .moss-leaf-left, .moss-leaf-right {
+      position: absolute;
+      top: 130px;
+      font-size: 18px;
+      color: rgba(74, 222, 128, 0.6);
+      z-index: 6;
+      pointer-events: none;
+      filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.5));
+    }
+    .moss-leaf-left { left: 8px; transform: rotate(-25deg); }
+    .moss-leaf-right { right: 8px; transform: rotate(35deg); }
+
     /* Banner Ảnh Bìa MP4 */
     .banner-container {
       position: relative;
@@ -123,6 +176,59 @@
       position: absolute;
       inset: 0;
       background: linear-gradient(to bottom, rgba(18, 19, 26, 0) 0%, rgba(18, 19, 26, 0.8) 70%, rgba(18, 19, 26, 1) 100%);
+    }
+
+    /* --- CÁC VẾT NỨT TỰ NHIÊN PHÁT SÁNG & TỰ HÀN TỤ (CRACKS) --- */
+    .crack-overlay {
+      position: absolute;
+      bottom: -10px;
+      width: 90px;
+      height: 110px;
+      z-index: 4;
+      pointer-events: none;
+      opacity: 0;
+      animation: crackGlowPulse 6s infinite ease-in-out;
+    }
+
+    .crack-left {
+      left: 10px;
+      background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.9) 0%, rgba(224, 231, 255, 0.4) 40%, transparent 80%);
+      clip-path: polygon(10% 0%, 25% 15%, 15% 35%, 40% 55%, 20% 75%, 45% 100%, 35% 100%, 10% 70%, 28% 50%, 5% 30%, 18% 12%, 0% 0%);
+    }
+
+    .crack-right {
+      right: 10px;
+      background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.9) 0%, rgba(224, 231, 255, 0.4) 40%, transparent 80%);
+      clip-path: polygon(90% 0%, 75% 18%, 85% 38%, 60% 58%, 80% 78%, 55% 100%, 65% 100%, 90% 72%, 72% 52%, 95% 32%, 82% 14%, 100% 0%);
+    }
+
+    /* Chu kỳ nứt ra -> Phát sáng chói -> Liền lại hoàn toàn */
+    @keyframes crackGlowPulse {
+      0% {
+        opacity: 0;
+        transform: scale(0.6) translateY(-10px);
+        filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0));
+      }
+      35% {
+        opacity: 0.7;
+        transform: scale(0.95) translateY(0);
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.1) translateY(3px);
+        filter: drop-shadow(0 0 22px rgba(255, 255, 255, 1)) drop-shadow(0 0 35px rgba(165, 180, 252, 0.9));
+      }
+      70% {
+        opacity: 0.4;
+        transform: scale(0.85) translateY(1px);
+        filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5));
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.6) translateY(-10px);
+        filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0));
+      }
     }
 
     /* Avatar GIF thò 1/2 vào ảnh bìa */
@@ -306,14 +412,13 @@
       text-overflow: ellipsis;
     }
 
-    /* Nửa dưới nhạc (Video Hiển Thị Rõ Nét 100% & Làm mờ ở viền chia đôi) */
+    /* Nửa dưới nhạc */
     .player-bottom-wrapper {
       position: relative;
       width: 100%;
       overflow: hidden;
     }
 
-    /* Hiệu ứng mờ dốc (Gradient Blur) ngay viền chia đôi giữa 2 phần */
     .player-bottom-wrapper::before {
       content: '';
       position: absolute;
@@ -334,14 +439,14 @@
       height: 100%;
       object-fit: cover;
       z-index: 1;
-      filter: brightness(0.85) contrast(1.05); /* Giữ video hiển thị rõ nét */
+      filter: brightness(0.85) contrast(1.05);
     }
 
     .player-bottom {
       position: relative;
       z-index: 3;
       padding: 14px 20px 18px;
-      background: rgba(0, 0, 0, 0.15); /* Độ trong suốt tối thiểu để bọc chữ */
+      background: rgba(0, 0, 0, 0.15);
     }
 
     .progress-bar-container {
@@ -486,7 +591,7 @@
     <source src="background.mp4" type="video/mp4" />
   </video>
 
-  <!-- Canvas Tuyết -->
+  <!-- Canvas Tuyết + Motion Blur -->
   <canvas id="snow-canvas"></canvas>
 
   <!-- Màn hình Click to Enter -->
@@ -494,17 +599,25 @@
     <div class="enter-text">[ Click to enter ]</div>
   </div>
 
-  <!-- Audio ẩn (Phát tiktok_audio.mp3, tự động loop) -->
+  <!-- Audio ẩn -->
   <audio id="audio-player" src="tiktok_audio.mp3" loop></audio>
 
   <!-- Card Giao diện Main -->
   <div class="card">
+    <!-- Lá cây rêu phong cổ điển -->
+    <i class="fa-solid fa-leaf moss-leaf-left"></i>
+    <i class="fa-solid fa-leaf moss-leaf-right"></i>
+
     <!-- Banner Ảnh Bìa MP4 -->
     <div class="banner-container">
       <video class="banner" autoplay loop muted playsinline>
         <source src="anhbia.mp4" type="video/mp4" />
       </video>
       <div class="banner-overlay"></div>
+
+      <!-- Vết nứt tự nhiên phát sáng & tự hàn tụ -->
+      <div class="crack-overlay crack-left"></div>
+      <div class="crack-overlay crack-right"></div>
     </div>
 
     <!-- Avatar GIF -->
@@ -539,7 +652,6 @@
 
       <!-- KHUNG PHÁT NHẠC IOS 27 -->
       <div class="player-widget">
-        <!-- Nửa trên (Đen nhám) -->
         <div class="player-top">
           <div class="album-art-wrapper">
             <img id="disc-art" src="avatar.gif" alt="Cover" class="album-art" />
@@ -551,7 +663,6 @@
           </div>
         </div>
 
-        <!-- Nửa dưới (Lồng Video backgroundnhac.mp4 RÕ NÉT & MỜ Ở VIỀN TRÊN) -->
         <div class="player-bottom-wrapper">
           <video class="music-bg-video" autoplay loop muted playsinline>
             <source src="backgroundnhac.mp4" type="video/mp4" />
@@ -620,6 +731,22 @@
   </div>
 
   <script>
+    // Hiệu ứng Click / Tap Ripple
+    window.addEventListener('pointerdown', (e) => {
+      const ripple = document.createElement('div');
+      ripple.className = 'click-ripple';
+      const size = 60;
+      ripple.style.width = `${size}px`;
+      ripple.style.height = `${size}px`;
+      ripple.style.left = `${e.clientX}px`;
+      ripple.style.top = `${e.clientY}px`;
+      document.body.appendChild(ripple);
+
+      ripple.addEventListener('animationend', () => {
+        ripple.remove();
+      });
+    });
+
     const audio = document.getElementById('audio-player');
     const playIcon = document.getElementById('play-icon');
     const discArt = document.getElementById('disc-art');
@@ -692,7 +819,7 @@
       document.getElementById('mute-icon').className = audio.muted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
     }
 
-    // Canvas Tuyết va chạm
+    // Canvas Tuyết va chạm + Motion Blur Effect
     const canvas = document.getElementById('snow-canvas');
     const ctx = canvas.getContext('2d');
     let width = canvas.width = window.innerWidth;
@@ -723,6 +850,21 @@
         if (this.y - this.radius <= 0 || this.y + this.radius >= height) this.vy *= -1;
       }
       draw() {
+        ctx.beginPath();
+        const tailX = this.x - this.vx * 2.5;
+        const tailY = this.y - this.vy * 2.5;
+        
+        const gradient = ctx.createLinearGradient(tailX, tailY, this.x, this.y);
+        gradient.addColorStop(0, `rgba(255, 255, 255, 0)`);
+        gradient.addColorStop(1, `rgba(255, 255, 255, ${this.alpha})`);
+
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = this.radius * 1.8;
+        ctx.lineCap = 'round';
+        ctx.moveTo(tailX, tailY);
+        ctx.lineTo(this.x, this.y);
+        ctx.stroke();
+
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
