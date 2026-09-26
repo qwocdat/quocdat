@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard - Bio</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: #090a0f;
+      color: #e4e4e7;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .admin-card {
+      width: 100%;
+      max-width: 600px;
+      background: #12131a;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: #fff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: #a1a1aa;
+      margin-bottom: 6px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px 14px;
+      background: #1a1b26;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #6366f1;
+    }
+
+    button {
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #4f46e5;
+    }
+
+    .section {
+      margin-bottom: 32px;
+    }
+
+    .list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #1a1b26;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="admin-card">
+    <!-- Profile Form -->
+    <div class="section">
+      <h2>1. Thông tin cá nhân</h2>
+      <div class="form-group">
+        <label>Tên hiển thị</label>
+        <input type="text" id="prof-name" />
+      </div>
+      <div class="form-group">
+        <label>URL Ảnh đại diện</label>
+        <input type="text" id="prof-avatar" />
+      </div>
+      <div class="form-group">
+        <label>Tiểu sử (Bio)</label>
+        <textarea id="prof-bio" rows="3"></textarea>
+      </div>
+      <button id="save-profile">Lưu Profile</button>
+    </div>
+
+    <!-- Social Links Form -->
+    <div class="section">
+      <h2>2. Thêm icon mạng xã hội</h2>
+      <div class="form-group">
+        <label>Class Icon FontAwesome (Ví dụ: `fa-brands fa-github` hoặc `fa-brands fa-discord`)</label>
+        <input type="text" id="soc-icon" placeholder="fa-brands fa-github" />
+      </div>
+      <div class="form-group">
+        <label>Đường dẫn (URL)</label>
+        <input type="text" id="soc-url" placeholder="https://..." />
+      </div>
+      <button id="add-social">Thêm Social Icon</button>
+
+      <div style="margin-top: 16px;" id="socials-list"></div>
+    </div>
+
+    <!-- Custom Links Form -->
+    <div class="section">
+      <h2>3. Thêm Link / File Share</h2>
+      <div class="form-group">
+        <label>Tiêu đề Link / File</label>
+        <input type="text" id="link-title" placeholder="Tải File Config / Project..." />
+      </div>
+      <div class="form-group">
+        <label>Đường dẫn File / Link</label>
+        <input type="text" id="link-url" placeholder="https://..." />
+      </div>
+      <div class="form-group">
+        <label>Icon FontAwesome (Tùy chọn, VD: `fa-solid fa-download`)</label>
+        <input type="text" id="link-icon" placeholder="fa-solid fa-file" />
+      </div>
+      <button id="add-link">Thêm Link</button>
+
+      <div style="margin-top: 16px;" id="links-list"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, set, push, remove, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAUuV5euNNLHE2Cf6tXzUHV-ChKwNF593Y",
+      authDomain: "quocdat-396fe.firebaseapp.com",
+      databaseURL: "https://quocdat-396fe-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "quocdat-396fe",
+      storageBucket: "quocdat-396fe.firebasestorage.app",
+      messagingSenderId: "685476439350",
+      appId: "1:685476439350:web:949054ecba7f0a0c383f97"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Read Data
+    onValue(ref(db, 'bioData'), (snapshot) => {
+      const data = snapshot.val() || {};
+      
+      if (data.profile) {
+        document.getElementById('prof-name').value = data.profile.name || '';
+        document.getElementById('prof-avatar').value = data.profile.avatar || '';
+        document.getElementById('prof-bio').value = data.profile.bio || '';
+      }
+
+      // Render Social List in Admin
+      const socList = document.getElementById('socials-list');
+      socList.innerHTML = '';
+      if (data.socials) {
+        Object.entries(data.socials).forEach(([key, item]) => {
+          socList.innerHTML += `
+            <div class="list-item">
+              <span><i class="${item.icon}"></i> ${item.url}</span>
+              <button class="btn-danger" onclick="deleteItem('socials/${key}')">Xóa</button>
+            </div>
+          `;
+        });
+      }
+
+      // Render Links List in Admin
+      const linkList = document.getElementById('links-list');
+      linkList.innerHTML = '';
+      if (data.links) {
+        Object.entries(data.links).forEach(([key, item]) => {
+          linkList.innerHTML += `
+            <div class="list-item">
+              <span><i class="${item.icon}"></i> ${item.title}</span>
+              <button class="btn-danger" onclick="deleteItem('links/${key}')">Xóa</button>
+            </div>
+          `;
+        });
+      }
+    });
+
+    // Save Profile
+    document.getElementById('save-profile').addEventListener('click', () => {
+      set(ref(db, 'bioData/profile'), {
+        name: document.getElementById('prof-name').value,
+        avatar: document.getElementById('prof-avatar').value,
+        bio: document.getElementById('prof-bio').value
+      }).then(() => alert('Đã lưu thông tin Profile!'));
+    });
+
+    // Add Social
+    document.getElementById('add-social').addEventListener('click', () => {
+      const icon = document.getElementById('soc-icon').value;
+      const url = document.getElementById('soc-url').value;
+      if (!icon || !url) return alert('Vui lòng nhập đủ thông tin');
+
+      push(ref(db, 'bioData/socials'), { icon, url }).then(() => {
+        document.getElementById('soc-icon').value = '';
+        document.getElementById('soc-url').value = '';
+      });
+    });
+
+    // Add Link / File Share
+    document.getElementById('add-link').addEventListener('click', () => {
+      const title = document.getElementById('link-title').value;
+      const url = document.getElementById('link-url').value;
+      const icon = document.getElementById('link-icon').value || 'fa-solid fa-link';
+      if (!title || !url) return alert('Vui lòng nhập đủ thông tin');
+
+      push(ref(db, 'bioData/links'), { title, url, icon }).then(() => {
+        document.getElementById('link-title').value = '';
+        document.getElementById('link-url').value = '';
+        document.getElementById('link-icon').value = '';
+      });
+    });
+
+    // Global Delete Handler
+    window.deleteItem = (path) => {
+      if (confirm('Bạn có chắc muốn xóa mục này?')) {
+        remove(ref(db, `bioData/${path}`));
+      }
+    };
+  </script>
+</body>
+</html>
