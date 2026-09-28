@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Linkora Admin</title>
+<title>Linkora Ad</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -140,9 +140,10 @@ table tbody tr:hover{background:var(--bg-soft)}
 <div id="modal-root"></div>
 
 <script type="module">
+/* ============================================================
+   FIREBASE — CHỈ DÙNG FIRESTORE
+   ============================================================ */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut }
-  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection,
   query, where, limit, getDocs, serverTimestamp
@@ -157,21 +158,68 @@ const firebaseConfig = {
   appId: "1:685476439350:web:949054ecba7f0a0c383f97"
 };
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+const db  = getFirestore(app);
 
 /* ============================================================
-   HARDCODED SUPERADMIN
-   ------------------------------------------------------------
-   Đăng nhập: username "digitalsmod" hoặc email nội bộ
-   Mật khẩu: "ame1610@"
-   Lần đầu đăng nhập sẽ tự tạo tài khoản Firebase Auth.
+   SUPABASE STORAGE  (bucket: file)
+   ============================================================ */
+const SUPABASE_URL  = 'https://ahyvakkgziwdmweyzyoe.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoeXZha2tneml3ZG13ZXl6eW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2MDI1NTEsImV4cCI6MjEwNjE3ODU1MX0.KYRSNIx1hp_9zUq0a_Noo31b-BwbVVxLewU_3qdjhWY';
+const SUPABASE_BUCKET = 'file';
+
+async function supaUpload(bucket, file, opts={}){
+  const maxMB = opts.maxMB || 5;
+  if(file.size > maxMB*1024*1024) throw new Error(`File vượt ${maxMB}MB`);
+  const allowed = opts.types || ['image/jpeg','image/png','image/webp','image/gif'];
+  if(!allowed.includes(file.type)) throw new Error('Chỉ nhận JPG/PNG/WEBP/GIF');
+
+  const ext = (file.name.split('.').pop()||'jpg').toLowerCase();
+  const folder = opts.folder || 'misc';
+  const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2,10)}.${ext}`;
+
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${bucket}/${path}`,{
+    method:'POST',
+    headers:{
+      'Authorization': `Bearer ${SUPABASE_ANON}`,
+      'apikey': SUPABASE_ANON,
+      'Content-Type': file.type,
+      'x-upsert': 'true',
+    },
+    body:file,
+  });
+  if(!res.ok){
+    const t = await res.text();
+    throw new Error('Upload lỗi: ' + t);
+  }
+  return { path, url:`${SUPABASE_URL}/storage/v1/object/public/${bucket}/${path}` };
+}
+
+function supaDelete(bucket, path){
+  return fetch(`${SUPABASE_URL}/storage/v1/object/${bucket}/${path}`,{
+    method:'DELETE',
+    headers:{ 'Authorization': `Bearer ${SUPABASE_ANON}`, 'apikey': SUPABASE_ANON },
+  }).catch(()=>{});
+}
+
+function supaPathFromUrl(bucket, url){
+  if(!url) return '';
+  const marker = `/object/public/${bucket}/`;
+  const i = url.indexOf(marker);
+  if(i === -1) return '';
+  return url.slice(i + marker.length);
+}
+
+/* ============================================================
+   HARDCODED ADMIN — XÁC THỰC CLIENT-SIDE
+   Username: digitalsmod  |  Password: ame1610@
    ============================================================ */
 const ADMIN_USERNAME = 'digitalsmod';
 const ADMIN_PASSWORD = 'ame1610@';
-const ADMIN_EMAIL    = 'digitalsmod@linkora.admin';
+const ADMIN_ID       = 'digitalsmod';
+const SESSION_KEY    = 'linkora_admin_session';
+const SESSION_TTL    = 1000 * 60 * 60 * 12; // 12h
 
-const S = { user:null, profile:null, route:'overview', ready:false, error:null };
+const S = { authed:false, route:'overview', ready:false };
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
@@ -183,6 +231,22 @@ function timeAgo(ts){ const d=toDate(ts); if(!d) return '—'; const s=(Date.now
   if(s<60) return 'vừa xong'; if(s<3600) return Math.floor(s/60)+'p';
   if(s<86400) return Math.floor(s/3600)+'h'; if(s<2592000) return Math.floor(s/86400)+'d';
   return d.toLocaleDateString('vi-VN'); }
+
+/* ------------- Session ------------- */
+function saveSession(){
+  try{ localStorage.setItem(SESSION_KEY, JSON.stringify({ user: ADMIN_USERNAME, ts: Date.now() })); }catch{}
+}
+function loadSession(){
+  try{
+    const raw = localStorage.getItem(SESSION_KEY);
+    if(!raw) return false;
+    const obj = JSON.parse(raw);
+    if(!obj || !obj.ts) return false;
+    if(Date.now() - obj.ts > SESSION_TTL){ localStorage.removeItem(SESSION_KEY); return false; }
+    return true;
+  }catch{ return false; }
+}
+function clearSession(){ try{ localStorage.removeItem(SESSION_KEY); }catch{} }
 
 function toast(msg,type='info'){
   const root=$('#toast-root'); if(!root) return;
@@ -220,8 +284,8 @@ const NAV = [
 ];
 
 function renderSidebar(route){
-  const name=S.profile?.displayName||S.user?.email?.split('@')[0]||'Admin';
-  const initial=(name[0]||'A').toUpperCase();
+  const name = ADMIN_USERNAME;
+  const initial = name[0].toUpperCase();
   return `
   <aside class="sidebar">
     <div style="padding:4px 8px 14px">
@@ -238,7 +302,7 @@ function renderSidebar(route){
         <div style="width:30px;height:30px;border-radius:9px;background:var(--bg-sunken);border:1px solid var(--border);display:grid;place-items:center;font-size:.72rem;font-weight:750">${esc(initial)}</div>
         <div style="min-width:0;flex:1">
           <div class="small" style="font-weight:620;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(name)}</div>
-          <div class="tiny muted-3" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(S.user?.email||'')}</div>
+          <div class="tiny muted-3">Super Admin</div>
         </div>
       </div>
       <button class="nav-item" data-action="logout" style="margin-top:6px">Đăng xuất</button>
@@ -274,10 +338,14 @@ function renderAuth(){
       <div class="card" style="padding:30px">
         <div class="logo" style="margin-bottom:22px"><span class="logo-mark">L</span><span>Linkora Admin</span></div>
         <h1 style="margin-bottom:6px">Đăng nhập quản trị</h1>
-        <p class="small muted" style="margin-bottom:20px">Nhập username hoặc email admin.</p>
-        <form id="admin-login">
-          <div class="field"><label>Tài khoản</label><input class="input" id="al-email" type="text" autocomplete="username" placeholder="digitalsmod" required /></div>
-          <div class="field"><label>Mật khẩu</label><input class="input" id="al-pass" type="password" autocomplete="current-password" required /></div>
+        <p class="small muted" style="margin-bottom:20px">Nhập tài khoản và mật khẩu quản trị.</p>
+        <form id="admin-login" autocomplete="off">
+          <div class="field"><label>Tài khoản</label>
+            <input class="input" id="al-user" type="text" autocomplete="off" placeholder="Tài khoản" required />
+          </div>
+          <div class="field"><label>Mật khẩu</label>
+            <input class="input" id="al-pass" type="password" autocomplete="new-password" placeholder="Mật khẩu" required />
+          </div>
           <div id="al-error" class="notice danger hidden" style="margin-bottom:14px"></div>
           <button class="btn accent block" type="submit" id="al-submit" style="height:46px">Đăng nhập</button>
         </form>
@@ -287,92 +355,43 @@ function renderAuth(){
   </div>`;
 }
 
-/* Map username → email nội bộ */
-function normalizeLoginEmail(raw){
-  const v = String(raw||'').trim();
-  if(!v) return '';
-  // Nếu chỉ có username (không có @) → chuyển sang email nội bộ
-  if(!v.includes('@')){
-    if(v.toLowerCase() === ADMIN_USERNAME) return ADMIN_EMAIL;
-    return v.toLowerCase() + '@linkora.admin';
-  }
-  return v;
-}
-
-async function ensureAdminProfile(user){
-  // Đảm bảo doc users/{uid} tồn tại và có role superadmin khi là tài khoản hardcode
-  const ref = doc(db,'users',user.uid);
-  const snap = await getDoc(ref);
-  const isHardcodedAdmin = (user.email||'').toLowerCase() === ADMIN_EMAIL;
-  if(snap.exists()){
-    const data = snap.data();
-    if(isHardcodedAdmin && !['superadmin','admin'].includes(data.role)){
-      await updateDoc(ref,{ role:'superadmin', status:'active' });
-      return { ...data, role:'superadmin', status:'active' };
-    }
-    return data;
-  }
-  const profile = {
-    uid:user.uid,
-    email:user.email||'',
-    displayName: isHardcodedAdmin ? 'Super Admin' : (user.email||'').split('@')[0],
-    role: isHardcodedAdmin ? 'superadmin' : 'user',
-    status:'active',
-    createdAt: serverTimestamp(),
-  };
-  await setDoc(ref, profile);
-  return profile;
-}
-
-async function handleAdminLogin(){
-  let raw = $('#al-email').value.trim();
-  const pass = $('#al-pass').value;
-  const err = $('#al-error'); const btn = $('#al-submit');
+function handleAdminLogin(){
+  const user = ($('#al-user').value || '').trim();
+  const pass = $('#al-pass').value || '';
+  const err  = $('#al-error');
+  const btn  = $('#al-submit');
   err.classList.add('hidden');
 
-  if(!raw){ err.textContent='Nhập tài khoản.'; err.classList.remove('hidden'); return; }
+  if(!user){ err.textContent='Nhập tài khoản.'; err.classList.remove('hidden'); return; }
   if(!pass){ err.textContent='Nhập mật khẩu.'; err.classList.remove('hidden'); return; }
 
-  const email = normalizeLoginEmail(raw);
-  btn.disabled=true; btn.textContent='Đang đăng nhập…';
+  btn.disabled = true; btn.textContent = 'Đang kiểm tra…';
 
-  try{
-    await signInWithEmailAndPassword(auth, email, pass);
-    toast('Đăng nhập thành công.','ok');
-    // ensureAdminProfile sẽ chạy trong onAuthStateChanged
-  }catch(e){
-    // Nếu là tài khoản hardcode + đúng mật khẩu → tự tạo user lần đầu
-    const isHardcoded = (email === ADMIN_EMAIL) || (raw.toLowerCase() === ADMIN_USERNAME);
-    const correctPass = (pass === ADMIN_PASSWORD);
-
-    if(isHardcoded && correctPass && (e.code==='auth/user-not-found' || e.code==='auth/invalid-credential' || e.code==='auth/invalid-login-credentials')){
-      try{
-        const cred = await createUserWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASSWORD);
-        await setDoc(doc(db,'users',cred.user.uid),{
-          uid: cred.user.uid,
-          email: ADMIN_EMAIL,
-          displayName:'Super Admin',
-          role:'superadmin',
-          status:'active',
-          createdAt: serverTimestamp(),
-        });
-        toast('Đã khởi tạo tài khoản Super Admin.','ok');
-      }catch(err2){
-        console.error(err2);
-        err.textContent = 'Không thể khởi tạo admin: ' + (err2.message||err2.code||'lỗi');
-        err.classList.remove('hidden');
-      }
-    } else if(isHardcoded && !correctPass){
-      err.textContent='Sai mật khẩu quản trị.';
-      err.classList.remove('hidden');
+  setTimeout(()=>{
+    if(user === ADMIN_USERNAME && pass === ADMIN_PASSWORD){
+      S.authed = true;
+      saveSession();
+      toast('Đăng nhập thành công.','ok');
+      btn.disabled=false; btn.textContent='Đăng nhập';
+      if(!location.hash || location.hash === '#/' || location.hash === '#') location.hash = '#/overview';
+      render();
     } else {
-      err.textContent='Sai thông tin hoặc không có quyền.';
+      err.textContent = 'Sai tài khoản hoặc mật khẩu.';
       err.classList.remove('hidden');
+      btn.disabled = false; btn.textContent = 'Đăng nhập';
     }
-  }finally{ btn.disabled=false; btn.textContent='Đăng nhập'; }
+  }, 220);
 }
 
-/* ---------------- VIEWS ---------------- */
+function handleAdminLogout(){
+  clearSession();
+  S.authed = false;
+  toast('Đã đăng xuất.','ok');
+  location.hash = '#/';
+  render();
+}
+
+/* ---------------- PAGE WRAPPER ---------------- */
 function renderPage(title, sub, actions=''){
   return `
   ${renderMobileTopbar(title)}
@@ -389,6 +408,7 @@ function renderMobileTopbar(title){
   </div>`;
 }
 
+/* ---------------- OVERVIEW ---------------- */
 function viewOverview(){
   return `
   ${renderPage('Dashboard','Tổng quan toàn hệ thống.')}
@@ -421,6 +441,7 @@ async function loadOverview(){
   set('ov-rates', await count('rateHistory'));
 }
 
+/* ---------------- ECONOMICS ---------------- */
 function viewEconomics(){
   return `
   ${renderPage('Network Economics','Biên lợi nhuận theo network.')}
@@ -454,6 +475,7 @@ async function loadEconomics(){
   }catch{ box.innerHTML='<div class="empty"><h3>Không tải được</h3></div>'; }
 }
 
+/* ---------------- NETWORKS ---------------- */
 function viewNetworks(){
   return `
   ${renderPage('Networks','Cấu hình rate, giới hạn và trạng thái API.')}
@@ -531,11 +553,11 @@ async function editNetwork(id){
       if(Number(n.grossRate)!==newRate){
         await addDoc(collection(db,'rateHistory'),{
           networkId:id, oldRate:Number(n.grossRate||0), newRate,
-          changedBy:S.user.uid, changedAt:serverTimestamp(), reason,
+          changedBy:ADMIN_ID, changedAt:serverTimestamp(), reason,
         });
       }
       await addDoc(collection(db,'auditLogs'),{
-        adminId:S.user.uid, action:'ADMIN_UPDATED_NETWORK',
+        adminId:ADMIN_ID, action:'ADMIN_UPDATED_NETWORK',
         targetType:'network', targetId:id, reason, timestamp:serverTimestamp(),
       });
       toast('Đã cập nhật.','ok'); close(); loadNetworks();
@@ -544,6 +566,7 @@ async function editNetwork(id){
   $('#modal-root').appendChild(back);
 }
 
+/* ---------------- RATES ---------------- */
 function viewRates(){
   return `
   ${renderPage('Rate history','Lịch sử thay đổi rate — immutable.')}
@@ -566,6 +589,7 @@ async function loadRates(){
   }catch{ box.innerHTML='<div class="empty"><h3>Không tải được</h3></div>'; }
 }
 
+/* ---------------- SELLERS ---------------- */
 function viewSellers(){
   return `
   ${renderPage('Seller duyệt','Xét duyệt đăng ký Seller.')}
@@ -608,8 +632,8 @@ async function approveSeller(id){
   const ok=await confirmModal({title:'Duyệt Seller?',message:'Seller sẽ truy cập được Seller Center.',confirmText:'Duyệt'});
   if(!ok) return;
   try{
-    await updateDoc(doc(db,'sellers',id),{status:'approved',approvedAt:serverTimestamp(),approvedBy:S.user.uid});
-    await addDoc(collection(db,'auditLogs'),{adminId:S.user.uid,action:'ADMIN_APPROVED_SELLER',targetType:'seller',targetId:id,reason:'Manual approval',timestamp:serverTimestamp()});
+    await updateDoc(doc(db,'sellers',id),{status:'approved',approvedAt:serverTimestamp(),approvedBy:ADMIN_ID});
+    await addDoc(collection(db,'auditLogs'),{adminId:ADMIN_ID,action:'ADMIN_APPROVED_SELLER',targetType:'seller',targetId:id,reason:'Manual approval',timestamp:serverTimestamp()});
     toast('Đã duyệt.','ok'); loadSellers();
   }catch{ toast('Không thể duyệt.','err'); }
 }
@@ -617,13 +641,15 @@ async function rejectSeller(id){
   const ok=await confirmModal({title:'Từ chối Seller?',message:'Seller có thể gửi lại đơn.',confirmText:'Từ chối',danger:true});
   if(!ok) return;
   try{
-    await updateDoc(doc(db,'sellers',id),{status:'rejected',rejectedAt:serverTimestamp(),rejectedBy:S.user.uid});
-    await addDoc(collection(db,'auditLogs'),{adminId:S.user.uid,action:'ADMIN_REJECTED_SELLER',targetType:'seller',targetId:id,reason:'Manual rejection',timestamp:serverTimestamp()});
+    await updateDoc(doc(db,'sellers',id),{status:'rejected',rejectedAt:serverTimestamp(),rejectedBy:ADMIN_ID});
+    await addDoc(collection(db,'auditLogs'),{adminId:ADMIN_ID,action:'ADMIN_REJECTED_SELLER',targetType:'seller',targetId:id,reason:'Manual rejection',timestamp:serverTimestamp()});
     toast('Đã từ chối.','ok'); loadSellers();
   }catch{ toast('Không thể từ chối.','err'); }
 }
 
-/* ---------- LQ KEYS ---------- */
+/* ============================================================
+   LQ KEYS — có ảnh minh hoạ cho mỗi loại (Supabase Storage)
+   ============================================================ */
 const LQ_DURATIONS = [
   { id:'1d',   label:'1 ngày' },
   { id:'15d',  label:'15 ngày' },
@@ -631,6 +657,7 @@ const LQ_DURATIONS = [
   { id:'90d',  label:'90 ngày' },
   { id:'forever', label:'Vĩnh viễn' },
 ];
+
 function viewLQKeys(){
   return `
   ${renderPage('Key Liên Quân','Nhập kho key hàng loạt — key load từ Firebase, không random client.')}
@@ -649,13 +676,55 @@ function viewLQKeys(){
         </div>
         <button class="btn accent block" type="submit" id="lq-submit">Nhập kho</button>
       </form>
+
+      <div class="divider" style="margin:20px 0"></div>
+
+      <div class="card-title" style="margin-bottom:10px">Ảnh minh hoạ theo loại key</div>
+      <p class="tiny muted-3" style="margin-bottom:12px;line-height:1.6">
+        Ảnh được upload lên Supabase Storage, URL lưu trong Firestore <span class="mono">settings/lqImages</span>.
+        Hiển thị trong trang chợ key của người dùng.
+      </p>
+      <div id="lq-images-grid" style="display:flex;flex-direction:column;gap:10px">
+        ${LQ_DURATIONS.map(d=>`
+          <div class="row gap-12" style="padding:10px;border:1px solid var(--border);border-radius:12px">
+            <div id="lqimg-${d.id}" style="width:52px;height:52px;border-radius:12px;background:var(--bg-sunken);border:1px solid var(--border);display:grid;place-items:center;font-size:.7rem;color:var(--text-3);overflow:hidden;flex:none">—</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:600;font-size:.85rem">${d.label}</div>
+              <div class="tiny muted-3" id="lqimg-label-${d.id}">Chưa có ảnh</div>
+            </div>
+            <div class="row gap-6">
+              <button type="button" class="btn xs soft" data-action="upload-lq-img" data-duration="${d.id}">Chọn ảnh</button>
+              <button type="button" class="btn xs soft" data-action="remove-lq-img" data-duration="${d.id}" style="color:var(--danger)">Xoá</button>
+            </div>
+          </div>`).join('')}
+      </div>
     </div>
+
     <div class="card" style="padding:0;overflow:hidden" id="lq-box">Đang tải…</div>
   </div>`;
 }
+
 async function loadLQKeys(){
   const box=$('#lq-box'); if(!box) return;
   try{
+    let lqImages = {};
+    try{
+      const imgSnap = await getDoc(doc(db,'settings','lqImages'));
+      if(imgSnap.exists()) lqImages = imgSnap.data() || {};
+    }catch{}
+
+    LQ_DURATIONS.forEach(d=>{
+      const url = lqImages[d.id] || '';
+      const cell = document.getElementById('lqimg-'+d.id);
+      const lbl  = document.getElementById('lqimg-label-'+d.id);
+      if(cell){
+        cell.innerHTML = url
+          ? `<img src="${esc(url)}" style="width:100%;height:100%;object-fit:cover" />`
+          : '—';
+      }
+      if(lbl){ lbl.textContent = url ? 'Đã có ảnh' : 'Chưa có ảnh'; }
+    });
+
     const snap=await getDocs(query(collection(db,'lq_keys'), limit(500)));
     const rows=snap.docs.map(d=>({id:d.id,...d.data()}));
     const grouped={};
@@ -663,21 +732,30 @@ async function loadLQKeys(){
 
     let html=`<div style="padding:14px 16px;border-bottom:1px solid var(--border)"><span class="card-title">Kho key</span> <span class="badge">${rows.length}</span></div>`;
     html+=`<div class="table-scroll"><table><thead><tr>
-      <th>Loại</th><th>Còn</th><th>Đã bán</th><th>Tổng</th>
+      <th>Loại</th><th>Ảnh</th><th>Còn</th><th>Đã bán</th><th>Tổng</th>
     </tr></thead><tbody>`;
     LQ_DURATIONS.forEach(d=>{
       const list=grouped[d.id]||[];
       const avail=list.filter(k=>k.status==='available').length;
       const sold=list.filter(k=>k.status==='sold').length;
-      html+=`<tr><td style="font-weight:600">${d.label}</td>
+      const url = lqImages[d.id] || '';
+      html+=`<tr>
+        <td style="font-weight:600">${d.label}</td>
+        <td>
+          ${url
+            ? `<img src="${esc(url)}" style="width:44px;height:44px;border-radius:10px;object-fit:cover;border:1px solid var(--border)" />`
+            : `<div style="width:44px;height:44px;border-radius:10px;background:var(--bg-sunken);border:1px solid var(--border);display:grid;place-items:center;font-size:.7rem;color:var(--text-3)">—</div>`}
+        </td>
         <td class="mono" style="color:var(--ok);font-weight:620">${avail}</td>
         <td class="mono muted">${sold}</td>
-        <td class="mono">${list.length}</td></tr>`;
+        <td class="mono">${list.length}</td>
+      </tr>`;
     });
     html+=`</tbody></table></div>`;
     box.innerHTML=html;
-  }catch{ box.innerHTML='<div class="empty"><h3>Không tải được</h3></div>'; }
+  }catch(e){ console.error(e); box.innerHTML='<div class="empty"><h3>Không tải được</h3></div>'; }
 }
+
 async function handleAddLQKeys(){
   const duration=$('#lq-duration').value;
   const price=Number($('#lq-price').value||0);
@@ -693,12 +771,12 @@ async function handleAddLQKeys(){
       if(!dup.empty) continue;
       await addDoc(collection(db,'lq_keys'),{
         code, duration, price, status:'available',
-        createdAt:serverTimestamp(), createdBy:S.user.uid,
+        createdAt:serverTimestamp(), createdBy:ADMIN_ID,
       });
       ok++;
     }
     await addDoc(collection(db,'auditLogs'),{
-      adminId:S.user.uid, action:'ADMIN_ADDED_LQ_KEYS',
+      adminId:ADMIN_ID, action:'ADMIN_ADDED_LQ_KEYS',
       targetType:'lq_keys', targetId:duration,
       reason:`Thêm ${ok}/${codes.length} key`, timestamp:serverTimestamp(),
     });
@@ -709,6 +787,107 @@ async function handleAddLQKeys(){
   finally{ btn.disabled=false; btn.textContent='Nhập kho'; }
 }
 
+/* ---------- Upload / xoá ảnh loại key ---------- */
+function pickLQImage(duration){
+  const d = LQ_DURATIONS.find(x=>x.id===duration);
+  const label = d ? d.label : duration;
+
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.style.display = 'none';
+  document.body.appendChild(input);
+
+  input.addEventListener('change', async ()=>{
+    const file = input.files?.[0];
+    document.body.removeChild(input);
+    if(!file) return;
+
+    try{
+      toast('Đang upload ảnh…','info');
+
+      const { url } = await supaUpload(SUPABASE_BUCKET, file, {
+        maxMB: 3,
+        folder: `lq/${duration}`,
+      });
+
+      const ref = doc(db,'settings','lqImages');
+      const snap = await getDoc(ref);
+      const current = snap.exists() ? (snap.data()||{}) : {};
+
+      const oldUrl = current[duration] || '';
+      if(oldUrl){
+        const oldPath = supaPathFromUrl(SUPABASE_BUCKET, oldUrl);
+        if(oldPath) supaDelete(SUPABASE_BUCKET, oldPath);
+      }
+
+      current[duration] = url;
+      await setDoc(ref, current, { merge:true });
+
+      await addDoc(collection(db,'auditLogs'),{
+        adminId: ADMIN_ID,
+        action: 'ADMIN_UPLOADED_LQ_IMAGE',
+        targetType: 'lq_images',
+        targetId: duration,
+        reason: `Cập nhật ảnh cho ${label}`,
+        timestamp: serverTimestamp(),
+      });
+
+      toast(`Đã cập nhật ảnh cho ${label}.`,'ok');
+      loadLQKeys();
+    }catch(e){
+      console.error(e);
+      toast(e.message || 'Upload lỗi.','err');
+    }
+  });
+
+  input.click();
+}
+
+async function removeLQImage(duration){
+  const d = LQ_DURATIONS.find(x=>x.id===duration);
+  const label = d ? d.label : duration;
+
+  const ok = await confirmModal({
+    title: 'Xoá ảnh?',
+    message: `Xoá ảnh minh hoạ cho loại "${label}"? File trên Storage cũng bị xoá.`,
+    confirmText: 'Xoá',
+    danger: true,
+  });
+  if(!ok) return;
+
+  try{
+    const ref = doc(db,'settings','lqImages');
+    const snap = await getDoc(ref);
+    const current = snap.exists() ? (snap.data()||{}) : {};
+    const oldUrl = current[duration] || '';
+
+    if(oldUrl){
+      const oldPath = supaPathFromUrl(SUPABASE_BUCKET, oldUrl);
+      if(oldPath) await supaDelete(SUPABASE_BUCKET, oldPath);
+    }
+
+    delete current[duration];
+    await setDoc(ref, current, { merge:true });
+
+    await addDoc(collection(db,'auditLogs'),{
+      adminId: ADMIN_ID,
+      action: 'ADMIN_REMOVED_LQ_IMAGE',
+      targetType: 'lq_images',
+      targetId: duration,
+      reason: `Xoá ảnh cho ${label}`,
+      timestamp: serverTimestamp(),
+    });
+
+    toast('Đã xoá.','ok');
+    loadLQKeys();
+  }catch(e){
+    console.error(e);
+    toast('Không thể xoá.','err');
+  }
+}
+
+/* ---------------- CREATOR ---------------- */
 function viewCreator(){
   return `
   ${renderPage('Creator submissions','Duyệt, từ chối, đánh dấu gian lận.')}
@@ -750,8 +929,8 @@ async function approveSub(id){
   const ok=await confirmModal({title:'Duyệt submission?',message:'Ghi nhận reward theo KPI. Audit log sẽ lưu lại.',confirmText:'Duyệt'});
   if(!ok) return;
   try{
-    await updateDoc(doc(db,'creatorSubmissions',id),{status:'approved',approvedAt:serverTimestamp(),approvedBy:S.user.uid});
-    await addDoc(collection(db,'auditLogs'),{adminId:S.user.uid,action:'ADMIN_APPROVED_SUBMISSION',targetType:'creatorSubmission',targetId:id,reason:'Manual approved',timestamp:serverTimestamp()});
+    await updateDoc(doc(db,'creatorSubmissions',id),{status:'approved',approvedAt:serverTimestamp(),approvedBy:ADMIN_ID});
+    await addDoc(collection(db,'auditLogs'),{adminId:ADMIN_ID,action:'ADMIN_APPROVED_SUBMISSION',targetType:'creatorSubmission',targetId:id,reason:'Manual approved',timestamp:serverTimestamp()});
     toast('Đã duyệt.','ok'); loadCreator();
   }catch{ toast('Không thể duyệt.','err'); }
 }
@@ -759,12 +938,13 @@ async function rejectSub(id){
   const ok=await confirmModal({title:'Từ chối?',message:'Không ghi reward.',confirmText:'Từ chối',danger:true});
   if(!ok) return;
   try{
-    await updateDoc(doc(db,'creatorSubmissions',id),{status:'rejected',rejectedAt:serverTimestamp(),rejectedBy:S.user.uid});
-    await addDoc(collection(db,'auditLogs'),{adminId:S.user.uid,action:'ADMIN_REJECTED_SUBMISSION',targetType:'creatorSubmission',targetId:id,reason:'Manual rejected',timestamp:serverTimestamp()});
+    await updateDoc(doc(db,'creatorSubmissions',id),{status:'rejected',rejectedAt:serverTimestamp(),rejectedBy:ADMIN_ID});
+    await addDoc(collection(db,'auditLogs'),{adminId:ADMIN_ID,action:'ADMIN_REJECTED_SUBMISSION',targetType:'creatorSubmission',targetId:id,reason:'Manual rejected',timestamp:serverTimestamp()});
     toast('Đã từ chối.','ok'); loadCreator();
   }catch{ toast('Không thể từ chối.','err'); }
 }
 
+/* ---------------- WITHDRAWALS ---------------- */
 function viewWithdrawals(){
   return `
   ${renderPage('Rút tiền','Duyệt / từ chối yêu cầu rút tiền.')}
@@ -806,8 +986,8 @@ async function approveWD(id){
   const ok=await confirmModal({title:'Duyệt rút tiền?',message:'Chuyển sang approved.',confirmText:'Duyệt'});
   if(!ok) return;
   try{
-    await updateDoc(doc(db,'withdrawals',id),{status:'approved',approvedAt:serverTimestamp(),approvedBy:S.user.uid});
-    await addDoc(collection(db,'auditLogs'),{adminId:S.user.uid,action:'ADMIN_APPROVED_WITHDRAWAL',targetType:'withdrawal',targetId:id,reason:'Manual approval',timestamp:serverTimestamp()});
+    await updateDoc(doc(db,'withdrawals',id),{status:'approved',approvedAt:serverTimestamp(),approvedBy:ADMIN_ID});
+    await addDoc(collection(db,'auditLogs'),{adminId:ADMIN_ID,action:'ADMIN_APPROVED_WITHDRAWAL',targetType:'withdrawal',targetId:id,reason:'Manual approval',timestamp:serverTimestamp()});
     toast('Đã duyệt.','ok'); loadWithdrawals();
   }catch{ toast('Không thể duyệt.','err'); }
 }
@@ -815,12 +995,13 @@ async function rejectWD(id){
   const ok=await confirmModal({title:'Từ chối?',message:'Số dư cần hoàn qua Cloud Function.',confirmText:'Từ chối',danger:true});
   if(!ok) return;
   try{
-    await updateDoc(doc(db,'withdrawals',id),{status:'rejected',rejectedAt:serverTimestamp(),rejectedBy:S.user.uid});
-    await addDoc(collection(db,'auditLogs'),{adminId:S.user.uid,action:'ADMIN_REJECTED_WITHDRAWAL',targetType:'withdrawal',targetId:id,reason:'Manual rejection',timestamp:serverTimestamp()});
+    await updateDoc(doc(db,'withdrawals',id),{status:'rejected',rejectedAt:serverTimestamp(),rejectedBy:ADMIN_ID});
+    await addDoc(collection(db,'auditLogs'),{adminId:ADMIN_ID,action:'ADMIN_REJECTED_WITHDRAWAL',targetType:'withdrawal',targetId:id,reason:'Manual rejection',timestamp:serverTimestamp()});
     toast('Đã từ chối.','ok'); loadWithdrawals();
   }catch{ toast('Không thể từ chối.','err'); }
 }
 
+/* ---------------- FRAUD ---------------- */
 function viewFraud(){
   return `
   ${renderPage('Gian lận','Sự kiện và điểm số nghi ngờ.')}
@@ -843,6 +1024,7 @@ async function loadFraud(){
   }catch{ box.innerHTML='<div class="empty"><h3>Không tải được</h3></div>'; }
 }
 
+/* ---------------- USERS ---------------- */
 function viewUsers(){
   return `
   ${renderPage('Người dùng','Danh sách và vai trò.')}
@@ -864,6 +1046,7 @@ async function loadUsers(){
   }catch{ box.innerHTML='<div class="empty"><h3>Không tải được</h3></div>'; }
 }
 
+/* ---------------- AUDIT ---------------- */
 function viewAudit(){
   return `
   ${renderPage('Audit log','Mọi thao tác admin đều ghi vết.')}
@@ -881,7 +1064,7 @@ async function loadAudit(){
         <tr><td class="small" style="font-weight:600">${esc(r.action)}</td>
         <td class="tiny muted">${esc(r.targetType)} · ${esc(String(r.targetId||'').slice(0,10))}</td>
         <td class="small muted">${esc(r.reason||'—')}</td>
-        <td class="tiny muted-3">${esc(String(r.adminId||'').slice(0,10))}</td>
+        <td class="tiny muted-3">${esc(String(r.adminId||'').slice(0,16))}</td>
         <td class="tiny muted-3">${timeAgo(r.timestamp)}</td></tr>`).join('')}</tbody></table></div>`;
   }catch{ box.innerHTML='<div class="empty"><h3>Không tải được</h3></div>'; }
 }
@@ -904,16 +1087,8 @@ const VIEWS = {
 function render(){
   const el=$('#app');
   if(!S.ready){ el.innerHTML='<div style="min-height:100dvh;display:grid;place-items:center"><div class="muted">Đang tải…</div></div>'; return; }
-  if(!S.user){ el.innerHTML=renderAuth(); return; }
-  if(!['admin','superadmin','finance','moderator','support','analyst'].includes(S.profile?.role)){
-    el.innerHTML=`<div style="min-height:100dvh;display:grid;place-items:center;padding:24px">
-      <div class="card" style="max-width:420px;text-align:center">
-        <h3 style="margin-bottom:8px">Không có quyền</h3>
-        <p class="small muted" style="margin-bottom:16px">Tài khoản của bạn không phải admin.</p>
-        <button class="btn" data-action="logout">Đăng xuất</button>
-      </div></div>`;
-    return;
-  }
+  if(!S.authed){ el.innerHTML=renderAuth(); return; }
+
   const route=parseHash();
   S.route=route;
   const view=VIEWS[route]||VIEWS.overview;
@@ -936,7 +1111,7 @@ document.addEventListener('click', async (e)=>{
   const a=t.closest('[data-action]');
   if(!a) return;
   const act=a.dataset.action;
-  if(act==='logout'){ await signOut(auth); toast('Đã đăng xuất.','ok'); return; }
+  if(act==='logout'){ handleAdminLogout(); return; }
   if(act==='open-drawer'){ openDrawer(); return; }
   if(act==='edit-net'){ editNetwork(a.dataset.id); return; }
   if(act==='approve-seller'){ approveSeller(a.dataset.id); return; }
@@ -945,6 +1120,8 @@ document.addEventListener('click', async (e)=>{
   if(act==='reject-sub'){ rejectSub(a.dataset.id); return; }
   if(act==='approve-wd'){ approveWD(a.dataset.id); return; }
   if(act==='reject-wd'){ rejectWD(a.dataset.id); return; }
+  if(act==='upload-lq-img'){ pickLQImage(a.dataset.duration); return; }
+  if(act==='remove-lq-img'){ removeLQImage(a.dataset.duration); return; }
 });
 document.addEventListener('submit',(e)=>{
   e.preventDefault();
@@ -952,17 +1129,12 @@ document.addEventListener('submit',(e)=>{
   else if(e.target.id==='lq-form') handleAddLQKeys();
 });
 
-/* ---------------- AUTH STATE ---------------- */
-onAuthStateChanged(auth, async (user)=>{
-  S.user=user; S.profile=null;
-  if(user){
-    try{
-      S.profile = await ensureAdminProfile(user);
-    }catch(e){ console.error('[admin] profile error', e); }
-  }
-  S.ready=true;
+/* ---------------- BOOT ---------------- */
+(function boot(){
+  S.authed = loadSession();
+  S.ready  = true;
   render();
-});
+})();
 </script>
 </body>
 </html>
