@@ -1,0 +1,3972 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#ffffff" />
+<title>Linkora — Nền tảng kiếm tiền từ lượt truy cập hợp lệ</title>
+<meta name="description" content="Tạo shortlink, chia sẻ nội dung và nhận phần thưởng từ những lượt truy cập hợp lệ. Minh bạch rate, chống gian lận, thanh toán rõ ràng." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   RESET
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{min-height:100dvh;line-height:1.5;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+img,svg,video{display:block;max-width:100%}
+input,button,select,textarea{font:inherit;color:inherit;background:transparent;border:0;outline:0;-webkit-appearance:none;appearance:none;border-radius:0}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+ul,ol{list-style:none}
+table{border-collapse:collapse;width:100%}
+input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input:-webkit-autofill{-webkit-box-shadow:0 0 0 1000px var(--bg-soft) inset;-webkit-text-fill-color:var(--text)}
+::selection{background:var(--accent);color:#fff}
+
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root{
+  --bg:#ffffff;
+  --bg-soft:#fafafa;
+  --bg-sunken:#f4f4f5;
+  --text:#111111;
+  --text-2:#666666;
+  --text-3:#9a9a9a;
+  --border:rgba(0,0,0,.08);
+  --border-2:rgba(0,0,0,.14);
+  --card:#ffffff;
+  --glass:rgba(255,255,255,.72);
+  --accent:#2563eb;
+  --accent-2:#1d4ed8;
+  --accent-soft:rgba(37,99,235,.08);
+  --ok:#059669;
+  --ok-soft:rgba(5,150,105,.10);
+  --warn:#b45309;
+  --warn-soft:rgba(180,83,9,.10);
+  --danger:#dc2626;
+  --danger-soft:rgba(220,38,38,.09);
+  --shadow-xs:0 1px 2px rgba(0,0,0,.04);
+  --shadow-sm:0 2px 8px rgba(0,0,0,.05);
+  --shadow:0 8px 32px rgba(0,0,0,.07);
+  --shadow-lg:0 20px 60px rgba(0,0,0,.10);
+  --r-xs:10px;
+  --r-sm:14px;
+  --r:20px;
+  --r-lg:26px;
+  --r-xl:34px;
+  --sidebar:264px;
+  --maxw:1180px;
+}
+[data-theme="dark"]{
+  --bg:#0a0a0a;
+  --bg-soft:#101010;
+  --bg-sunken:#151515;
+  --text:#f5f5f5;
+  --text-2:#a3a3a3;
+  --text-3:#6b6b6b;
+  --border:rgba(255,255,255,.10);
+  --border-2:rgba(255,255,255,.18);
+  --card:#101010;
+  --glass:rgba(18,18,18,.72);
+  --accent:#3b82f6;
+  --accent-2:#60a5fa;
+  --accent-soft:rgba(59,130,246,.14);
+  --ok:#34d399;
+  --ok-soft:rgba(52,211,153,.12);
+  --warn:#fbbf24;
+  --warn-soft:rgba(251,191,36,.12);
+  --danger:#f87171;
+  --danger-soft:rgba(248,113,113,.12);
+  --shadow-xs:0 1px 2px rgba(0,0,0,.5);
+  --shadow-sm:0 2px 8px rgba(0,0,0,.5);
+  --shadow:0 8px 32px rgba(0,0,0,.55);
+  --shadow-lg:0 20px 60px rgba(0,0,0,.7);
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  font-size:15px;
+  letter-spacing:-0.005em;
+}
+h1,h2,h3,h4{letter-spacing:-0.03em;font-weight:700;line-height:1.12}
+h1{font-size:clamp(2.1rem,5.2vw,3.9rem);font-weight:800}
+h2{font-size:clamp(1.6rem,3.4vw,2.6rem)}
+h3{font-size:1.15rem;letter-spacing:-0.02em}
+p{color:var(--text-2)}
+.small{font-size:.82rem}
+.tiny{font-size:.74rem}
+.muted{color:var(--text-2)}
+.muted-3{color:var(--text-3)}
+.mono{font-family:'SF Mono',ui-monospace,'JetBrains Mono',Menlo,monospace;font-variant-numeric:tabular-nums}
+.eyebrow{font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3)}
+.center{text-align:center}
+.hidden{display:none !important}
+.row{display:flex;align-items:center}
+.gap-6{gap:6px}.gap-8{gap:8px}.gap-12{gap:12px}.gap-16{gap:16px}.gap-24{gap:24px}
+.wrap{flex-wrap:wrap}
+.grow{flex:1}
+.between{display:flex;align-items:center;justify-content:space-between;gap:12px}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.wrap-page{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+section{padding:88px 0}
+section.tight{padding:56px 0}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  height:44px;padding:0 20px;border-radius:14px;
+  font-size:.9rem;font-weight:600;letter-spacing:-0.01em;
+  background:var(--text);color:var(--bg);
+  border:1px solid transparent;
+  transition:transform .18s cubic-bezier(.2,.7,.3,1), box-shadow .22s, background .18s, opacity .18s, border-color .18s;
+  white-space:nowrap;user-select:none;
+}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+.btn:active{transform:translateY(0);box-shadow:none}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.btn.ghost{background:transparent;color:var(--text);border-color:var(--border-2)}
+.btn.ghost:hover{background:var(--bg-soft)}
+.btn.soft{background:var(--bg-sunken);color:var(--text);border-color:var(--border)}
+.btn.soft:hover{background:var(--bg-soft);border-color:var(--border-2)}
+.btn.accent{background:var(--accent);color:#fff}
+.btn.accent:hover{background:var(--accent-2)}
+.btn.danger{background:var(--danger);color:#fff}
+.btn.sm{height:36px;padding:0 14px;font-size:.82rem;border-radius:11px}
+.btn.xs{height:30px;padding:0 10px;font-size:.76rem;border-radius:9px}
+.btn.block{width:100%}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ============================================================
+   INPUTS
+   ============================================================ */
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:16px}
+.field > label{font-size:.8rem;font-weight:600;color:var(--text-2);letter-spacing:-0.005em}
+.input,.select,.textarea{
+  width:100%;height:46px;padding:0 15px;
+  background:var(--bg-soft);
+  border:1px solid var(--border);
+  border-radius:14px;
+  font-size:.9rem;color:var(--text);
+  transition:border-color .18s, background .18s, box-shadow .18s;
+}
+.textarea{height:auto;min-height:110px;padding:13px 15px;resize:vertical;line-height:1.5}
+.select{
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat:no-repeat;background-position:right 14px center;padding-right:40px;cursor:pointer;
+}
+.input:focus,.select:focus,.textarea:focus{
+  border-color:var(--accent);background:var(--bg);
+  box-shadow:0 0 0 4px var(--accent-soft);
+}
+.input::placeholder,.textarea::placeholder{color:var(--text-3)}
+.input:disabled{opacity:.55;cursor:not-allowed}
+.hint{font-size:.75rem;color:var(--text-3);line-height:1.45}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:22px;
+  transition:border-color .2s, box-shadow .25s, transform .25s;
+}
+.card.hoverable:hover{border-color:var(--border-2);box-shadow:var(--shadow);transform:translateY(-2px)}
+.card.pad-lg{padding:30px}
+.card.glass{
+  background:var(--glass);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+}
+.card-title{font-size:.95rem;font-weight:650;letter-spacing:-0.015em}
+.stat-value{font-size:1.85rem;font-weight:750;letter-spacing:-0.045em;line-height:1.05}
+.stat-label{font-size:.76rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-3)}
+
+.grid{display:grid;gap:16px}
+.grid.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.grid.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:900px){.grid.c3,.grid.c4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.grid.c2,.grid.c3,.grid.c4{grid-template-columns:1fr}}
+
+/* ============================================================
+   BADGES
+   ============================================================ */
+.badge{
+  display:inline-flex;align-items:center;gap:6px;
+  height:24px;padding:0 10px;border-radius:8px;
+  font-size:.72rem;font-weight:650;letter-spacing:0;
+  background:var(--bg-sunken);color:var(--text-2);
+  border:1px solid var(--border);
+}
+.badge.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.badge.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.badge.danger{background:var(--danger-soft);color:var(--danger);border-color:transparent}
+.badge.accent{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+
+/* ============================================================
+   HEADER / NAV
+   ============================================================ */
+.site-header{
+  position:sticky;top:0;z-index:60;
+  background:var(--glass);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border-bottom:1px solid var(--border);
+}
+.site-header .inner{
+  max-width:var(--maxw);margin:0 auto;padding:0 22px;
+  height:66px;display:flex;align-items:center;justify-content:space-between;gap:20px;
+}
+.logo{display:flex;align-items:center;gap:10px;font-weight:750;font-size:1.02rem;letter-spacing:-0.03em}
+.logo-mark{
+  width:30px;height:30px;border-radius:9px;background:var(--text);color:var(--bg);
+  display:grid;place-items:center;font-size:.86rem;font-weight:800;letter-spacing:-0.04em;
+}
+.nav-links{display:flex;align-items:center;gap:2px}
+.nav-links a{
+  padding:8px 13px;border-radius:10px;font-size:.86rem;font-weight:520;color:var(--text-2);
+  transition:background .16s,color .16s;
+}
+.nav-links a:hover{background:var(--bg-soft);color:var(--text)}
+.nav-links a.active{color:var(--text);font-weight:600}
+@media(max-width:1000px){.nav-links{display:none}}
+
+.icon-btn{
+  width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+  border:1px solid var(--border);background:var(--bg-soft);color:var(--text-2);
+  transition:background .18s,color .18s,border-color .18s;
+}
+.icon-btn:hover{background:var(--bg-sunken);color:var(--text);border-color:var(--border-2)}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{padding:76px 0 60px;position:relative;overflow:hidden}
+.hero-glow{
+  position:absolute;top:-260px;left:50%;transform:translateX(-50%);
+  width:900px;height:600px;pointer-events:none;
+  background:radial-gradient(ellipse at center, var(--accent-soft), transparent 68%);
+  opacity:.85;filter:blur(20px);
+}
+.hero .inner{position:relative;z-index:1}
+.hero h1{max-width:16ch;margin-bottom:20px}
+.hero .sub{font-size:1.08rem;max-width:56ch;line-height:1.55;color:var(--text-2)}
+
+.pill{
+  display:inline-flex;align-items:center;gap:8px;
+  height:32px;padding:0 14px;border-radius:100px;
+  background:var(--bg-soft);border:1px solid var(--border);
+  font-size:.78rem;font-weight:550;color:var(--text-2);
+}
+
+/* Preview mock */
+.preview{
+  border:1px solid var(--border);border-radius:var(--r-xl);
+  background:var(--card);box-shadow:var(--shadow-lg);
+  overflow:hidden;position:relative;
+}
+.preview-bar{
+  height:44px;display:flex;align-items:center;gap:7px;padding:0 16px;
+  border-bottom:1px solid var(--border);background:var(--bg-soft);
+}
+.preview-bar i{width:9px;height:9px;border-radius:50%;background:var(--border-2);display:block}
+.preview-body{padding:22px;display:grid;grid-template-columns:1.35fr 1fr;gap:16px}
+@media(max-width:760px){.preview-body{grid-template-columns:1fr}}
+
+.bars{display:flex;align-items:flex-end;gap:7px;height:120px;padding-top:12px}
+.bars span{
+  flex:1;background:var(--bg-sunken);border-radius:6px 6px 3px 3px;display:block;
+  animation:grow .8s cubic-bezier(.2,.8,.3,1) backwards;
+}
+.bars span.on{background:var(--text)}
+@keyframes grow{from{height:0 !important;opacity:0}}
+
+/* ============================================================
+   SECTION HEADS
+   ============================================================ */
+.sec-head{max-width:640px;margin-bottom:44px}
+.sec-head h2{margin-bottom:14px}
+.sec-head p{font-size:1.02rem;line-height:1.6}
+.sec-head.center{margin-left:auto;margin-right:auto;text-align:center}
+
+/* ============================================================
+   STEPS
+   ============================================================ */
+.step{position:relative;padding-top:26px}
+.step .num{
+  font-size:.74rem;font-weight:700;letter-spacing:.14em;color:var(--text-3);
+  padding-bottom:14px;border-top:1px solid var(--border);display:block;
+}
+.step h3{margin-bottom:9px}
+.step p{font-size:.9rem;line-height:1.6}
+
+/* ============================================================
+   NETWORK ROWS
+   ============================================================ */
+.net-row{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  transition:background .16s;
+}
+.net-row:last-child{border-bottom:0}
+.net-row:hover{background:var(--bg-soft)}
+.net-avatar{
+  width:38px;height:38px;border-radius:11px;flex:none;
+  display:grid;place-items:center;font-weight:750;font-size:.8rem;
+  background:var(--bg-sunken);border:1px solid var(--border);color:var(--text-2);
+}
+
+/* ============================================================
+   FAQ
+   ============================================================ */
+.faq-item{border-bottom:1px solid var(--border)}
+.faq-q{
+  width:100%;text-align:left;padding:20px 0;display:flex;justify-content:space-between;
+  align-items:center;gap:16px;font-weight:600;font-size:.98rem;letter-spacing:-0.015em;
+}
+.faq-q .chev{transition:transform .25s;color:var(--text-3);flex:none}
+.faq-item.open .chev{transform:rotate(180deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .32s cubic-bezier(.2,.8,.3,1)}
+.faq-a p{padding-bottom:20px;font-size:.9rem;line-height:1.65;max-width:70ch}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.site-footer{border-top:1px solid var(--border);padding:56px 0 40px;background:var(--bg-soft)}
+.foot-grid{display:grid;grid-template-columns:1.6fr repeat(3,1fr);gap:36px}
+@media(max-width:820px){.foot-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.foot-grid{grid-template-columns:1fr}}
+.foot-col h4{font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:14px;font-weight:650}
+.foot-col a{display:block;padding:5px 0;font-size:.87rem;color:var(--text-2);transition:color .16s}
+.foot-col a:hover{color:var(--text)}
+
+/* ============================================================
+   AUTH
+   ============================================================ */
+.auth-wrap{min-height:100dvh;display:grid;grid-template-columns:1fr 1fr}
+@media(max-width:900px){.auth-wrap{grid-template-columns:1fr}}
+.auth-aside{
+  background:var(--bg-soft);border-right:1px solid var(--border);
+  padding:52px;display:flex;flex-direction:column;justify-content:space-between;
+}
+@media(max-width:900px){.auth-aside{display:none}}
+.auth-main{display:grid;place-items:center;padding:44px 22px}
+.auth-card{width:100%;max-width:412px}
+.tabs{display:flex;gap:4px;padding:4px;background:var(--bg-sunken);border-radius:14px;margin-bottom:26px}
+.tabs button{
+  flex:1;height:38px;border-radius:11px;font-size:.86rem;font-weight:600;color:var(--text-2);
+  transition:background .2s,color .2s,box-shadow .2s;
+}
+.tabs button.on{background:var(--card);color:var(--text);box-shadow:var(--shadow-xs)}
+
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+.shell{display:grid;grid-template-columns:var(--sidebar) 1fr;min-height:100dvh}
+.sidebar{
+  border-right:1px solid var(--border);background:var(--bg-soft);
+  padding:20px 14px;display:flex;flex-direction:column;gap:6px;
+  position:sticky;top:0;height:100dvh;overflow-y:auto;
+}
+.sidebar .brand{padding:8px 10px 20px}
+.nav-sec{margin-top:14px}
+.nav-sec-label{
+  font-size:.68rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--text-3);padding:0 12px 8px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:11px;
+  padding:10px 12px;border-radius:12px;
+  font-size:.875rem;font-weight:520;color:var(--text-2);
+  transition:background .16s,color .16s;cursor:pointer;
+  width:100%;text-align:left;
+}
+.nav-item:hover{background:var(--bg-sunken);color:var(--text)}
+.nav-item.on{background:var(--card);color:var(--text);font-weight:620;box-shadow:var(--shadow-xs);border:1px solid var(--border)}
+.nav-item svg{flex:none;opacity:.75}
+.nav-item.on svg{opacity:1}
+
+.main{padding:30px 34px 80px;min-width:0}
+@media(max-width:900px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{
+    position:fixed;bottom:0;left:0;right:0;top:auto;height:auto;
+    flex-direction:row;justify-content:space-around;padding:8px 6px;
+    border-right:0;border-top:1px solid var(--border);z-index:80;
+    background:var(--glass);backdrop-filter:blur(20px);
+  }
+  .sidebar .brand,.nav-sec-label,.sidebar .side-foot{display:none}
+  .nav-sec{display:contents;margin:0}
+  .nav-item{flex-direction:column;gap:3px;font-size:.65rem;padding:7px 4px;border-radius:12px;text-align:center}
+  .nav-item.on{border:0;box-shadow:none;background:transparent;color:var(--accent)}
+  .main{padding:20px 18px 110px}
+}
+.side-foot{margin-top:auto;padding-top:16px;border-top:1px solid var(--border)}
+
+.page-head{margin-bottom:26px}
+.page-head h1{font-size:1.65rem;margin-bottom:6px;font-weight:750}
+.page-head p{font-size:.9rem}
+
+/* Stat card */
+.stat{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  padding:20px;display:flex;flex-direction:column;gap:10px;
+}
+.stat .top{display:flex;align-items:center;justify-content:space-between}
+.stat .icon{
+  width:32px;height:32px;border-radius:10px;display:grid;place-items:center;
+  background:var(--bg-sunken);color:var(--text-2);border:1px solid var(--border);
+}
+
+/* Table */
+.table-wrap{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--card)}
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table th{
+  text-align:left;font-size:.72rem;font-weight:650;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--text-3);padding:13px 18px;border-bottom:1px solid var(--border);background:var(--bg-soft);
+  white-space:nowrap;
+}
+table td{padding:15px 18px;border-bottom:1px solid var(--border);font-size:.86rem;vertical-align:middle}
+table tr:last-child td{border-bottom:0}
+table tbody tr{transition:background .14s}
+table tbody tr:hover{background:var(--bg-soft)}
+
+/* Empty state */
+.empty{
+  padding:56px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+.empty .icon{
+  width:52px;height:52px;border-radius:16px;display:grid;place-items:center;
+  background:var(--bg-sunken);border:1px solid var(--border);color:var(--text-3);
+}
+.empty h3{font-size:1rem}
+.empty p{font-size:.86rem;max-width:38ch}
+
+/* Skeleton */
+.skel{background:linear-gradient(90deg,var(--bg-sunken) 25%,var(--bg-soft) 50%,var(--bg-sunken) 75%);
+  background-size:200% 100%;animation:shim 1.4s infinite;border-radius:8px;height:14px}
+@keyframes shim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ============================================================
+   TOAST / MODAL
+   ============================================================ */
+#toast-root{position:fixed;top:18px;right:18px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.toast{
+  pointer-events:auto;
+  background:var(--card);border:1px solid var(--border-2);
+  border-radius:15px;padding:13px 17px;min-width:250px;max-width:380px;
+  box-shadow:var(--shadow-lg);font-size:.86rem;font-weight:520;
+  display:flex;align-items:center;gap:11px;
+  transform:translateX(120%);opacity:0;transition:transform .34s cubic-bezier(.2,.9,.3,1),opacity .34s;
+}
+.toast.show{transform:translateX(0);opacity:1}
+.toast .bar{width:3px;height:22px;border-radius:2px;background:var(--text-3);flex:none}
+.toast.ok .bar{background:var(--ok)}
+.toast.err .bar{background:var(--danger)}
+.toast.warn .bar{background:var(--warn)}
+
+.modal-back{
+  position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.45);
+  backdrop-filter:blur(6px);display:grid;place-items:center;padding:20px;
+  animation:fadeIn .2s;
+}
+@keyframes fadeIn{from{opacity:0}}
+.modal{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:28px;max-width:440px;width:100%;box-shadow:var(--shadow-lg);
+  animation:pop .26s cubic-bezier(.2,.9,.3,1);
+}
+@keyframes pop{from{transform:scale(.96) translateY(10px);opacity:0}}
+.modal h3{margin-bottom:10px}
+.modal p{font-size:.9rem;line-height:1.6;margin-bottom:22px}
+
+/* ============================================================
+   CALCULATOR
+   ============================================================ */
+.calc{
+  border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;
+  background:var(--card);box-shadow:var(--shadow-sm);
+}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr}
+@media(max-width:820px){.calc-grid{grid-template-columns:1fr}}
+.calc-in{padding:30px;border-right:1px solid var(--border)}
+@media(max-width:820px){.calc-in{border-right:0;border-bottom:1px solid var(--border)}}
+.calc-out{padding:30px;background:var(--bg-soft);display:flex;flex-direction:column;gap:16px;justify-content:center}
+.calc-line{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.calc-line .v{font-size:1.4rem;font-weight:750;letter-spacing:-0.04em}
+.calc-line.big .v{font-size:2rem}
+
+/* ============================================================
+   MISC
+   ============================================================ */
+.divider{height:1px;background:var(--border);margin:26px 0}
+.link{color:var(--accent);font-weight:550;transition:opacity .16s}
+.link:hover{opacity:.72}
+.copy-field{
+  display:flex;align-items:center;gap:8px;background:var(--bg-sunken);
+  border:1px solid var(--border);border-radius:13px;padding:6px 6px 6px 15px;
+}
+.copy-field input{flex:1;font-size:.84rem;background:transparent;min-width:0;font-family:'SF Mono',monospace}
+.progress{height:6px;border-radius:100px;background:var(--bg-sunken);overflow:hidden}
+.progress i{display:block;height:100%;background:var(--text);border-radius:100px;transition:width .5s cubic-bezier(.2,.8,.3,1)}
+.notice{
+  display:flex;gap:11px;padding:14px 16px;border-radius:14px;
+  background:var(--accent-soft);border:1px solid transparent;font-size:.82rem;line-height:1.55;color:var(--text-2);
+}
+.notice.warn{background:var(--warn-soft)}
+.notice.danger{background:var(--danger-soft)}
+.legal-body{max-width:74ch;margin:0 auto}
+.legal-body h2{font-size:1.3rem;margin:34px 0 12px}
+.legal-body p,.legal-body li{font-size:.92rem;line-height:1.75;color:var(--text-2);margin-bottom:12px}
+.legal-body ul{padding-left:20px;list-style:disc}
+.legal-body li{margin-bottom:7px}
+.legal-body strong{color:var(--text);font-weight:620}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast-root"></div>
+<div id="modal-root"></div>
+
+<script type="module">
+/* ============================================================
+   FIREBASE
+   ============================================================ */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth, onAuthStateChanged, createUserWithEmailAndPassword,
+  signInWithEmailAndPassword, signOut, updateProfile
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, collection,
+  query, where, orderBy, limit, getDocs, onSnapshot, serverTimestamp,
+  runTransaction, increment
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAUuV5euNNLHE2Cf6tXzUHV-ChKwNF593Y",
+  authDomain: "quocdat-396fe.firebaseapp.com",
+  databaseURL: "https://quocdat-396fe-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "quocdat-396fe",
+  storageBucket: "quocdat-396fe.firebasestorage.app",
+  messagingSenderId: "685476439350",
+  appId: "1:685476439350:web:949054ecba7f0a0c383f97"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const S = {
+  user: null,
+  profile: null,
+  wallet: null,
+  networks: [],
+  campaigns: [],
+  route: 'home',
+  param: null,
+  ready: false,
+  bootError: null,
+  unsubWallet: null,
+  unsubProfile: null,
+};
+
+const THEME_KEY = 'linkora_theme';
+document.documentElement.setAttribute('data-theme', localStorage.getItem(THEME_KEY) || 'light');
+
+/* ============================================================
+   DEFAULT NETWORKS (seed — admin chỉnh sửa được)
+   ============================================================ */
+const DEFAULT_NETWORKS = [
+  { id:'traffictop', name:'TrafficTop', website:'https://traffictop.net', taskType:'keyword',
+    grossRate:400, currency:'VND', userSharePercent:60, platformSharePercent:40,
+    minPayout:50000, maxViewsPerIpPerDay:1, maxViewsPerDevicePerDay:1, cooldownSeconds:86400,
+    enabled:true, apiStatus:'manual', countries:['VN'], verification:'redirect+cooldown',
+    webhook:false, docUrl:'', lastSync:null, note:'Rate tham chiếu, có thể thay đổi.' },
+  { id:'linktop', name:'LinkTop', website:'https://linktop.one', taskType:'direct',
+    grossRate:380, currency:'VND', userSharePercent:60, platformSharePercent:40,
+    minPayout:50000, maxViewsPerIpPerDay:1, maxViewsPerDevicePerDay:1, cooldownSeconds:86400,
+    enabled:true, apiStatus:'manual', countries:['VN'], verification:'redirect+cooldown',
+    webhook:false, docUrl:'', lastSync:null, note:'Rate tham chiếu, có thể thay đổi.' },
+  { id:'lentop', name:'LenTop', website:'https://lentop.one', taskType:'direct',
+    grossRate:350, currency:'VND', userSharePercent:60, platformSharePercent:40,
+    minPayout:50000, maxViewsPerIpPerDay:1, maxViewsPerDevicePerDay:1, cooldownSeconds:86400,
+    enabled:true, apiStatus:'manual', countries:['VN'], verification:'redirect+cooldown',
+    webhook:false, docUrl:'', lastSync:null, note:'Rate tham chiếu, có thể thay đổi.' },
+  { id:'bbmkts', name:'BBMKTS', website:'https://bbmkts.com', taskType:'direct',
+    grossRate:320, currency:'VND', userSharePercent:60, platformSharePercent:40,
+    minPayout:50000, maxViewsPerIpPerDay:1, maxViewsPerDevicePerDay:1, cooldownSeconds:86400,
+    enabled:true, apiStatus:'manual', countries:['VN'], verification:'redirect+cooldown',
+    webhook:false, docUrl:'', lastSync:null, note:'Rate tham chiếu, có thể thay đổi.' },
+  { id:'link4m', name:'Link4M', website:'https://link4m.co', taskType:'direct',
+    grossRate:300, currency:'VND', userSharePercent:60, platformSharePercent:40,
+    minPayout:50000, maxViewsPerIpPerDay:1, maxViewsPerDevicePerDay:1, cooldownSeconds:86400,
+    enabled:true, apiStatus:'manual', countries:['VN'], verification:'redirect+cooldown',
+    webhook:false, docUrl:'', lastSync:null, note:'Rate tham chiếu, có thể thay đổi.' },
+];
+
+/* ============================================================
+   UTILS
+   ============================================================ */
+const $  = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+
+function esc(s){
+  return String(s ?? '').replace(/[&<>"']/g, c => (
+    {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
+  ));
+}
+function fmtVND(n){
+  const v = Number(n || 0);
+  return v.toLocaleString('vi-VN') + 'đ';
+}
+function fmtNum(n){ return Number(n||0).toLocaleString('vi-VN'); }
+function fmtDate(ts){
+  if(!ts) return '—';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  if(isNaN(d)) return '—';
+  return d.toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit', year:'numeric'});
+}
+function fmtDateTime(ts){
+  if(!ts) return '—';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  if(isNaN(d)) return '—';
+  return d.toLocaleString('vi-VN', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function timeAgo(ts){
+  if(!ts) return '—';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  const s = (Date.now() - d.getTime())/1000;
+  if(s < 60) return 'vừa xong';
+  if(s < 3600) return Math.floor(s/60) + ' phút trước';
+  if(s < 86400) return Math.floor(s/3600) + ' giờ trước';
+  if(s < 2592000) return Math.floor(s/86400) + ' ngày trước';
+  return fmtDate(ts);
+}
+function uid(len=10){
+  const c = 'abcdefghijkmnpqrstuvwxyz23456789';
+  let s = '';
+  const a = crypto.getRandomValues(new Uint8Array(len));
+  for(let i=0;i<len;i++) s += c[a[i] % c.length];
+  return s;
+}
+function isEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); }
+function safeUrl(v){
+  try{
+    const u = new URL(v);
+    if(!['http:','https:'].includes(u.protocol)) return null;
+    return u.toString();
+  }catch{ return null; }
+}
+async function sha256(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+/* ============================================================
+   TOAST / MODAL
+   ============================================================ */
+function toast(msg, type='info'){
+  const root = $('#toast-root');
+  if(!root) return;
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.innerHTML = `<span class="bar"></span><span>${esc(msg)}</span>`;
+  root.appendChild(t);
+  requestAnimationFrame(()=> t.classList.add('show'));
+  setTimeout(()=>{
+    t.classList.remove('show');
+    setTimeout(()=> t.remove(), 350);
+  }, 3400);
+}
+
+function confirmModal({title, message, confirmText='Xác nhận', cancelText='Huỷ', danger=false}){
+  return new Promise(resolve => {
+    const back = document.createElement('div');
+    back.className = 'modal-back';
+    back.innerHTML = `
+      <div class="modal" role="dialog" aria-modal="true">
+        <h3>${esc(title)}</h3>
+        <p>${esc(message)}</p>
+        <div class="btn-group" style="justify-content:flex-end">
+          <button class="btn ghost" data-x="cancel">${esc(cancelText)}</button>
+          <button class="btn ${danger?'danger':''}" data-x="ok">${esc(confirmText)}</button>
+        </div>
+      </div>`;
+    const close = (v)=>{ back.remove(); resolve(v); };
+    back.addEventListener('click', e=>{
+      if(e.target === back) close(false);
+      const b = e.target.closest('[data-x]');
+      if(!b) return;
+      close(b.dataset.x === 'ok');
+    });
+    document.addEventListener('keydown', function onKey(e){
+      if(e.key === 'Escape'){ close(false); document.removeEventListener('keydown', onKey); }
+    });
+    $('#modal-root').appendChild(back);
+  });
+}
+
+/* ============================================================
+   ICONS
+   ============================================================ */
+const ICON = {
+  home:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>',
+  link:'<path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  chart:'<path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/>',
+  video:'<rect x="2" y="5" width="14" height="14" rx="2"/><path d="m16 10 6-3v10l-6-3"/>',
+  wallet:'<rect x="2" y="6" width="20" height="14" rx="3"/><path d="M16 13h3"/>',
+  cash:'<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>',
+  list:'<path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1.2"/><circle cx="3.5" cy="12" r="1.2"/><circle cx="3.5" cy="18" r="1.2"/>',
+  users:'<circle cx="9" cy="8" r="3.2"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16.5 5.2a3.2 3.2 0 0 1 0 5.6"/><path d="M18 20a6.5 6.5 0 0 0-2-4.6"/>',
+  shield:'<path d="M12 3 4 6v6c0 5 3.4 8.4 8 9 4.6-.6 8-4 8-9V6l-8-3Z"/>',
+  settings:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',
+  help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.6 2.6 0 1 1 3.4 2.5c-.6.2-.9.8-.9 1.5v.3"/><circle cx="12" cy="17" r=".6" fill="currentColor"/>',
+  bell:'<path d="M6 9a6 6 0 1 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+  logout:'<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 17l-5-5 5-5"/><path d="M5 12h11"/>',
+  copy:'<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
+  trash:'<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>',
+  ext:'<path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+  check:'<path d="m4 12 5 5L20 6"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  moon:'<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/>',
+  arrow:'<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/>',
+  net:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18Z"/>',
+  scale:'<path d="M12 3v18"/><path d="M5 7h14"/><path d="m5 7-3 7h6L5 7Z"/><path d="m19 7-3 7h6l-3-7Z"/>',
+  doc:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5"/>',
+  flag:'<path d="M5 3v18"/><path d="M5 4h11l-2 4 2 4H5"/>',
+};
+function icon(name, size=17, sw=1.8){
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[name]||''}</svg>`;
+}
+
+/* ============================================================
+   DATA LAYER
+   ============================================================ */
+async function ensureProfile(user){
+  const ref = doc(db, 'users', user.uid);
+  const snap = await getDoc(ref);
+  if(snap.exists()) return snap.data();
+
+  // bootstrap: nếu hệ thống chưa có admin nào -> user đầu tiên là superadmin
+  let role = 'user';
+  try{
+    const adminQ = query(collection(db,'users'), where('role','in',['admin','superadmin']), limit(1));
+    const adminSnap = await getDocs(adminQ);
+    if(adminSnap.empty) role = 'superadmin';
+  }catch(e){ /* ignore */ }
+
+  const profile = {
+    uid: user.uid,
+    email: user.email || '',
+    displayName: user.displayName || (user.email||'').split('@')[0],
+    role,
+    referralCode: uid(8).toUpperCase(),
+    referredBy: null,
+    status: 'active',
+    createdAt: serverTimestamp(),
+  };
+  await setDoc(ref, profile);
+  return profile;
+}
+
+async function ensureWallet(uidVal){
+  const ref = doc(db, 'wallets', uidVal);
+  const snap = await getDoc(ref);
+  if(snap.exists()) return snap.data();
+  const w = {
+    balance: 0, pendingBalance: 0, lifetimeEarnings: 0,
+    withdrawnAmount: 0, frozenBalance: 0, currency: 'VND',
+    updatedAt: serverTimestamp(),
+  };
+  await setDoc(ref, w);
+  return w;
+}
+
+async function loadNetworks(force=false){
+  if(S.networks.length && !force) return S.networks;
+  try{
+    const snap = await getDocs(collection(db, 'networks'));
+    if(snap.empty){
+      // seed defaults (best-effort)
+      for(const n of DEFAULT_NETWORKS){
+        try{ await setDoc(doc(db,'networks',n.id), {...n, createdAt: serverTimestamp()}); }catch(e){}
+      }
+      S.networks = [...DEFAULT_NETWORKS];
+    } else {
+      S.networks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    }
+  }catch(e){
+    S.networks = [...DEFAULT_NETWORKS];
+  }
+  return S.networks;
+}
+
+async function loadCampaigns(){
+  try{
+    const q = query(collection(db,'creatorCampaigns'), where('status','==','active'), limit(24));
+    const snap = await getDocs(q);
+    S.campaigns = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }catch(e){ S.campaigns = []; }
+  return S.campaigns;
+}
+
+/* ============================================================
+   ROUTER
+   ============================================================ */
+function parseHash(){
+  const h = (location.hash || '#/').replace(/^#\/?/, '');
+  const parts = h.split('/').filter(Boolean);
+  return { route: parts[0] || 'home', param: parts[1] || null };
+}
+
+function nav(path){ location.hash = '#/' + path.replace(/^\/+/, ''); }
+
+function render(){
+  const { route, param } = parseHash();
+  S.route = route; S.param = param;
+  const appEl = $('#app');
+
+  // Redirect route (public)
+  if(route === 's' && param){ return renderRedirect(appEl, param); }
+
+  if(!S.ready){ appEl.innerHTML = renderBoot(); return; }
+  if(S.bootError){ appEl.innerHTML = renderBootError(); return; }
+
+  const isDash = ['dashboard','links','create','statistics','creator','wallet','withdraw',
+                  'transactions','referrals','notifications','settings','support',
+                  'admin','admin-networks','admin-rates','admin-creator','admin-withdrawals',
+                  'admin-fraud','admin-users','admin-audit','admin-economics'].includes(route);
+
+  if(isDash && !S.user){ nav('login'); return; }
+
+  if(route === 'login' || route === 'register'){
+    if(S.user){ nav('dashboard'); return; }
+    appEl.innerHTML = renderAuth(route);
+    return;
+  }
+
+  const legalRoutes = ['terms','privacy','anti-fraud','payout-policy','content-policy',
+                       'cookie-policy','disclaimer','refund-policy','creator-policy','network-policy'];
+  if(legalRoutes.includes(route)){
+    appEl.innerHTML = renderLegal(route);
+    return;
+  }
+
+  if(route === 'rates'){ appEl.innerHTML = renderRatesPage(); return; }
+
+  if(route.startsWith('admin')){
+    if(!isAdmin()){ toast('Bạn không có quyền truy cập trang quản trị.', 'err'); nav('dashboard'); return; }
+    appEl.innerHTML = renderAdmin(route);
+    return;
+  }
+
+  if(isDash){ appEl.innerHTML = renderDashboard(route); return; }
+
+  appEl.innerHTML = renderLanding();
+}
+
+function isAdmin(){
+  return S.profile && ['admin','superadmin','finance','moderator','support','analyst'].includes(S.profile.role);
+}
+function isSuperAdmin(){
+  return S.profile && ['admin','superadmin'].includes(S.profile.role);
+}
+
+window.addEventListener('hashchange', render);
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+function renderBoot(){
+  return `<div style="min-height:100dvh;display:grid;place-items:center">
+    <div class="center">
+      <div class="logo" style="justify-content:center;margin-bottom:18px">
+        <div class="logo-mark">L</div><span>Linkora</span>
+      </div>
+      <div class="skel" style="width:180px;margin:0 auto"></div>
+    </div>
+  </div>`;
+}
+function renderBootError(){
+  return `<div style="min-height:100dvh;display:grid;place-items:center;padding:24px">
+    <div class="card" style="max-width:460px;text-align:center">
+      <h3 style="margin-bottom:10px">Không thể kết nối Firebase</h3>
+      <p style="font-size:.88rem;line-height:1.6;margin-bottom:18px">
+        Hãy chắc chắn rằng <strong>Cloud Firestore</strong> đã được bật cho project
+        <span class="mono">quocdat-396fe</span> và Security Rules cho phép truy cập theo uid.
+      </p>
+      <div class="notice warn" style="text-align:left">
+        <span>${icon('shield',16)}</span>
+        <span>${esc(S.bootError)}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   LANDING PAGE
+   ============================================================ */
+function renderLanding(){
+  const nets = S.networks.length ? S.networks : DEFAULT_NETWORKS;
+  const enabled = nets.filter(n => n.enabled !== false);
+
+  return `
+  ${renderSiteHeader('home')}
+  <main>
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-glow"></div>
+      <div class="wrap-page inner">
+        <div class="grid" style="grid-template-columns:1.05fr .95fr;gap:52px;align-items:center">
+          <div>
+            <div class="pill" style="margin-bottom:22px">
+              <span class="dot" style="color:var(--ok)"></span>
+              Nền tảng minh bạch rate · Chống gian lận server-side
+            </div>
+            <h1>Biến lượt truy cập và nội dung của bạn thành thu nhập.</h1>
+            <p class="sub" style="margin-bottom:28px">
+              Tạo shortlink, chia sẻ nội dung và nhận phần thưởng từ những lượt truy cập hợp lệ.
+              Rate hiển thị công khai, mọi giao dịch đều có ledger.
+            </p>
+            <div class="btn-group" style="margin-bottom:20px">
+              <button class="btn" data-goto="register">Bắt đầu kiếm tiền ${icon('arrow',16)}</button>
+              <button class="btn ghost" data-scroll="#how">Xem cách hoạt động</button>
+            </div>
+            <p class="tiny muted-3" style="max-width:48ch;line-height:1.6">
+              Thu nhập phụ thuộc vào lượt truy cập hợp lệ, rate của network và điều kiện chương trình.
+              Linkora không đảm bảo mức thu nhập cố định.
+            </p>
+          </div>
+          <div class="preview">
+            <div class="preview-bar"><i></i><i></i><i></i>
+              <span class="tiny muted-3" style="margin-left:8px">Bản xem trước giao diện</span>
+            </div>
+            <div class="preview-body">
+              <div>
+                <div class="stat-label" style="margin-bottom:8px">Thu nhập 30 ngày</div>
+                <div class="stat-value" style="margin-bottom:4px">—</div>
+                <div class="tiny muted-3">Chưa có dữ liệu thật</div>
+                <div class="bars">
+                  ${[38,52,44,68,58,80,72,92,64,78,88,96].map((h,i)=>
+                    `<span class="${i>8?'on':''}" style="height:${h}%;animation-delay:${i*45}ms"></span>`).join('')}
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div class="card" style="padding:14px;border-radius:16px">
+                  <div class="tiny muted-3" style="margin-bottom:6px">Shortlink</div>
+                  <div class="mono" style="font-size:.78rem">linkora.io/s/•••••</div>
+                </div>
+                <div class="card" style="padding:14px;border-radius:16px">
+                  <div class="between">
+                    <span class="tiny muted-3">Valid views</span>
+                    <span class="badge ok">0</span>
+                  </div>
+                  <div class="divider" style="margin:12px 0"></div>
+                  <div class="between">
+                    <span class="tiny muted-3">User share</span>
+                    <span class="tiny" style="font-weight:650">60%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <section class="tight">
+      <div class="wrap-page">
+        <div class="grid c4">
+          ${[
+            ['Network đang hoạt động', enabled.length || 0],
+            ['Tỷ lệ chia user', '60%'],
+            ['Ngưỡng rút tối thiểu', '50.000đ'],
+            ['Xác thực lượt xem', 'Server-side'],
+          ].map(([l,v])=>`
+            <div class="card">
+              <div class="stat-label" style="margin-bottom:10px">${l}</div>
+              <div class="stat-value">${v}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW -->
+    <section id="how">
+      <div class="wrap-page">
+        <div class="sec-head">
+          <div class="eyebrow" style="margin-bottom:14px">Cách hoạt động</div>
+          <h2>Ba bước, không có bước ẩn.</h2>
+          <p>Mọi lượt xem đều được kiểm tra server-side trước khi ghi nhận doanh thu.</p>
+        </div>
+        <div class="grid c3">
+          ${[
+            ['01','Đăng ký','Tạo tài khoản bằng email. Ví và ledger được khởi tạo tự động, không có phí ẩn.'],
+            ['02','Tạo shortlink hoặc tham gia campaign','Rút gọn link và chọn network, hoặc nộp nội dung cho creator campaign với KPI rõ ràng.'],
+            ['03','Nhận thu nhập từ lượt hợp lệ','Lượt xem hợp lệ được đối soát, chia theo tỷ lệ công khai, ghi vào ledger và có thể rút.'],
+          ].map(([n,t,d])=>`
+            <div class="step">
+              <span class="num">${n}</span>
+              <h3>${t}</h3>
+              <p>${d}</p>
+            </div>`).join('')}
+        </div>
+      </div>
+    </section>
+
+    <!-- NETWORKS -->
+    <section class="tight">
+      <div class="wrap-page">
+        <div class="sec-head">
+          <div class="eyebrow" style="margin-bottom:14px">Network đối tác</div>
+          <h2>Rate công khai, có timestamp.</h2>
+          <p>Rate được tham chiếu từ cấu hình network tương ứng và có thể thay đổi. Linkora không tuyên bố là đối tác chính thức của các network trừ khi có thoả thuận/API chính thức.</p>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <div class="table-scroll">
+            <table>
+              <thead><tr>
+                <th>Network</th><th>Loại task</th><th>Gross / task</th>
+                <th>User share</th><th>Platform</th><th>Trạng thái</th>
+              </tr></thead>
+              <tbody>
+                ${enabled.map(n => `
+                  <tr>
+                    <td>
+                      <div class="row gap-12">
+                        <div class="net-avatar">${esc((n.name||'?').slice(0,2).toUpperCase())}</div>
+                        <div>
+                          <div style="font-weight:600">${esc(n.name)}</div>
+                          <div class="tiny muted-3 mono">${esc(n.id)}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="muted">${esc(n.taskType||'direct')}</td>
+                    <td class="mono" style="font-weight:600">${fmtVND(n.grossRate)}</td>
+                    <td>${n.userSharePercent ?? 60}%</td>
+                    <td class="muted">${n.platformSharePercent ?? 40}%</td>
+                    <td><span class="badge ${n.apiStatus==='live'?'ok':'warn'}">${n.apiStatus==='live'?'API live':'Manual / API chưa cấu hình'}</span></td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <p class="tiny muted-3" style="margin-top:14px">
+          Xem đầy đủ tại <a class="link" href="#/rates">trang Rate minh bạch</a>.
+        </p>
+      </div>
+    </section>
+
+    <!-- CALCULATOR -->
+    <section>
+      <div class="wrap-page">
+        <div class="sec-head">
+          <div class="eyebrow" style="margin-bottom:14px">Máy tính thu nhập</div>
+          <h2>Ước tính dựa trên rate hiện tại.</h2>
+          <p>Rate có thể thay đổi theo network, quốc gia, loại traffic và điều kiện chiến dịch.</p>
+        </div>
+        <div class="calc">
+          <div class="calc-grid">
+            <div class="calc-in">
+              <div class="field">
+                <label for="calc-views">Số lượt hợp lệ</label>
+                <input class="input" id="calc-views" type="number" min="0" step="100" value="1000" />
+              </div>
+              <div class="field">
+                <label for="calc-net">Network</label>
+                <select class="select" id="calc-net">
+                  ${enabled.map(n => `<option value="${esc(n.id)}">${esc(n.name)} — ${fmtVND(n.grossRate)}/task</option>`).join('')}
+                </select>
+              </div>
+              <div class="notice">
+                <span>${icon('shield',16)}</span>
+                <span>Con số chỉ là ước tính. Thu nhập thực tế phụ thuộc vào lượt xem được network xác nhận hợp lệ.</span>
+              </div>
+            </div>
+            <div class="calc-out">
+              <div class="calc-line"><span class="muted small">Network rate</span><span class="v mono" id="c-rate">—</span></div>
+              <div class="calc-line"><span class="muted small">Gross revenue</span><span class="v mono" id="c-gross">—</span></div>
+              <div class="divider" style="margin:6px 0"></div>
+              <div class="calc-line big"><span style="font-weight:600">Bạn nhận</span><span class="v mono" id="c-user" style="color:var(--accent)">—</span></div>
+              <div class="calc-line"><span class="muted small">Nền tảng</span><span class="v mono" id="c-plat">—</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CREATOR -->
+    <section class="tight">
+      <div class="wrap-page">
+        <div class="sec-head">
+          <div class="eyebrow" style="margin-bottom:14px">Creator Campaign</div>
+          <h2>Bạn có nội dung? Hãy biến nó thành tài sản.</h2>
+          <p>Đăng nội dung lên TikTok, YouTube, Facebook hoặc website. Nộp link, hệ thống đối chiếu KPI trước khi ghi nhận thưởng.</p>
+        </div>
+        <div class="grid c4">
+          ${['TikTok','YouTube','Facebook','Website'].map(p=>`
+            <div class="card hoverable">
+              <div class="net-avatar" style="margin-bottom:14px">${p.slice(0,2).toUpperCase()}</div>
+              <div style="font-weight:620;margin-bottom:5px">${p}</div>
+              <div class="tiny muted-3">Publish → Submit → Verify → Earn</div>
+            </div>`).join('')}
+        </div>
+        <div class="notice warn" style="margin-top:22px">
+          <span>${icon('shield',16)}</span>
+          <span>Creator reward phụ thuộc vào KPI campaign và kết quả xác minh. Không có khoản thưởng nào được duyệt tự động chỉ dựa trên số liệu do người dùng khai báo.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRUST -->
+    <section class="tight">
+      <div class="wrap-page">
+        <div class="sec-head">
+          <div class="eyebrow" style="margin-bottom:14px">Minh bạch & an toàn</div>
+          <h2>Những gì chúng tôi làm rõ.</h2>
+        </div>
+        <div class="grid c3">
+          ${[
+            ['Thanh toán minh bạch','Mỗi khoản cộng/trừ đều tạo transaction ledger. Số dư không bao giờ bị sửa trực tiếp.'],
+            ['Theo dõi thu nhập','Bảng điều khiển hiển thị doanh thu theo ngày, theo link và theo network.'],
+            ['Chống gian lận','Kiểm tra trùng IP/thiết bị, tốc độ tăng view bất thường, tỷ lệ engagement bất khả thi.'],
+            ['Dữ liệu được bảo vệ','IP và dấu thiết bị được hash. Không lưu plaintext khi không cần thiết.'],
+            ['Giới hạn lượt xem','Mỗi network có giới hạn IP/thiết bị/cooldown riêng, xử lý server-side.'],
+            ['Hỗ trợ người dùng','Trung tâm hỗ trợ với ticket và lịch sử phản hồi.'],
+          ].map(([t,d])=>`
+            <div class="card hoverable">
+              <div class="icon" style="width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--bg-sunken);border:1px solid var(--border);margin-bottom:15px;color:var(--text-2)">
+                ${icon('shield',17)}
+              </div>
+              <div style="font-weight:650;margin-bottom:7px;letter-spacing:-0.015em">${t}</div>
+              <p class="small" style="line-height:1.6">${d}</p>
+            </div>`).join('')}
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section>
+      <div class="wrap-page">
+        <div class="grid" style="grid-template-columns:.8fr 1.2fr;gap:56px">
+          <div>
+            <div class="eyebrow" style="margin-bottom:14px">FAQ</div>
+            <h2 style="margin-bottom:14px">Câu hỏi thường gặp.</h2>
+            <p class="small" style="line-height:1.65">Nếu câu hỏi của bạn chưa có ở đây, hãy tạo ticket trong trung tâm hỗ trợ.</p>
+          </div>
+          <div>
+            ${[
+              ['Thu nhập được tính như thế nào?',
+               'Mỗi lượt truy cập hợp lệ tạo ra gross revenue theo rate của network. Gross revenue được chia theo tỷ lệ hiện hành (mặc định 60% user / 40% platform). Tỷ lệ này được lưu trong cấu hình network và có thể thay đổi bởi admin.'],
+              ['Vì sao lượt xem của tôi không được tính?',
+               'Lượt xem có thể bị loại nếu trùng IP/thiết bị trong cooldown, đến từ bot/automation, self-click, traffic exchange, iframe, hoặc không vượt qua kiểm tra của network đối tác.'],
+              ['Bao lâu thì rút được tiền?',
+               'Yêu cầu rút tiền được xử lý theo quy trình duyệt. Ngưỡng tối thiểu mặc định là 50.000đ và có thể thay đổi bởi admin. Thu nhập đang chờ đối soát không được tính vào số dư khả dụng.'],
+              ['Rate có cố định không?',
+               'Không. Rate có thể thay đổi theo network, quốc gia, loại traffic và điều kiện chiến dịch. Mọi thay đổi rate đều được ghi vào rate history kèm timestamp và lý do.'],
+              ['Linkora có phải đối tác chính thức của các network?',
+               'Không, trừ khi có thoả thuận hoặc API chính thức được công bố. Rate hiển thị được tham chiếu từ cấu hình network và có thể thay đổi.'],
+              ['Tôi có thể tự click link của mình không?',
+               'Không. Self-click bị chặn ở tầng validation. Hành vi cố ý tạo traffic gian lận có thể dẫn tới khoá tài khoản và huỷ số dư gian lận.'],
+            ].map(([q,a])=>`
+              <div class="faq-item">
+                <button class="faq-q" data-faq>
+                  <span>${q}</span>
+                  <span class="chev">${icon('arrow',15)}</span>
+                </button>
+                <div class="faq-a"><p>${a}</p></div>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="tight">
+      <div class="wrap-page">
+        <div class="card pad-lg center" style="padding:60px 30px;background:var(--bg-soft)">
+          <h2 style="margin-bottom:14px">Bắt đầu từ một shortlink.</h2>
+          <p style="max-width:52ch;margin:0 auto 28px;font-size:1rem">
+            Tạo tài khoản, rút gọn link đầu tiên và theo dõi lượt truy cập hợp lệ trong bảng điều khiển.
+          </p>
+          <div class="btn-group" style="justify-content:center">
+            <button class="btn" data-goto="register">Tạo tài khoản miễn phí</button>
+            <button class="btn ghost" data-goto="login">Đăng nhập</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  ${renderSiteFooter()}`;
+}
+
+function renderSiteHeader(active){
+  return `
+  <header class="site-header">
+    <div class="inner">
+      <a class="logo" href="#/">
+        <span class="logo-mark">L</span><span>Linkora</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#/" class="${active==='home'?'active':''}">Trang chủ</a>
+        <a href="#/rates">Rate</a>
+        <a href="#how" data-scroll="#how">Cách hoạt động</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <div class="row gap-8">
+        <button class="icon-btn" data-theme-toggle aria-label="Đổi giao diện">${icon('moon',16)}</button>
+        <button class="btn ghost sm" data-goto="login">Đăng nhập</button>
+        <button class="btn sm" data-goto="register">Đăng ký</button>
+      </div>
+    </div>
+  </header>`;
+}
+
+function renderSiteFooter(){
+  return `
+  <footer class="site-footer">
+    <div class="wrap-page">
+      <div class="foot-grid">
+        <div class="foot-col">
+          <div class="logo" style="margin-bottom:14px">
+            <span class="logo-mark">L</span><span>Linkora</span>
+          </div>
+          <p class="small" style="max-width:34ch;line-height:1.65">
+            Nền tảng kiếm tiền từ lượt truy cập hợp lệ và nội dung sáng tạo.
+            Minh bạch rate, ledger đầy đủ, kiểm tra gian lận server-side.
+          </p>
+        </div>
+        <div class="foot-col">
+          <h4>Sản phẩm</h4>
+          <a href="#/rates">Bảng rate</a>
+          <a href="#/dashboard">Bảng điều khiển</a>
+          <a href="#/creator">Creator campaign</a>
+          <a href="#/wallet">Ví & rút tiền</a>
+        </div>
+        <div class="foot-col">
+          <h4>Pháp lý</h4>
+          <a href="#/terms">Điều khoản</a>
+          <a href="#/privacy">Quyền riêng tư</a>
+          <a href="#/anti-fraud">Chống gian lận</a>
+          <a href="#/payout-policy">Chính sách thanh toán</a>
+        </div>
+        <div class="foot-col">
+          <h4>Hỗ trợ</h4>
+          <a href="#/support">Trung tâm hỗ trợ</a>
+          <a href="#/creator-policy">Chính sách creator</a>
+          <a href="#/network-policy">Chính sách network</a>
+          <a href="#/disclaimer">Miễn trừ trách nhiệm</a>
+        </div>
+      </div>
+      <div class="divider" style="margin:36px 0 20px"></div>
+      <div class="between wrap" style="gap:12px">
+        <span class="tiny muted-3">© ${new Date().getFullYear()} Linkora. Rate có thể thay đổi theo network và điều kiện chương trình.</span>
+        <span class="tiny muted-3">Thu nhập phụ thuộc vào lượt truy cập hợp lệ.</span>
+      </div>
+    </div>
+  </footer>`;
+}
+
+/* ============================================================
+   RATES PAGE
+   ============================================================ */
+function renderRatesPage(){
+  const nets = S.networks.length ? S.networks : DEFAULT_NETWORKS;
+  return `
+  ${renderSiteHeader('rates')}
+  <main class="wrap-page" style="padding-top:56px;padding-bottom:80px">
+    <div class="sec-head">
+      <div class="eyebrow" style="margin-bottom:14px">Minh bạch</div>
+      <h2>Bảng rate hiện hành</h2>
+      <p>Mỗi rate có timestamp cập nhật. Khi network thay đổi rate, hệ thống tạo bản ghi mới thay vì sửa lịch sử.</p>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Network</th><th>Task type</th><th>Gross rate</th>
+              <th>User share</th><th>Platform share</th>
+              <th>Min payout</th><th>Giới hạn / ngày</th><th>Cập nhật</th><th>Nguồn</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${nets.map(n=>`
+              <tr>
+                <td>
+                  <div class="row gap-12">
+                    <div class="net-avatar">${esc((n.name||'?').slice(0,2).toUpperCase())}</div>
+                    <div>
+                      <div style="font-weight:600">${esc(n.name)}</div>
+                      <div class="tiny muted-3">${esc(n.countries?.join(', ') || '—')}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="muted">${esc(n.taskType||'direct')}</td>
+                <td class="mono" style="font-weight:650">${fmtVND(n.grossRate)}</td>
+                <td>${n.userSharePercent ?? 60}%</td>
+                <td class="muted">${n.platformSharePercent ?? 40}%</td>
+                <td class="mono">${fmtVND(n.minPayout)}</td>
+                <td class="tiny muted">IP ${n.maxViewsPerIpPerDay ?? 1} · Device ${n.maxViewsPerDevicePerDay ?? 1}</td>
+                <td class="tiny muted-3">${n.lastSync ? timeAgo(n.lastSync) : 'Chưa đồng bộ'}</td>
+                <td>
+                  <span class="badge ${n.apiStatus==='live'?'ok':'warn'}">
+                    ${n.apiStatus==='live' ? 'API chính thức' : 'Cấu hình thủ công'}
+                  </span>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="notice warn" style="margin-top:22px">
+      <span>${icon('shield',16)}</span>
+      <span>Rate được tham chiếu từ cấu hình/network tương ứng và có thể thay đổi. Điều kiện tính hợp lệ do network đối tác quyết định. Linkora không tuyên bố là đối tác chính thức của các network trừ khi có thoả thuận/API chính thức.</span>
+    </div>
+  </main>
+  ${renderSiteFooter()}`;
+}
+
+/* ============================================================
+   LEGAL
+   ============================================================ */
+const LEGAL = {
+  terms: { title:'Điều khoản sử dụng', body:`
+    <p>Bằng việc sử dụng Linkora, bạn đồng ý với các điều khoản dưới đây.</p>
+    <h2>1. Bản chất dịch vụ</h2>
+    <p>Linkora là nền tảng trung gian kết nối người dùng với các network quảng cáo/traffic. Linkora không đảm bảo mức thu nhập, không đảm bảo campaign luôn có sẵn, và không đảm bảo mọi lượt truy cập đều được tính là hợp lệ.</p>
+    <h2>2. Rate và thay đổi rate</h2>
+    <p>Rate có thể thay đổi theo network, quốc gia, loại traffic và điều kiện chiến dịch. Khi network thay đổi rate, hệ thống tạo bản ghi rate mới và lưu vào rate history. Lịch sử rate không bị sửa đổi.</p>
+    <h2>3. Lượt truy cập hợp lệ</h2>
+    <ul>
+      <li>Chỉ valid traffic được tính vào thu nhập.</li>
+      <li>Lượt truy cập gian lận có thể bị loại bỏ, kể cả sau khi đã ghi nhận tạm thời.</li>
+      <li>Network đối tác có quyền từ chối traffic mà họ cho là không hợp lệ.</li>
+    </ul>
+    <h2>4. Thu nhập pending</h2>
+    <p>Thu nhập ở trạng thái pending không đồng nghĩa với thu nhập đã được xác nhận. Chỉ số dư khả dụng mới có thể rút.</p>
+    <h2>5. Trách nhiệm người dùng</h2>
+    <ul>
+      <li>Không dùng bot, automation, hoặc công cụ tạo traffic giả.</li>
+      <li>Không tự click link của chính mình.</li>
+      <li>Không ép click, không spam, không dùng traffic exchange nếu network cấm.</li>
+      <li>Không sử dụng nội dung vi phạm pháp luật hoặc bản quyền.</li>
+      <li>Người dùng chịu trách nhiệm về nguồn traffic mình tạo ra.</li>
+    </ul>
+    <h2>6. Khoá tài khoản</h2>
+    <p>Linkora có quyền tạm khoá hoặc khoá vĩnh viễn tài khoản có dấu hiệu gian lận, đồng thời huỷ số dư có nguồn gốc gian lận.</p>
+  `},
+  privacy: { title:'Chính sách quyền riêng tư', body:`
+    <p>Chúng tôi thu thập lượng dữ liệu tối thiểu cần thiết để vận hành nền tảng và chống gian lận.</p>
+    <h2>Dữ liệu thu thập</h2>
+    <ul>
+      <li>Email và tên hiển thị khi bạn đăng ký.</li>
+      <li>Thông tin shortlink bạn tạo và lượt truy cập tương ứng.</li>
+      <li>IP hash và device hash — được băm, không lưu plaintext khi không cần thiết.</li>
+      <li>Thông tin thanh toán do bạn cung cấp khi yêu cầu rút tiền.</li>
+    </ul>
+    <h2>Mục đích sử dụng</h2>
+    <p>Dữ liệu được dùng để vận hành dịch vụ, phát hiện gian lận, xử lý thanh toán và tuân thủ nghĩa vụ pháp lý.</p>
+    <h2>Chia sẻ dữ liệu</h2>
+    <p>Chúng tôi không bán dữ liệu cá nhân. Dữ liệu tổng hợp (không định danh) có thể được chia sẻ với network đối tác để đối soát traffic.</p>
+    <h2>Quyền của bạn</h2>
+    <p>Bạn có thể yêu cầu truy cập, chỉnh sửa hoặc xoá dữ liệu cá nhân thông qua trung tâm hỗ trợ.</p>
+  `},
+  'anti-fraud': { title:'Chính sách chống gian lận', body:`
+    <p>Linkora áp dụng kiểm tra gian lận ở tầng server-side cho mọi lượt truy cập và submission.</p>
+    <h2>Tín hiệu được kiểm tra</h2>
+    <ul>
+      <li>Trùng IP / trùng thiết bị trong cooldown.</li>
+      <li>Tốc độ tăng view bất thường.</li>
+      <li>Tỷ lệ engagement bất khả thi.</li>
+      <li>Screenshot trùng lặp.</li>
+      <li>Nhiều tài khoản creator từ cùng một người.</li>
+      <li>Lạm dụng IP, device fingerprint, mẫu engagement đáng ngờ.</li>
+    </ul>
+    <h2>Fraud score</h2>
+    <ul>
+      <li>0–30: bình thường</li>
+      <li>31–60: đáng ngờ</li>
+      <li>61–80: rủi ro cao</li>
+      <li>81–100: nghiêm trọng</li>
+    </ul>
+    <p>Không có kết luận gian lận nào được đưa ra chỉ dựa trên một tín hiệu duy nhất. Admin xem được lý do của từng điểm số.</p>
+    <h2>Hậu quả</h2>
+    <p>Traffic gian lận bị loại khỏi doanh thu. Tài khoản vi phạm nhiều lần có thể bị khoá và số dư gian lận bị huỷ.</p>
+  `},
+  'payout-policy': { title:'Chính sách thanh toán', body:`
+    <h2>Ngưỡng rút tối thiểu</h2>
+    <p>Ngưỡng mặc định là 50.000đ. Admin có thể thay đổi ngưỡng này trong cấu hình hệ thống.</p>
+    <h2>Phương thức</h2>
+    <ul>
+      <li>Chuyển khoản ngân hàng.</li>
+      <li>Thẻ điện thoại / thẻ game, nếu admin cấu hình nhà cung cấp hợp lệ.</li>
+    </ul>
+    <h2>Trạng thái yêu cầu</h2>
+    <p>pending → reviewing → approved → processing → completed. Yêu cầu cũng có thể bị rejected hoặc cancelled.</p>
+    <h2>Thu nhập pending</h2>
+    <p>Số dư đang chờ đối soát không thể rút. Chỉ số dư khả dụng mới được xử lý.</p>
+    <h2>Phí</h2>
+    <p>Phí thanh toán (nếu có) sẽ được hiển thị trước khi bạn xác nhận yêu cầu rút tiền.</p>
+  `},
+  'content-policy': { title:'Chính sách nội dung', body:`
+    <p>Nội dung tham gia creator campaign phải tuân thủ pháp luật Việt Nam và điều khoản của nền tảng mà bạn đăng tải.</p>
+    <ul>
+      <li>Không nội dung vi phạm bản quyền.</li>
+      <li>Không nội dung khiêu dâm, bạo lực, thù địch.</li>
+      <li>Không nội dung gây hiểu nhầm về tài chính, đầu tư, y tế.</li>
+      <li>Không nội dung spam hoặc gây nhiễu trải nghiệm người xem.</li>
+    </ul>
+    <p>Linkora có quyền từ chối hoặc huỷ submission vi phạm mà không cần bồi thường.</p>
+  `},
+  'cookie-policy': { title:'Chính sách cookie', body:`
+    <p>Linkora sử dụng cookie và bộ nhớ cục bộ cho các mục đích sau:</p>
+    <ul>
+      <li>Duy trì phiên đăng nhập.</li>
+      <li>Ghi nhớ tuỳ chọn giao diện (sáng/tối).</li>
+      <li>Phát hiện hành vi bất thường phục vụ chống gian lận.</li>
+    </ul>
+    <p>Bạn có thể tắt cookie trong trình duyệt, nhưng một số tính năng có thể không hoạt động đúng.</p>
+  `},
+  disclaimer: { title:'Miễn trừ trách nhiệm', body:`
+    <p>Linkora không đảm bảo mức thu nhập cụ thể. Thu nhập phụ thuộc vào lượt truy cập hợp lệ, rate của network và điều kiện chương trình.</p>
+    <p>Linkora không tuyên bố là đối tác chính thức của bất kỳ network nào trừ khi có thoả thuận hoặc API chính thức được công bố.</p>
+    <p>Linkora không chịu trách nhiệm cho các quyết định của network đối tác trong việc chấp nhận hoặc từ chối traffic.</p>
+  `},
+  'refund-policy': { title:'Chính sách hoàn tiền', body:`
+    <p>Linkora là nền tảng chi trả cho người dùng, không thu phí từ người dùng cuối. Do đó chính sách hoàn tiền áp dụng cho các trường hợp nạp/thanh toán nội bộ (nếu có).</p>
+    <p>Yêu cầu hoàn tiền được xử lý trong vòng 7 ngày làm việc kể từ khi tiếp nhận, với điều kiện giao dịch chưa được sử dụng cho mục đích gian lận.</p>
+  `},
+  'creator-policy': { title:'Chính sách Creator', body:`
+    <h2>Điều kiện tham gia</h2>
+    <ul>
+      <li>Tài khoản ở trạng thái active.</li>
+      <li>Nội dung đăng tải công khai trên nền tảng được hỗ trợ.</li>
+      <li>Không trùng lặp URL đã nộp trước đó.</li>
+    </ul>
+    <h2>KPI và thưởng</h2>
+    <p>Mỗi campaign có KPI riêng (views, likes, comments, thời gian tối thiểu). Reward chỉ được ghi nhận sau khi admin duyệt và xác minh.</p>
+    <h2>Gian lận</h2>
+    <p>Submission có dấu hiệu gian lận sẽ bị đánh dấu fraud, bị từ chối và có thể dẫn tới khoá tài khoản.</p>
+  `},
+  'network-policy': { title:'Chính sách Network', body:`
+    <p>Linkora tích hợp với các network đối tác thông qua adapter. Mỗi network có cấu hình riêng về rate, giới hạn và điều kiện hợp lệ.</p>
+    <h2>Trạng thái API</h2>
+    <ul>
+      <li><strong>API live</strong>: network có API chính thức và đã được cấu hình.</li>
+      <li><strong>Manual</strong>: network chưa có API chính thức. Linkora không scrape website, không reverse engineer API private, không giả lập API response. Admin nhập rate thủ công.</li>
+    </ul>
+    <h2>Thay đổi rate</h2>
+    <p>Khi network thay đổi rate, hệ thống tạo bản ghi mới trong rate history thay vì sửa lịch sử cũ.</p>
+  `},
+};
+
+function renderLegal(key){
+  const doc = LEGAL[key];
+  if(!doc) return renderNotFound();
+  return `
+  ${renderSiteHeader('')}
+  <main class="wrap-page" style="padding-top:56px;padding-bottom:80px">
+    <div class="legal-body">
+      <div class="eyebrow" style="margin-bottom:14px">Pháp lý</div>
+      <h1 style="font-size:2.1rem;margin-bottom:10px">${esc(doc.title)}</h1>
+      <p class="tiny muted-3" style="margin-bottom:26px">Cập nhật lần cuối: ${new Date().toLocaleDateString('vi-VN')}</p>
+      ${doc.body}
+      <div class="divider" style="margin:36px 0"></div>
+      <button class="btn ghost" data-goto="home">${icon('arrow',15)} Về trang chủ</button>
+    </div>
+  </main>
+  ${renderSiteFooter()}`;
+}
+
+function renderNotFound(){
+  return `<div style="min-height:100dvh;display:grid;place-items:center;padding:24px">
+    <div class="center">
+      <h1 style="font-size:3rem;margin-bottom:10px">404</h1>
+      <p style="margin-bottom:20px">Trang bạn tìm không tồn tại.</p>
+      <button class="btn" data-goto="home">Về trang chủ</button>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   AUTH
+   ============================================================ */
+function renderAuth(mode){
+  const isLogin = mode === 'login';
+  return `
+  <div class="auth-wrap">
+    <aside class="auth-aside">
+      <a class="logo" href="#/">
+        <span class="logo-mark">L</span><span>Linkora</span>
+      </a>
+      <div>
+        <h2 style="font-size:1.9rem;margin-bottom:16px;max-width:16ch">
+          Biến lượt truy cập thành thu nhập minh bạch.
+        </h2>
+        <p style="font-size:.94rem;line-height:1.7;max-width:44ch;margin-bottom:26px">
+          Rate công khai, ledger đầy đủ, kiểm tra gian lận server-side.
+          Không có con số nào được tạo ra để trông đẹp.
+        </p>
+        <div style="display:flex;flex-direction:column;gap:14px;max-width:44ch">
+          ${[
+            'Transaction ledger cho mọi khoản cộng/trừ',
+            'Giới hạn IP/thiết bị theo từng network',
+            'Fraud score minh bạch, có lý do',
+          ].map(t=>`
+            <div class="row gap-12">
+              <span style="color:var(--ok);flex:none">${icon('check',16)}</span>
+              <span class="small" style="color:var(--text-2)">${t}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+      <p class="tiny muted-3" style="max-width:44ch;line-height:1.6">
+        Thu nhập phụ thuộc vào lượt truy cập hợp lệ, rate của network và điều kiện chương trình.
+      </p>
+    </aside>
+    <main class="auth-main">
+      <div class="auth-card">
+        <div class="tabs">
+          <button class="${isLogin?'on':''}" data-goto="login">Đăng nhập</button>
+          <button class="${!isLogin?'on':''}" data-goto="register">Đăng ký</button>
+        </div>
+        <h3 style="font-size:1.4rem;margin-bottom:8px">${isLogin?'Chào mừng trở lại':'Tạo tài khoản'}</h3>
+        <p class="small" style="margin-bottom:26px">
+          ${isLogin?'Đăng nhập để tiếp tục quản lý shortlink và thu nhập.':'Bắt đầu với một shortlink đầu tiên.'}
+        </p>
+
+        <form id="auth-form" novalidate>
+          ${!isLogin ? `
+          <div class="field">
+            <label for="a-name">Tên hiển thị</label>
+            <input class="input" id="a-name" type="text" autocomplete="name" placeholder="Nguyễn Văn A" maxlength="60" />
+          </div>` : ''}
+          <div class="field">
+            <label for="a-email">Email</label>
+            <input class="input" id="a-email" type="email" autocomplete="email" placeholder="ban@email.com" required />
+          </div>
+          <div class="field">
+            <label for="a-pass">Mật khẩu</label>
+            <input class="input" id="a-pass" type="password" autocomplete="${isLogin?'current-password':'new-password'}" placeholder="Tối thiểu 6 ký tự" required />
+            ${!isLogin ? `<span class="hint">Mật khẩu được xử lý bởi Firebase Authentication, không lưu plaintext.</span>` : ''}
+          </div>
+
+          <div id="auth-error" class="notice danger hidden" style="margin-bottom:16px"></div>
+
+          <button class="btn block" type="submit" id="auth-submit" style="height:48px">
+            ${isLogin?'Đăng nhập':'Tạo tài khoản'}
+          </button>
+        </form>
+
+        <p class="tiny muted-3" style="margin-top:22px;text-align:center;line-height:1.6">
+          Bằng việc tiếp tục, bạn đồng ý với
+          <a class="link" href="#/terms">Điều khoản</a> và
+          <a class="link" href="#/privacy">Chính sách quyền riêng tư</a>.
+        </p>
+      </div>
+    </main>
+  </div>`;
+}
+
+function authError(msg){
+  const el = $('#auth-error');
+  if(!el) return;
+  if(!msg){ el.classList.add('hidden'); el.textContent=''; return; }
+  el.classList.remove('hidden');
+  el.textContent = msg;
+}
+
+async function handleAuthSubmit(mode){
+  const email = $('#a-email')?.value.trim() || '';
+  const pass  = $('#a-pass')?.value || '';
+  const name  = $('#a-name')?.value.trim() || '';
+  const btn   = $('#auth-submit');
+
+  authError('');
+  if(!isEmail(email)) return authError('Email không hợp lệ.');
+  if(pass.length < 6) return authError('Mật khẩu phải có ít nhất 6 ký tự.');
+
+  btn.disabled = true;
+  btn.textContent = mode==='login' ? 'Đang đăng nhập…' : 'Đang tạo tài khoản…';
+
+  try{
+    if(mode === 'login'){
+      await signInWithEmailAndPassword(auth, email, pass);
+      toast('Đăng nhập thành công.', 'ok');
+    } else {
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      if(name) await updateProfile(cred.user, { displayName: name });
+      toast('Tài khoản đã được tạo.', 'ok');
+    }
+    nav('dashboard');
+  }catch(e){
+    const map = {
+      'auth/invalid-credential':'Email hoặc mật khẩu không đúng.',
+      'auth/wrong-password':'Email hoặc mật khẩu không đúng.',
+      'auth/user-not-found':'Tài khoản không tồn tại.',
+      'auth/email-already-in-use':'Email này đã được sử dụng.',
+      'auth/weak-password':'Mật khẩu quá yếu.',
+      'auth/too-many-requests':'Quá nhiều lần thử. Vui lòng đợi một lát.',
+      'auth/network-request-failed':'Lỗi kết nối mạng.',
+      'auth/invalid-email':'Email không hợp lệ.',
+      'auth/operation-not-allowed':'Phương thức đăng nhập chưa được bật trong Firebase Console.',
+    };
+    authError(map[e.code] || 'Không thể xác thực. Vui lòng thử lại.');
+  }finally{
+    btn.disabled = false;
+    btn.textContent = mode==='login' ? 'Đăng nhập' : 'Tạo tài khoản';
+  }
+}
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+const DASH_NAV = [
+  { sec:'Tổng quan', items:[
+    ['dashboard','Dashboard','home'],
+    ['statistics','Thống kê','chart'],
+  ]},
+  { sec:'Kiếm tiền', items:[
+    ['create','Tạo link','plus'],
+    ['links','Shortlinks','link'],
+    ['creator','Creator','video'],
+  ]},
+  { sec:'Tài chính', items:[
+    ['wallet','Ví','wallet'],
+    ['withdraw','Rút tiền','cash'],
+    ['transactions','Giao dịch','list'],
+  ]},
+  { sec:'Khác', items:[
+    ['referrals','Giới thiệu','users'],
+    ['notifications','Thông báo','bell'],
+    ['support','Hỗ trợ','help'],
+    ['settings','Cài đặt','settings'],
+  ]},
+];
+
+const ADMIN_NAV = [
+  { sec:'Quản trị', items:[
+    ['admin','Tổng quan','home'],
+    ['admin-economics','Network Economics','scale'],
+    ['admin-networks','Networks','net'],
+    ['admin-rates','Rate & lịch sử','chart'],
+  ]},
+  { sec:'Vận hành', items:[
+    ['admin-creator','Creator duyệt','video'],
+    ['admin-withdrawals','Rút tiền','cash'],
+    ['admin-fraud','Gian lận','shield'],
+    ['admin-users','Người dùng','users'],
+    ['admin-audit','Audit log','doc'],
+  ]},
+];
+
+function renderSidebar(route){
+  const isAdminArea = route.startsWith('admin');
+  const groups = isAdminArea ? ADMIN_NAV : DASH_NAV;
+  const name = S.profile?.displayName || S.user?.email?.split('@')[0] || 'Người dùng';
+  const initial = (name[0] || 'U').toUpperCase();
+
+  return `
+  <aside class="sidebar">
+    <div class="brand">
+      <a class="logo" href="#/">
+        <span class="logo-mark">L</span><span>Linkora</span>
+      </a>
+    </div>
+
+    ${groups.map(g=>`
+      <div class="nav-sec">
+        <div class="nav-sec-label">${g.sec}</div>
+        ${g.items.map(([r,label,ic])=>`
+          <button class="nav-item ${route===r?'on':''}" data-goto="${r}">
+            ${icon(ic,17)}<span>${label}</span>
+          </button>`).join('')}
+      </div>`).join('')}
+
+    ${isSuperAdmin() ? `
+      <div class="nav-sec">
+        <div class="nav-sec-label">Chế độ</div>
+        <button class="nav-item ${!isAdminArea?'on':''}" data-goto="dashboard">
+          ${icon('home',17)}<span>Người dùng</span>
+        </button>
+        <button class="nav-item ${isAdminArea?'on':''}" data-goto="admin">
+          ${icon('shield',17)}<span>Quản trị</span>
+        </button>
+      </div>` : ''}
+
+    <div class="side-foot">
+      <div class="row gap-12" style="padding:8px 10px">
+        <div class="net-avatar" style="width:32px;height:32px;border-radius:10px;font-size:.75rem">${esc(initial)}</div>
+        <div style="min-width:0;flex:1">
+          <div class="small" style="font-weight:620;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(name)}</div>
+          <div class="tiny muted-3" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(S.user?.email||'')}</div>
+        </div>
+      </div>
+      <button class="nav-item" data-action="logout" style="margin-top:6px">
+        ${icon('logout',17)}<span>Đăng xuất</span>
+      </button>
+    </div>
+  </aside>`;
+}
+
+function renderDashTopbar(title, subtitle, actions=''){
+  return `
+  <div class="between wrap" style="margin-bottom:26px">
+    <div class="page-head" style="margin:0">
+      <h1>${esc(title)}</h1>
+      ${subtitle ? `<p>${esc(subtitle)}</p>` : ''}
+    </div>
+    <div class="row gap-8">
+      ${actions}
+      <button class="icon-btn" data-theme-toggle aria-label="Đổi giao diện">${icon('moon',16)}</button>
+    </div>
+  </div>`;
+}
+
+function renderDashboard(route){
+  const body = (()=>{
+    switch(route){
+      case 'dashboard': return viewOverview();
+      case 'statistics': return viewStatistics();
+      case 'create': return viewCreateLink();
+      case 'links': return viewLinks();
+      case 'creator': return viewCreator();
+      case 'wallet': return viewWallet();
+      case 'withdraw': return viewWithdraw();
+      case 'transactions': return viewTransactions();
+      case 'referrals': return viewReferrals();
+      case 'notifications': return viewNotifications();
+      case 'settings': return viewSettings();
+      case 'support': return viewSupport();
+      default: return viewOverview();
+    }
+  })();
+
+  return `
+  <div class="shell">
+    ${renderSidebar(route)}
+    <main class="main">${body}</main>
+  </div>`;
+}
+
+/* ---------- Overview ---------- */
+function viewOverview(){
+  const w = S.wallet || {};
+  const name = S.profile?.displayName || S.user?.email?.split('@')[0] || 'bạn';
+  return `
+  ${renderDashTopbar(`Xin chào, ${name}`, 'Tổng quan hoạt động và thu nhập của bạn.')}
+  <div class="grid c4" style="margin-bottom:20px">
+    ${[
+      ['Số dư khả dụng', fmtVND(w.balance), 'wallet'],
+      ['Đang chờ', fmtVND(w.pendingBalance), 'list'],
+      ['Hôm nay', fmtVND(0), 'chart'],
+      ['Tổng tích luỹ', fmtVND(w.lifetimeEarnings), 'cash'],
+    ].map(([l,v,ic])=>`
+      <div class="stat">
+        <div class="top">
+          <span class="stat-label">${l}</span>
+          <span class="icon">${icon(ic,15)}</span>
+        </div>
+        <div class="stat-value">${v}</div>
+      </div>`).join('')}
+  </div>
+
+  <div class="grid" style="grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:20px">
+    <div class="card">
+      <div class="between" style="margin-bottom:18px">
+        <span class="card-title">Thu nhập 7 ngày</span>
+        <span class="badge">VND</span>
+      </div>
+      <div class="bars">
+        ${[0,0,0,0,0,0,0].map(()=>`<span style="height:6%"></span>`).join('')}
+      </div>
+      <div class="between" style="margin-top:14px">
+        ${['T2','T3','T4','T5','T6','T7','CN'].map(d=>`<span class="tiny muted-3" style="flex:1;text-align:center">${d}</span>`).join('')}
+      </div>
+      <div class="divider"></div>
+      <p class="tiny muted-3">Chưa có dữ liệu thật. Biểu đồ sẽ hiển thị khi có lượt xem hợp lệ đầu tiên.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom:16px">Thao tác nhanh</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button class="btn soft block" style="justify-content:flex-start" data-goto="create">
+          ${icon('plus',16)} Tạo shortlink
+        </button>
+        <button class="btn soft block" style="justify-content:flex-start" data-goto="creator">
+          ${icon('video',16)} Tham gia campaign
+        </button>
+        <button class="btn soft block" style="justify-content:flex-start" data-goto="withdraw">
+          ${icon('cash',16)} Yêu cầu rút tiền
+        </button>
+      </div>
+      <div class="divider"></div>
+      <div class="notice">
+        <span>${icon('shield',16)}</span>
+        <span class="tiny">Mọi giao dịch đều được ghi vào ledger. Số dư không bao giờ được sửa trực tiếp.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="between" style="padding:18px 22px">
+      <span class="card-title">Giao dịch gần đây</span>
+      <button class="btn ghost xs" data-goto="transactions">Xem tất cả</button>
+    </div>
+    <div id="recent-tx">
+      ${renderEmptyState('Chưa có giao dịch', 'Các khoản thu nhập và rút tiền sẽ xuất hiện ở đây.', 'list')}
+    </div>
+  </div>`;
+}
+
+function renderEmptyState(title, desc, ic='list', action=''){
+  return `
+  <div class="empty">
+    <div class="icon">${icon(ic,22)}</div>
+    <h3>${esc(title)}</h3>
+    <p>${esc(desc)}</p>
+    ${action}
+  </div>`;
+}
+
+/* ---------- Statistics ---------- */
+function viewStatistics(){
+  return `
+  ${renderDashTopbar('Thống kê', 'Hiệu suất shortlink và lượt truy cập hợp lệ.')}
+  <div class="grid c4" style="margin-bottom:20px">
+    ${[
+      ['Tổng clicks', '0'],
+      ['Valid views', '0'],
+      ['Invalid views', '0'],
+      ['Tỷ lệ hợp lệ', '—'],
+    ].map(([l,v])=>`
+      <div class="stat">
+        <span class="stat-label">${l}</span>
+        <div class="stat-value">${v}</div>
+      </div>`).join('')}
+  </div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:18px">Lượt truy cập theo ngày</div>
+    <div class="bars">${Array.from({length:14}).map(()=>`<span style="height:5%"></span>`).join('')}</div>
+    <div class="divider"></div>
+    <p class="tiny muted-3">Dữ liệu thống kê sẽ được tổng hợp từ collection <span class="mono">shortlinkViews</span>.</p>
+  </div>`;
+}
+
+/* ---------- Create Link ---------- */
+function viewCreateLink(){
+  const nets = S.networks.length ? S.networks : DEFAULT_NETWORKS;
+  const enabled = nets.filter(n=>n.enabled !== false);
+  return `
+  ${renderDashTopbar('Tạo shortlink', 'Rút gọn link và chọn network để theo dõi lượt truy cập hợp lệ.')}
+  <div class="grid" style="grid-template-columns:1.1fr .9fr;gap:16px">
+    <div class="card pad-lg">
+      <form id="create-link-form" novalidate>
+        <div class="field">
+          <label for="cl-url">URL gốc</label>
+          <input class="input" id="cl-url" type="url" placeholder="https://example.com/bai-viet" required />
+          <span class="hint">Chỉ chấp nhận http/https. URL sẽ được kiểm tra và chuẩn hoá trước khi lưu.</span>
+        </div>
+        <div class="field">
+          <label for="cl-net">Network</label>
+          <select class="select" id="cl-net">
+            ${enabled.map(n=>`<option value="${esc(n.id)}">${esc(n.name)} — ${fmtVND(n.grossRate)}/task</option>`).join('')}
+            <option value="auto">Auto (chọn network tốt nhất)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="cl-alias">Alias (tuỳ chọn)</label>
+          <input class="input" id="cl-alias" type="text" placeholder="vd: khuyen-mai-2024" maxlength="32" />
+          <span class="hint">Chỉ chữ thường, số và dấu gạch ngang. Để trống để hệ thống tự sinh.</span>
+        </div>
+        <div id="cl-error" class="notice danger hidden" style="margin-bottom:16px"></div>
+        <button class="btn block" type="submit" id="cl-submit" style="height:48px">
+          ${icon('plus',16)} Tạo link
+        </button>
+      </form>
+      <div id="cl-result" class="hidden" style="margin-top:22px"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px">Lưu ý quan trọng</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        ${[
+          'Lượt truy cập của chính bạn vào link của mình sẽ không được tính.',
+          'Mỗi IP và thiết bị có giới hạn riêng theo cấu hình network.',
+          'Lượt truy cập từ bot, automation, traffic exchange sẽ bị loại.',
+          'Chỉ lượt được network xác nhận hợp lệ mới tạo doanh thu.',
+        ].map(t=>`
+          <div class="row gap-12" style="align-items:flex-start">
+            <span style="color:var(--text-3);flex:none;margin-top:2px">${icon('shield',15)}</span>
+            <span class="small" style="line-height:1.55;color:var(--text-2)">${t}</span>
+          </div>`).join('')}
+      </div>
+      <div class="divider"></div>
+      <div class="notice">
+        <span>${icon('net',16)}</span>
+        <span class="tiny">Redirect và validation phải chạy server-side (Cloud Functions / Hosting rewrites) để đảm bảo giới hạn không bị vượt qua từ client.</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function handleCreateLink(){
+  const url = $('#cl-url')?.value.trim() || '';
+  const net = $('#cl-net')?.value || 'auto';
+  const alias = ($('#cl-alias')?.value || '').trim().toLowerCase();
+  const err = $('#cl-error');
+  const btn = $('#cl-submit');
+
+  err.classList.add('hidden');
+
+  const safe = safeUrl(url);
+  if(!safe){
+    err.textContent = 'URL không hợp lệ. Chỉ chấp nhận http hoặc https.';
+    err.classList.remove('hidden');
+    return;
+  }
+  if(alias && !/^[a-z0-9-]{3,32}$/.test(alias)){
+    err.textContent = 'Alias chỉ được chứa chữ thường, số và dấu gạch ngang (3–32 ký tự).';
+    err.classList.remove('hidden');
+    return;
+  }
+
+  btn.disabled = true;
+  const old = btn.innerHTML;
+  btn.innerHTML = 'Đang tạo…';
+
+  try{
+    const slug = alias || uid(7);
+    // Kiểm tra alias trùng
+    const dupQ = query(collection(db,'shortlinks'), where('slug','==',slug), limit(1));
+    const dup = await getDocs(dupQ);
+    if(!dup.empty){
+      err.textContent = 'Alias này đã được sử dụng. Vui lòng chọn alias khác.';
+      err.classList.remove('hidden');
+      return;
+    }
+
+    const ref = await addDoc(collection(db,'shortlinks'), {
+      slug,
+      originalUrl: safe,
+      urlHash: await sha256(safe),
+      networkId: net,
+      userId: S.user.uid,
+      clicks: 0,
+      validViews: 0,
+      invalidViews: 0,
+      revenue: 0,
+      status: 'active',
+      createdAt: serverTimestamp(),
+    });
+
+    const shortUrl = `${location.origin}${location.pathname}#/s/${slug}`;
+    $('#cl-result').classList.remove('hidden');
+    $('#cl-result').innerHTML = `
+      <div class="notice" style="margin-bottom:16px">
+        <span>${icon('check',16)}</span>
+        <span>Đã tạo shortlink.</span>
+      </div>
+      <div class="field" style="margin-bottom:12px">
+        <label>Short URL</label>
+        <div class="copy-field">
+          <input readonly value="${esc(shortUrl)}" id="short-out" />
+          <button class="btn xs" data-copy="#short-out" type="button">${icon('copy',14)} Copy</button>
+        </div>
+      </div>
+      <div class="small muted" style="line-height:1.6">
+        Network: <strong>${esc(net)}</strong> · Trạng thái: <span class="badge ok">active</span>
+      </div>
+      <div class="divider"></div>
+      <p class="tiny muted-3">
+        Để lượt truy cập được ghi nhận, cần cấu hình Cloud Function xử lý route <span class="mono">/s/:slug</span>
+        cùng kiểm tra IP/device/cooldown server-side.
+      </p>`;
+    toast('Đã tạo shortlink.', 'ok');
+  }catch(e){
+    err.textContent = 'Không thể tạo shortlink. Vui lòng thử lại.';
+    err.classList.remove('hidden');
+    console.error(e);
+  }finally{
+    btn.disabled = false;
+    btn.innerHTML = old;
+  }
+}
+
+/* ---------- Links ---------- */
+function viewLinks(){
+  return `
+  ${renderDashTopbar('Shortlinks', 'Quản lý toàn bộ link đã tạo.', `
+    <button class="btn sm" data-goto="create">${icon('plus',15)} Tạo link</button>
+  `)}
+  <div class="card" style="padding:0;overflow:hidden" id="links-box">
+    ${renderEmptyState('Đang tải…', 'Vui lòng đợi trong giây lát.', 'link')}
+  </div>`;
+}
+
+async function loadLinks(){
+  const box = $('#links-box');
+  if(!box) return;
+  try{
+    const q = query(collection(db,'shortlinks'), where('userId','==',S.user.uid), limit(100));
+    const snap = await getDocs(q);
+    const rows = snap.docs.map(d=>({id:d.id, ...d.data()}))
+      .sort((a,b)=> (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+
+    if(!rows.length){
+      box.innerHTML = renderEmptyState('Chưa có shortlink',
+        'Tạo shortlink đầu tiên để bắt đầu theo dõi lượt truy cập hợp lệ.', 'link',
+        `<button class="btn sm" data-goto="create" style="margin-top:6px">${icon('plus',15)} Tạo link</button>`);
+      return;
+    }
+
+    box.innerHTML = `
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>Short URL</th><th>Network</th><th>Clicks</th><th>Valid</th>
+            <th>Invalid</th><th>Revenue</th><th>Trạng thái</th><th></th>
+          </tr></thead>
+          <tbody>
+            ${rows.map(r=>{
+              const shortUrl = `${location.origin}${location.pathname}#/s/${r.slug}`;
+              return `
+              <tr data-id="${esc(r.id)}">
+                <td>
+                  <div style="font-weight:600;font-size:.84rem" class="mono">/s/${esc(r.slug)}</div>
+                  <div class="tiny muted-3" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.originalUrl)}</div>
+                </td>
+                <td><span class="badge">${esc(r.networkId||'—')}</span></td>
+                <td class="mono">${fmtNum(r.clicks)}</td>
+                <td class="mono" style="color:var(--ok)">${fmtNum(r.validViews)}</td>
+                <td class="mono muted">${fmtNum(r.invalidViews)}</td>
+                <td class="mono" style="font-weight:600">${fmtVND(r.revenue)}</td>
+                <td><span class="badge ${r.status==='active'?'ok':'danger'}">${esc(r.status||'active')}</span></td>
+                <td>
+                  <div class="row gap-6">
+                    <button class="btn xs soft" data-copy-text="${esc(shortUrl)}" title="Copy">${icon('copy',13)}</button>
+                    <button class="btn xs soft" data-action="delete-link" data-id="${esc(r.id)}" title="Xoá" style="color:var(--danger)">${icon('trash',13)}</button>
+                  </div>
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }catch(e){
+    box.innerHTML = renderEmptyState('Không thể tải dữ liệu', 'Vui lòng thử lại.', 'x');
+    console.error(e);
+  }
+}
+
+async function deleteLink(id){
+  const ok = await confirmModal({
+    title:'Xoá shortlink?',
+    message:'Link sẽ ngừng hoạt động. Lịch sử lượt truy cập vẫn được giữ trong hệ thống để đối soát.',
+    confirmText:'Xoá', danger:true
+  });
+  if(!ok) return;
+  try{
+    await updateDoc(doc(db,'shortlinks',id), { status:'deleted', deletedAt: serverTimestamp() });
+    toast('Đã xoá shortlink.', 'ok');
+    loadLinks();
+  }catch(e){
+    toast('Không thể xoá shortlink.', 'err');
+  }
+}
+
+/* ---------- Creator ---------- */
+function viewCreator(){
+  const camps = S.campaigns;
+  return `
+  ${renderDashTopbar('Creator Campaign', 'Nộp nội dung của bạn để nhận thưởng theo KPI đã công bố.')}
+
+  <div class="grid c2" style="margin-bottom:20px">
+    <div class="card pad-lg">
+      <div class="card-title" style="margin-bottom:18px">Nộp submission mới</div>
+      <form id="creator-form" novalidate>
+        <div class="field">
+          <label for="cr-platform">Nền tảng</label>
+          <select class="select" id="cr-platform">
+            <option value="tiktok">TikTok</option>
+            <option value="youtube">YouTube</option>
+            <option value="facebook">Facebook</option>
+            <option value="website">Website</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="cr-url">URL nội dung</label>
+          <input class="input" id="cr-url" type="url" placeholder="https://tiktok.com/@ban/video/..." required />
+        </div>
+        <div class="field">
+          <label for="cr-title">Tiêu đề</label>
+          <input class="input" id="cr-title" type="text" maxlength="140" placeholder="Tiêu đề nội dung" required />
+        </div>
+        <div class="grid c3" style="gap:12px">
+          <div class="field">
+            <label for="cr-views">Views hiện tại</label>
+            <input class="input" id="cr-views" type="number" min="0" value="0" />
+          </div>
+          <div class="field">
+            <label for="cr-likes">Likes</label>
+            <input class="input" id="cr-likes" type="number" min="0" value="0" />
+          </div>
+          <div class="field">
+            <label for="cr-comments">Comments</label>
+            <input class="input" id="cr-comments" type="number" min="0" value="0" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="cr-desc">Mô tả ngắn</label>
+          <textarea class="textarea" id="cr-desc" maxlength="600" placeholder="Mô tả nội dung và cách bạn quảng bá"></textarea>
+        </div>
+        <div id="cr-error" class="notice danger hidden" style="margin-bottom:16px"></div>
+        <button class="btn block" type="submit" id="cr-submit" style="height:48px">
+          ${icon('video',16)} Gửi submission
+        </button>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px">Quy trình xác minh</div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        ${[
+          ['Pending','Submission vừa được gửi, chờ kiểm tra tự động.'],
+          ['Reviewing','Admin đang xem bằng chứng và đối chiếu KPI.'],
+          ['Approved','Đạt KPI — reward được ghi nhận vào số dư.'],
+          ['Rejected','Không đạt KPI hoặc thiếu bằng chứng.'],
+          ['Fraud','Có dấu hiệu gian lận, chuyển sang xem xét thủ công.'],
+        ].map(([s,d])=>`
+          <div>
+            <div class="row gap-8" style="margin-bottom:4px">
+              <span class="badge ${s==='Approved'?'ok':s==='Rejected'||s==='Fraud'?'danger':s==='Reviewing'?'warn':''}">${s}</span>
+            </div>
+            <p class="tiny muted" style="line-height:1.55">${d}</p>
+          </div>`).join('')}
+      </div>
+      <div class="divider"></div>
+      <div class="notice warn">
+        <span>${icon('shield',16)}</span>
+        <span class="tiny">Không có reward nào được duyệt tự động chỉ dựa trên số liệu bạn khai báo. Admin luôn xác minh trước khi ghi nhận.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="padding:0;overflow:hidden" id="submissions-box">
+    <div class="between" style="padding:18px 22px">
+      <span class="card-title">Submission của tôi</span>
+    </div>
+    ${renderEmptyState('Đang tải…','','video')}
+  </div>`;
+}
+
+async function handleCreatorSubmit(){
+  const platform = $('#cr-platform').value;
+  const url = $('#cr-url').value.trim();
+  const title = $('#cr-title').value.trim();
+  const views = Number($('#cr-views').value || 0);
+  const likes = Number($('#cr-likes').value || 0);
+  const comments = Number($('#cr-comments').value || 0);
+  const desc = $('#cr-desc').value.trim();
+  const err = $('#cr-error');
+  const btn = $('#cr-submit');
+
+  err.classList.add('hidden');
+  const safe = safeUrl(url);
+  if(!safe){ err.textContent='URL không hợp lệ.'; err.classList.remove('hidden'); return; }
+  if(!title){ err.textContent='Vui lòng nhập tiêu đề.'; err.classList.remove('hidden'); return; }
+  if([views,likes,comments].some(v=>v<0 || !Number.isFinite(v))){
+    err.textContent='Số liệu không hợp lệ.'; err.classList.remove('hidden'); return;
+  }
+
+  btn.disabled = true;
+  const old = btn.innerHTML;
+  btn.innerHTML = 'Đang gửi…';
+
+  try{
+    // kiểm tra trùng URL
+    const dupQ = query(collection(db,'creatorSubmissions'), where('urlHash','==', await sha256(safe)), limit(1));
+    const dup = await getDocs(dupQ);
+    if(!dup.empty){
+      err.textContent = 'URL này đã được nộp trước đó.';
+      err.classList.remove('hidden');
+      return;
+    }
+
+    // fraud signals cơ bản (client-side, cần xác thực thêm server-side)
+    const reasons = [];
+    let score = 0;
+    if(views > 0 && likes > views * 0.6){ score += 25; reasons.push('Tỷ lệ like/view bất thường'); }
+    if(views > 0 && comments > views * 0.4){ score += 20; reasons.push('Tỷ lệ comment/view bất thường'); }
+    if(views > 1_000_000){ score += 15; reasons.push('Số view rất lớn cần xác minh'); }
+
+    await addDoc(collection(db,'creatorSubmissions'), {
+      userId: S.user.uid,
+      userEmail: S.user.email || '',
+      platform, url: safe, urlHash: await sha256(safe),
+      title, description: desc,
+      currentViews: views, likes, comments,
+      submittedAt: serverTimestamp(),
+      status: 'pending',
+      fraudScore: score,
+      fraudReasons: reasons,
+      reward: 0,
+    });
+
+    toast('Submission đã được gửi. Chờ admin xác minh.', 'ok');
+    $('#creator-form').reset();
+    loadSubmissions();
+  }catch(e){
+    err.textContent = 'Không thể gửi submission. Vui lòng thử lại.';
+    err.classList.remove('hidden');
+    console.error(e);
+  }finally{
+    btn.disabled = false;
+    btn.innerHTML = old;
+  }
+}
+
+async function loadSubmissions(){
+  const box = $('#submissions-box');
+  if(!box) return;
+  try{
+    const q = query(collection(db,'creatorSubmissions'), where('userId','==',S.user.uid), limit(60));
+    const snap = await getDocs(q);
+    const rows = snap.docs.map(d=>({id:d.id, ...d.data()}))
+      .sort((a,b)=>(b.submittedAt?.seconds||0)-(a.submittedAt?.seconds||0));
+
+    if(!rows.length){
+      box.innerHTML = `<div class="between" style="padding:18px 22px">
+          <span class="card-title">Submission của tôi</span></div>` +
+        renderEmptyState('Chưa có submission','Nộp nội dung đầu tiên của bạn để bắt đầu.','video');
+      return;
+    }
+
+    box.innerHTML = `
+      <div class="between" style="padding:18px 22px">
+        <span class="card-title">Submission của tôi</span>
+        <span class="badge">${rows.length} mục</span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>Nội dung</th><th>Nền tảng</th><th>Views</th><th>Fraud score</th>
+            <th>Reward</th><th>Trạng thái</th><th>Ngày gửi</th>
+          </tr></thead>
+          <tbody>
+            ${rows.map(r=>`
+              <tr>
+                <td>
+                  <div style="font-weight:600;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.title)}</div>
+                  <div class="tiny muted-3" style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.url)}</div>
+                </td>
+                <td><span class="badge">${esc(r.platform)}</span></td>
+                <td class="mono">${fmtNum(r.currentViews)}</td>
+                <td>
+                  <span class="badge ${r.fraudScore>60?'danger':r.fraudScore>30?'warn':'ok'}">${r.fraudScore||0}</span>
+                </td>
+                <td class="mono">${fmtVND(r.reward)}</td>
+                <td>${statusBadge(r.status)}</td>
+                <td class="tiny muted-3">${timeAgo(r.submittedAt)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }catch(e){
+    box.innerHTML = renderEmptyState('Không thể tải dữ liệu','Vui lòng thử lại.','x');
+  }
+}
+
+function statusBadge(s){
+  const map = {
+    pending:['warn','Chờ duyệt'], reviewing:['warn','Đang xem'],
+    approved:['ok','Đã duyệt'], rejected:['danger','Từ chối'],
+    completed:['ok','Hoàn tất'], paid:['ok','Đã trả'],
+    fraud:['danger','Gian lận'],
+    processing:['warn','Đang xử lý'],
+  };
+  const [cls, label] = map[s] || ['','—'];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
+/* ---------- Wallet ---------- */
+function viewWallet(){
+  const w = S.wallet || {};
+  return `
+  ${renderDashTopbar('Ví', 'Số dư, lịch sử và trạng thái tài khoản.')}
+  <div class="grid" style="grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:20px">
+    <div class="card pad-lg">
+      <div class="stat-label" style="margin-bottom:10px">Số dư khả dụng</div>
+      <div class="stat-value" style="font-size:2.6rem;margin-bottom:6px">${fmtVND(w.balance)}</div>
+      <p class="tiny muted-3" style="margin-bottom:24px">Có thể rút ngay nếu đạt ngưỡng tối thiểu.</p>
+      <div class="btn-group">
+        <button class="btn" data-goto="withdraw">${icon('cash',15)} Rút tiền</button>
+        <button class="btn ghost" data-goto="transactions">Xem ledger</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:16px">Phân bổ số dư</div>
+      ${[
+        ['Đang chờ đối soát', w.pendingBalance],
+        ['Tổng tích luỹ', w.lifetimeEarnings],
+        ['Đã rút', w.withdrawnAmount],
+        ['Đóng băng', w.frozenBalance],
+      ].map(([l,v])=>`
+        <div class="between" style="padding:11px 0;border-bottom:1px solid var(--border)">
+          <span class="small muted">${l}</span>
+          <span class="mono" style="font-weight:600">${fmtVND(v)}</span>
+        </div>`).join('')}
+    </div>
+  </div>
+
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="between" style="padding:18px 22px">
+      <span class="card-title">Giao dịch gần đây</span>
+      <button class="btn ghost xs" data-goto="transactions">Xem tất cả</button>
+    </div>
+    <div id="wallet-tx">${renderEmptyState('Đang tải…','','list')}</div>
+  </div>`;
+}
+
+/* ---------- Withdraw ---------- */
+function viewWithdraw(){
+  const w = S.wallet || {};
+  const minPayout = 50000;
+  const canWithdraw = Number(w.balance||0) >= minPayout;
+
+  return `
+  ${renderDashTopbar('Rút tiền', 'Yêu cầu rút được xử lý theo quy trình duyệt.')}
+  <div class="grid" style="grid-template-columns:1.1fr .9fr;gap:16px">
+    <div class="card pad-lg">
+      <form id="withdraw-form" novalidate>
+        <div class="field">
+          <label for="w-method">Phương thức</label>
+          <select class="select" id="w-method">
+            <option value="bank">Chuyển khoản ngân hàng</option>
+            <option value="mobile_card">Thẻ điện thoại / thẻ game</option>
+            <option value="other">Khác</option>
+          </select>
+        </div>
+
+        <div id="wm-bank">
+          <div class="field">
+            <label for="w-bank">Ngân hàng</label>
+            <input class="input" id="w-bank" type="text" placeholder="VD: Vietcombank" maxlength="60" />
+          </div>
+          <div class="field">
+            <label for="w-acc">Số tài khoản</label>
+            <input class="input" id="w-acc" type="text" inputmode="numeric" placeholder="0123456789" maxlength="24" />
+          </div>
+          <div class="field">
+            <label for="w-name">Chủ tài khoản</label>
+            <input class="input" id="w-name" type="text" placeholder="NGUYEN VAN A" maxlength="60" />
+          </div>
+        </div>
+
+        <div id="wm-card" class="hidden">
+          <div class="field">
+            <label for="w-telco">Nhà mạng</label>
+            <select class="select" id="w-telco">
+              <option value="">— Chưa cấu hình nhà cung cấp —</option>
+            </select>
+            <span class="hint">Danh sách nhà cung cấp do admin cấu hình. Nếu trống, phương thức này chưa khả dụng.</span>
+          </div>
+        </div>
+
+        <div id="wm-other" class="hidden">
+          <div class="field">
+            <label for="w-other">Thông tin nhận tiền</label>
+            <textarea class="textarea" id="w-other" maxlength="300" placeholder="Mô tả phương thức nhận tiền"></textarea>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="w-amount">Số tiền (VND)</label>
+          <input class="input" id="w-amount" type="number" min="${minPayout}" step="1000" placeholder="${minPayout}" />
+          <span class="hint">Tối thiểu ${fmtVND(minPayout)} · Khả dụng ${fmtVND(w.balance)}</span>
+        </div>
+
+        <div id="w-error" class="notice danger hidden" style="margin-bottom:16px"></div>
+
+        <button class="btn block" type="submit" id="w-submit" style="height:48px" ${canWithdraw?'':'disabled'}>
+          ${canWithdraw ? 'Gửi yêu cầu rút tiền' : 'Số dư chưa đạt ngưỡng tối thiểu'}
+        </button>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px">Chính sách rút tiền</div>
+      <div style="display:flex;flex-direction:column;gap:11px">
+        ${[
+          'Ngưỡng tối thiểu mặc định 50.000đ, admin có thể thay đổi.',
+          'Yêu cầu đi qua các trạng thái: pending → reviewing → approved → processing → completed.',
+          'Thông tin tài khoản được hiển thị rút gọn trong dashboard.',
+          'Số dư đang chờ đối soát không thể rút.',
+        ].map(t=>`
+          <div class="row gap-12" style="align-items:flex-start">
+            <span style="color:var(--text-3);flex:none;margin-top:2px">${icon('cash',15)}</span>
+            <span class="small" style="line-height:1.55;color:var(--text-2)">${t}</span>
+          </div>`).join('')}
+      </div>
+      <div class="divider"></div>
+      <div class="card-title" style="margin-bottom:12px">Lịch sử rút tiền</div>
+      <div id="withdraw-history">${renderEmptyState('Chưa có yêu cầu','','cash')}</div>
+    </div>
+  </div>`;
+}
+
+function bindWithdrawMethod(){
+  const sel = $('#w-method');
+  if(!sel) return;
+  const update = ()=>{
+    const v = sel.value;
+    $('#wm-bank').classList.toggle('hidden', v !== 'bank');
+    $('#wm-card').classList.toggle('hidden', v !== 'mobile_card');
+    $('#wm-other').classList.toggle('hidden', v !== 'other');
+  };
+  sel.addEventListener('change', update);
+  update();
+}
+
+async function handleWithdraw(){
+  const method = $('#w-method').value;
+  const amount = Number($('#w-amount').value || 0);
+  const err = $('#w-error');
+  const btn = $('#w-submit');
+
+  err.classList.add('hidden');
+  const balance = Number(S.wallet?.balance || 0);
+  const MIN = 50000;
+
+  if(!Number.isFinite(amount) || amount < MIN){
+    err.textContent = `Số tiền tối thiểu là ${fmtVND(MIN)}.`;
+    err.classList.remove('hidden'); return;
+  }
+  if(amount > balance){
+    err.textContent = 'Số tiền vượt quá số dư khả dụng.';
+    err.classList.remove('hidden'); return;
+  }
+
+  let details = {};
+  if(method === 'bank'){
+    const bank = $('#w-bank').value.trim();
+    const acc = $('#w-acc').value.trim();
+    const name = $('#w-name').value.trim();
+    if(!bank || !acc || !name){
+      err.textContent = 'Vui lòng điền đầy đủ thông tin ngân hàng.';
+      err.classList.remove('hidden'); return;
+    }
+    details = { bankName: bank, accountNumber: acc, accountName: name };
+  } else if(method === 'mobile_card'){
+    const telco = $('#w-telco').value;
+    if(!telco){
+      err.textContent = 'Phương thức thẻ chưa được admin cấu hình nhà cung cấp.';
+      err.classList.remove('hidden'); return;
+    }
+    details = { telco };
+  } else {
+    const note = $('#w-other').value.trim();
+    if(!note){ err.textContent='Vui lòng mô tả phương thức nhận tiền.'; err.classList.remove('hidden'); return; }
+    details = { note };
+  }
+
+  const ok = await confirmModal({
+    title: 'Xác nhận yêu cầu rút tiền',
+    message: `Bạn yêu cầu rút ${fmtVND(amount)} qua ${method === 'bank' ? 'chuyển khoản ngân hàng' : method === 'mobile_card' ? 'thẻ điện thoại' : 'phương thức khác'}. Yêu cầu sẽ được xem xét thủ công.`,
+    confirmText: 'Gửi yêu cầu'
+  });
+  if(!ok) return;
+
+  btn.disabled = true;
+  const old = btn.innerHTML;
+  btn.innerHTML = 'Đang gửi…';
+
+  try{
+    await addDoc(collection(db,'withdrawals'), {
+      userId: S.user.uid,
+      userEmail: S.user.email || '',
+      amount,
+      method,
+      details,
+      status: 'pending',
+      note: '',
+      txCode: '',
+      createdAt: serverTimestamp(),
+    });
+
+    toast('Yêu cầu rút tiền đã được gửi.', 'ok');
+    $('#withdraw-form').reset();
+    bindWithdrawMethod();
+    loadWithdrawHistory();
+  }catch(e){
+    err.textContent = 'Không thể gửi yêu cầu. Vui lòng thử lại.';
+    err.classList.remove('hidden');
+    console.error(e);
+  }finally{
+    btn.disabled = false;
+    btn.innerHTML = old;
+  }
+}
+
+async function loadWithdrawHistory(){
+  const box = $('#withdraw-history');
+  if(!box) return;
+  try{
+    const q = query(collection(db,'withdrawals'), where('userId','==',S.user.uid), limit(30));
+    const snap = await getDocs(q);
+    const rows = snap.docs.map(d=>({id:d.id, ...d.data()}))
+      .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+    if(!rows.length){
+      box.innerHTML = renderEmptyState('Chưa có yêu cầu','','cash');
+      return;
+    }
+    box.innerHTML = rows.map(r=>`
+      <div style="padding:12px 0;border-bottom:1px solid var(--border)">
+        <div class="between" style="margin-bottom:5px">
+          <span class="mono" style="font-weight:620">${fmtVND(r.amount)}</span>
+          ${statusBadge(r.status)}
+        </div>
+        <div class="tiny muted-3">${esc(r.method)} · ${timeAgo(r.createdAt)}</div>
+      </div>`).join('');
+  }catch(e){
+    box.innerHTML = renderEmptyState('Không thể tải','','x');
+  }
+}
+
+/* ---------- Transactions ---------- */
+function viewTransactions(){
+  return `
+  ${renderDashTopbar('Giao dịch', 'Ledger đầy đủ. Số dư chỉ thay đổi thông qua các bản ghi ở đây.')}
+  <div class="card" style="padding:0;overflow:hidden" id="tx-box">
+    ${renderEmptyState('Đang tải…','','list')}
+  </div>`;
+}
+
+async function loadTransactions(){
+  const box = $('#tx-box');
+  if(!box) return;
+  try{
+    const q = query(collection(db,'transactions'), where('userId','==',S.user.uid), limit(120));
+    const snap = await getDocs(q);
+    const rows = snap.docs.map(d=>({id:d.id, ...d.data()}))
+      .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+    if(!rows.length){
+      box.innerHTML = renderEmptyState('Chưa có giao dịch',
+        'Thu nhập từ lượt hợp lệ và các khoản rút tiền sẽ xuất hiện ở đây.', 'list');
+      return;
+    }
+    box.innerHTML = `
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>Mã</th><th>Loại</th><th>Số tiền</th><th>Nguồn</th><th>Trạng thái</th><th>Thời gian</th>
+          </tr></thead>
+          <tbody>
+            ${rows.map(r=>`
+              <tr>
+                <td class="mono tiny muted-3">${esc(r.id.slice(0,10))}</td>
+                <td>${esc(r.type||'—')}</td>
+                <td class="mono" style="font-weight:620;color:${Number(r.amount)<0?'var(--danger)':'var(--ok)'}">
+                  ${Number(r.amount)>=0?'+':''}${fmtVND(r.amount)}
+                </td>
+                <td class="muted small">${esc(r.source||'—')}</td>
+                <td>${statusBadge(r.status||'completed')}</td>
+                <td class="tiny muted-3">${timeAgo(r.createdAt)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }catch(e){
+    box.innerHTML = renderEmptyState('Không thể tải dữ liệu','Vui lòng thử lại.','x');
+  }
+}
+
+/* ---------- Referrals ---------- */
+function viewReferrals(){
+  const code = S.profile?.referralCode || '—';
+  const link = `${location.origin}${location.pathname}#/register?ref=${code}`;
+  return `
+  ${renderDashTopbar('Giới thiệu', 'Chia sẻ mã giới thiệu của bạn.')}
+  <div class="grid" style="grid-template-columns:1.2fr 1fr;gap:16px">
+    <div class="card pad-lg">
+      <div class="stat-label" style="margin-bottom:10px">Mã giới thiệu</div>
+      <div class="copy-field" style="margin-bottom:16px">
+        <input readonly value="${esc(code)}" id="ref-code" />
+        <button class="btn xs" data-copy="#ref-code" type="button">${icon('copy',13)} Copy</button>
+      </div>
+      <div class="stat-label" style="margin-bottom:10px">Link giới thiệu</div>
+      <div class="copy-field">
+        <input readonly value="${esc(link)}" id="ref-link" />
+        <button class="btn xs" data-copy="#ref-link" type="button">${icon('copy',13)} Copy</button>
+      </div>
+      <div class="divider"></div>
+      <div class="notice">
+        <span>${icon('shield',16)}</span>
+        <span class="tiny">Referral reward không được trả tự động nếu network không cho phép. Admin cấu hình tỷ lệ, giới hạn và network áp dụng.</span>
+      </div>
+    </div>
+    <div class="grid c2" style="align-content:start">
+      ${[
+        ['Đã giới thiệu','0'],
+        ['Thu nhập referral','0đ'],
+      ].map(([l,v])=>`
+        <div class="stat">
+          <span class="stat-label">${l}</span>
+          <div class="stat-value" style="font-size:1.5rem">${v}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+/* ---------- Notifications ---------- */
+function viewNotifications(){
+  return `
+  ${renderDashTopbar('Thông báo', 'Cập nhật về giao dịch, campaign và tài khoản.')}
+  <div class="card" style="padding:0;overflow:hidden" id="notif-box">
+    ${renderEmptyState('Đang tải…','','bell')}
+  </div>`;
+}
+
+async function loadNotifications(){
+  const box = $('#notif-box');
+  if(!box) return;
+  try{
+    const q = query(collection(db,'notifications'), where('userId','==',S.user.uid), limit(50));
+    const snap = await getDocs(q);
+    const rows = snap.docs.map(d=>({id:d.id, ...d.data()}))
+      .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+    if(!rows.length){
+      box.innerHTML = renderEmptyState('Chưa có thông báo','','bell');
+      return;
+    }
+    box.innerHTML = rows.map(r=>`
+      <div style="padding:17px 22px;border-bottom:1px solid var(--border)">
+        <div class="between" style="margin-bottom:5px">
+          <span style="font-weight:620;font-size:.9rem">${esc(r.title||'Thông báo')}</span>
+          <span class="tiny muted-3">${timeAgo(r.createdAt)}</span>
+        </div>
+        <p class="small" style="line-height:1.6">${esc(r.body||'')}</p>
+      </div>`).join('');
+  }catch(e){
+    box.innerHTML = renderEmptyState('Không thể tải','','x');
+  }
+}
+
+/* ---------- Settings ---------- */
+function viewSettings(){
+  return `
+  ${renderDashTopbar('Cài đặt', 'Thông tin tài khoản và tuỳ chọn giao diện.')}
+  <div class="grid c2">
+    <div class="card pad-lg">
+      <div class="card-title" style="margin-bottom:18px">Thông tin tài khoản</div>
+      <div class="field">
+        <label>Tên hiển thị</label>
+        <input class="input" id="set-name" type="text" value="${esc(S.profile?.displayName||'')}" maxlength="60" />
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input class="input" value="${esc(S.user?.email||'')}" disabled />
+        <span class="hint">Email không thể thay đổi tại đây.</span>
+      </div>
+      <div class="field">
+        <label>Vai trò</label>
+        <input class="input" value="${esc(S.profile?.role||'user')}" disabled />
+      </div>
+      <button class="btn" id="set-save">Lưu thay đổi</button>
+    </div>
+    <div class="card pad-lg">
+      <div class="card-title" style="margin-bottom:18px">Giao diện</div>
+      <div class="between" style="padding:12px 0;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-weight:600;font-size:.9rem">Chế độ tối</div>
+          <p class="tiny muted-3" style="margin-top:3px">Chuyển đổi giao diện sáng/tối.</p>
+        </div>
+        <button class="btn soft sm" data-theme-toggle>Đổi</button>
+      </div>
+      <div class="divider"></div>
+      <div class="card-title" style="margin-bottom:12px">Bảo mật</div>
+      <div style="display:flex;flex-direction:column;gap:11px">
+        ${[
+          'Mật khẩu xử lý bởi Firebase Authentication.',
+          'Không lưu plaintext IP/thiết bị khi không cần thiết.',
+          'Bật App Check và reCAPTCHA/Turnstile khi triển khai production.',
+        ].map(t=>`
+          <div class="row gap-12" style="align-items:flex-start">
+            <span style="color:var(--text-3);flex:none;margin-top:2px">${icon('shield',15)}</span>
+            <span class="small" style="line-height:1.55;color:var(--text-2)">${t}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+async function saveSettings(){
+  const name = $('#set-name').value.trim();
+  if(!name){ toast('Tên hiển thị không được để trống.', 'err'); return; }
+  try{
+    await updateDoc(doc(db,'users',S.user.uid), { displayName: name });
+    S.profile.displayName = name;
+    toast('Đã lưu thay đổi.', 'ok');
+    render();
+  }catch(e){
+    toast('Không thể lưu thay đổi.', 'err');
+  }
+}
+
+/* ---------- Support ---------- */
+function viewSupport(){
+  return `
+  ${renderDashTopbar('Trung tâm hỗ trợ', 'Gửi ticket và theo dõi phản hồi.')}
+  <div class="grid" style="grid-template-columns:1fr 1fr;gap:16px">
+    <div class="card pad-lg">
+      <div class="card-title" style="margin-bottom:18px">Tạo ticket</div>
+      <form id="ticket-form" novalidate>
+        <div class="field">
+          <label for="t-subject">Tiêu đề</label>
+          <input class="input" id="t-subject" type="text" maxlength="120" placeholder="VD: Lượt xem không được tính" required />
+        </div>
+        <div class="field">
+          <label for="t-category">Danh mục</label>
+          <select class="select" id="t-category">
+            <option value="general">Chung</option>
+            <option value="payout">Thanh toán</option>
+            <option value="shortlink">Shortlink</option>
+            <option value="creator">Creator</option>
+            <option value="fraud">Khiếu nại gian lận</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="t-body">Nội dung</label>
+          <textarea class="textarea" id="t-body" maxlength="2000" placeholder="Mô tả vấn đề của bạn" required></textarea>
+        </div>
+        <button class="btn block" type="submit" id="t-submit">Gửi ticket</button>
+      </form>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px">Câu hỏi thường gặp</div>
+      ${[
+        ['Vì sao lượt xem của tôi bị loại?','Lượt xem có thể trùng IP/thiết bị trong cooldown, đến từ bot, hoặc không vượt qua kiểm tra của network.'],
+        ['Bao lâu thì rút được tiền?','Yêu cầu rút đi qua quy trình duyệt. Ngưỡng tối thiểu mặc định 50.000đ.'],
+        ['Tôi có thể tự click link không?','Không. Self-click bị chặn ở tầng validation.'],
+      ].map(([q,a])=>`
+        <div style="padding:12px 0;border-bottom:1px solid var(--border)">
+          <div style="font-weight:600;font-size:.88rem;margin-bottom:5px">${q}</div>
+          <p class="tiny muted" style="line-height:1.6">${a}</p>
+        </div>`).join('')}
+    </div>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden;margin-top:16px" id="tickets-box">
+    <div class="between" style="padding:18px 22px"><span class="card-title">Ticket của tôi</span></div>
+    ${renderEmptyState('Chưa có ticket','','help')}
+  </div>`;
+}
+
+async function handleTicket(){
+  const subject = $('#t-subject').value.trim();
+  const category = $('#t-category').value;
+  const body = $('#t-body').value.trim();
+  if(!subject || !body){ toast('Vui lòng điền tiêu đề và nội dung.', 'err'); return; }
+  const btn = $('#t-submit');
+  btn.disabled = true;
+  try{
+    await addDoc(collection(db,'supportTickets'), {
+      userId: S.user.uid,
+      userEmail: S.user.email || '',
+      subject, category, body,
+      status: 'open',
+      createdAt: serverTimestamp(),
+    });
+    toast('Ticket đã được gửi.', 'ok');
+    $('#ticket-form').reset();
+    loadTickets();
+  }catch(e){
+    toast('Không thể gửi ticket.', 'err');
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+async function loadTickets(){
+  const box = $('#tickets-box');
+  if(!box) return;
+  try{
+    const q = query(collection(db,'supportTickets'), where('userId','==',S.user.uid), limit(30));
+    const snap = await getDocs(q);
+    const rows = snap.docs.map(d=>({id:d.id, ...d.data()}))
+      .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+    if(!rows.length){
+      box.innerHTML = `<div class="between" style="padding:18px 22px"><span class="card-title">Ticket của tôi</span></div>` +
+        renderEmptyState('Chưa có ticket','','help');
+      return;
+    }
+    box.innerHTML = `
+      <div class="between" style="padding:18px 22px"><span class="card-title">Ticket của tôi</span></div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Tiêu đề</th><th>Danh mục</th><th>Trạng thái</th><th>Ngày</th></tr></thead>
+          <tbody>
+            ${rows.map(r=>`
+              <tr>
+                <td style="font-weight:600">${esc(r.subject)}</td>
+                <td class="muted small">${esc(r.category)}</td>
+                <td>${statusBadge(r.status==='open'?'pending':r.status==='resolved'?'approved':r.status)}</td>
+                <td class="tiny muted-3">${timeAgo(r.createdAt)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }catch(e){
+    box.innerHTML = renderEmptyState('Không thể tải','','x');
+  }
+}
+
+/* ============================================================
+   ADMIN
+   ============================================================ */
+function renderAdmin(route){
+  const body = (()=>{
+    switch(route){
+      case 'admin': return viewAdminOverview();
+      case 'admin-economics': return viewAdminEconomics();
+      case 'admin-networks': return viewAdminNetworks();
+      case 'admin-rates': return viewAdminRates();
+      case 'admin-creator': return viewAdminCreator();
+      case 'admin-withdrawals': return viewAdminWithdrawals();
+      case 'admin-fraud': return viewAdminFraud();
+      case 'admin-users': return viewAdminUsers();
+      case 'admin-audit': return viewAdminAudit();
+      default: return viewAdminOverview();
+    }
+  })();
+  return `<div class="shell">${renderSidebar(route)}<main class="main">${body}</main></div>`;
+}
+
+function viewAdminOverview(){
+  const nets = S.networks.length ? S.networks : DEFAULT_NETWORKS;
+  return `
+  ${renderDashTopbar('Quản trị', 'Tổng quan hoạt động nền tảng.')}
+  <div class="grid c4" style="margin-bottom:16px">
+    ${[
+      ['Tổng người dùng','—'],
+      ['Tổng shortlink','—'],
+      ['Valid views','—'],
+      ['Gross revenue','—'],
+    ].map(([l,v])=>`
+      <div class="stat">
+        <span class="stat-label">${l}</span>
+        <div class="stat-value">${v}</div>
+      </div>`).join('')}
+  </div>
+  <div class="grid c4" style="margin-bottom:20px">
+    ${[
+      ['User payout','—'],
+      ['Platform revenue','—'],
+      ['Rút tiền chờ duyệt','—'],
+      ['Creator chờ duyệt','—'],
+    ].map(([l,v])=>`
+      <div class="stat">
+        <span class="stat-label">${l}</span>
+        <div class="stat-value">${v}</div>
+      </div>`).join('')}
+  </div>
+
+  <div class="grid" style="grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:20px">
+    <div class="card">
+      <div class="card-title" style="margin-bottom:18px">Doanh thu 30 ngày</div>
+      <div class="bars">${Array.from({length:30}).map(()=>`<span style="height:5%"></span>`).join('')}</div>
+      <div class="divider"></div>
+      <p class="tiny muted-3">Dữ liệu sẽ xuất hiện khi có lượt xem hợp lệ. Không hiển thị số liệu giả.</p>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:16px">Network đang cấu hình</div>
+      ${nets.slice(0,5).map(n=>`
+        <div class="between" style="padding:10px 0;border-bottom:1px solid var(--border)">
+          <div class="row gap-10">
+            <div class="net-avatar" style="width:28px;height:28px;border-radius:8px;font-size:.68rem">${esc((n.name||'?').slice(0,2).toUpperCase())}</div>
+            <span class="small" style="font-weight:600">${esc(n.name)}</span>
+          </div>
+          <span class="badge ${n.enabled!==false?'ok':'danger'}">${n.enabled!==false?'Bật':'Tắt'}</span>
+        </div>`).join('')}
+      <button class="btn soft sm block" style="margin-top:14px" data-goto="admin-networks">Quản lý networks</button>
+    </div>
+  </div>
+
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="between" style="padding:18px 22px"><span class="card-title">Cảnh báo gian lận gần đây</span></div>
+    ${renderEmptyState('Chưa có cảnh báo','Sự kiện gian lận sẽ xuất hiện ở đây.','shield')}
+  </div>`;
+}
+
+function viewAdminEconomics(){
+  const nets = S.networks.length ? S.networks : DEFAULT_NETWORKS;
+  return `
+  ${renderDashTopbar('Network Economics','Phân tích biên lợi nhuận theo network.')}
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th>Network</th><th>Gross rate</th><th>User payout</th>
+          <th>Platform gross</th><th>Fraud reserve (5%)</th><th>Net margin / 1000</th>
+        </tr></thead>
+        <tbody>
+          ${nets.map(n=>{
+            const gross = Number(n.grossRate||0) * 1000;
+            const user = gross * (Number(n.userSharePercent||60)/100);
+            const plat = gross - user;
+            const fraud = gross * 0.05;
+            const net = plat - fraud;
+            const neg = net < 0;
+            return `
+              <tr>
+                <td style="font-weight:600">${esc(n.name)}</td>
+                <td class="mono">${fmtVND(n.grossRate)}</td>
+                <td class="mono">${fmtVND(user)}</td>
+                <td class="mono">${fmtVND(plat)}</td>
+                <td class="mono muted">${fmtVND(fraud)}</td>
+                <td class="mono" style="font-weight:650;color:${neg?'var(--danger)':'var(--ok)'}">${fmtVND(net)}</td>
+              </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="notice warn" style="margin-top:16px">
+    <span>${icon('scale',16)}</span>
+    <span>Net margin = gross revenue − user payout − payment fees − refunds − fraud loss − network fees. Con số trên chỉ tính fraud reserve 5% như ví dụ.</span>
+  </div>`;
+}
+
+function viewAdminNetworks(){
+  const nets = S.networks.length ? S.networks : DEFAULT_NETWORKS;
+  return `
+  ${renderDashTopbar('Networks','Cấu hình rate, giới hạn và trạng thái API.')}
+  <div class="notice" style="margin-bottom:18px">
+    <span>${icon('shield',16)}</span>
+    <span>API key của network không được lưu ở client-side. Secrets phải nằm trong Cloud Functions / Secret Manager.</span>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th>Network</th><th>Task</th><th>Rate</th><th>User %</th><th>Min payout</th>
+          <th>Giới hạn IP/ngày</th><th>API</th><th>Trạng thái</th><th></th>
+        </tr></thead>
+        <tbody>
+          ${nets.map(n=>`
+            <tr data-net="${esc(n.id)}">
+              <td>
+                <div style="font-weight:600">${esc(n.name)}</div>
+                <div class="tiny muted-3">${esc(n.website||'')}</div>
+              </td>
+              <td class="muted small">${esc(n.taskType||'direct')}</td>
+              <td class="mono" style="font-weight:600">${fmtVND(n.grossRate)}</td>
+              <td class="mono">${n.userSharePercent ?? 60}%</td>
+              <td class="mono">${fmtVND(n.minPayout)}</td>
+              <td class="mono">${n.maxViewsPerIpPerDay ?? 1}</td>
+              <td>
+                <span class="badge ${n.apiStatus==='live'?'ok':'warn'}">
+                  ${n.apiStatus==='live' ? 'API live' : 'Manual'}
+                </span>
+              </td>
+              <td><span class="badge ${n.enabled!==false?'ok':'danger'}">${n.enabled!==false?'Bật':'Tắt'}</span></td>
+              <td>
+                <button class="btn xs soft" data-action="edit-network" data-id="${esc(n.id)}">Sửa</button>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+async function editNetwork(id){
+  const nets = S.networks.length ? S.networks : DEFAULT_NETWORKS;
+  const n = nets.find(x=>x.id===id);
+  if(!n) return;
+
+  const back = document.createElement('div');
+  back.className = 'modal-back';
+  back.innerHTML = `
+    <div class="modal" style="max-width:520px">
+      <h3 style="margin-bottom:6px">${esc(n.name)}</h3>
+      <p class="small" style="margin-bottom:20px">Chỉnh cấu hình rate và giới hạn. Mọi thay đổi rate sẽ được ghi vào rate history.</p>
+      <div class="grid c2" style="gap:14px">
+        <div class="field">
+          <label>Gross rate (VND)</label>
+          <input class="input" id="en-rate" type="number" min="0" value="${n.grossRate||0}" />
+        </div>
+        <div class="field">
+          <label>User share (%)</label>
+          <input class="input" id="en-user" type="number" min="0" max="100" value="${n.userSharePercent??60}" />
+        </div>
+        <div class="field">
+          <label>Min payout (VND)</label>
+          <input class="input" id="en-min" type="number" min="0" value="${n.minPayout||50000}" />
+        </div>
+        <div class="field">
+          <label>Max views / IP / ngày</label>
+          <input class="input" id="en-ip" type="number" min="1" value="${n.maxViewsPerIpPerDay??1}" />
+        </div>
+        <div class="field">
+          <label>Max views / device / ngày</label>
+          <input class="input" id="en-dev" type="number" min="1" value="${n.maxViewsPerDevicePerDay??1}" />
+        </div>
+        <div class="field">
+          <label>Cooldown (giây)</label>
+          <input class="input" id="en-cd" type="number" min="0" value="${n.cooldownSeconds??86400}" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Trạng thái</label>
+        <select class="select" id="en-enabled">
+          <option value="true" ${n.enabled!==false?'selected':''}>Bật</option>
+          <option value="false" ${n.enabled===false?'selected':''}>Tắt</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Lý do thay đổi (bắt buộc cho audit log)</label>
+        <input class="input" id="en-reason" type="text" placeholder="VD: Network rate changed" maxlength="160" />
+      </div>
+      <div class="btn-group" style="justify-content:flex-end;margin-top:8px">
+        <button class="btn ghost" data-x="cancel">Huỷ</button>
+        <button class="btn" data-x="save">Lưu thay đổi</button>
+      </div>
+    </div>`;
+
+  const close = ()=> back.remove();
+  back.addEventListener('click', async e=>{
+    if(e.target === back) return close();
+    const b = e.target.closest('[data-x]');
+    if(!b) return;
+    if(b.dataset.x === 'cancel') return close();
+
+    const newRate = Number($('#en-rate').value||0);
+    const userShare = Number($('#en-user').value||60);
+    const platformShare = 100 - userShare;
+    const minPayout = Number($('#en-min').value||50000);
+    const maxIp = Number($('#en-ip').value||1);
+    const maxDev = Number($('#en-dev').value||1);
+    const cd = Number($('#en-cd').value||86400);
+    const enabled = $('#en-enabled').value === 'true';
+    const reason = $('#en-reason').value.trim();
+
+    if(!reason){ toast('Vui lòng nhập lý do thay đổi để ghi audit log.', 'err'); return; }
+    if(userShare < 0 || userShare > 100){ toast('User share phải trong khoảng 0–100.', 'err'); return; }
+
+    try{
+      await setDoc(doc(db,'networks',id), {
+        ...n,
+        grossRate: newRate,
+        userSharePercent: userShare,
+        platformSharePercent: platformShare,
+        minPayout, maxViewsPerIpPerDay: maxIp, maxViewsPerDevicePerDay: maxDev,
+        cooldownSeconds: cd, enabled,
+        updatedAt: serverTimestamp(),
+      }, { merge:true });
+
+      if(Number(n.grossRate) !== newRate){
+        await addDoc(collection(db,'rateHistory'), {
+          networkId: id,
+          oldRate: Number(n.grossRate||0),
+          newRate,
+          changedBy: S.user.uid,
+          changedAt: serverTimestamp(),
+          reason,
+        });
+      }
+
+      await addDoc(collection(db,'auditLogs'), {
+        adminId: S.user.uid,
+        action: 'ADMIN_UPDATED_NETWORK',
+        targetType: 'network',
+        targetId: id,
+        oldValue: { rate: n.grossRate, userShare: n.userSharePercent, enabled: n.enabled },
+        newValue: { rate: newRate, userShare, enabled },
+        reason,
+        timestamp: serverTimestamp(),
+      });
+
+      toast('Đã cập nhật network.', 'ok');
+      close();
+      await loadNetworks(true);
+      render();
+    }catch(err){
+      console.error(err);
+      toast('Không thể cập nhật network.', 'err');
+    }
+  });
+
+  $('#modal-root').appendChild(back);
+}
+
+function viewAdminRates(){
+  return `
+  ${renderDashTopbar('Rate & lịch sử','Mọi thay đổi rate đều được lưu vết, không sửa lịch sử.')}
+  <div class="card" style="padding:0;overflow:hidden" id="rate-history-box">
+    <div class="between" style="padding:18px 22px"><span class="card-title">Rate history</span></div>
+    ${renderEmptyState('Đang tải…','','chart')}
+  </div>`;
+}
+
+async function loadRateHistory(){
+  const box = $('#rate-history-box');
+  if(!box) return;
+  try{
+    const q = query(collection(db,'rateHistory'), limit(80));
+    const snap = await getDocs(q);
+    const rows = snap.docs.map(d=>({id:d.id, ...d.data()}))
+      .sort((a,b)=>(b.changedAt?.seconds||0)-(a.changedAt?.seconds||0));
+
+    if(!rows.length){
+      box.innerHTML = `<div class="between" style="padding:18px 22px"><span class="card-title">Rate history</span></div>` +
+        renderEmptyState('Chưa có thay đổi rate','Lịch sử thay đổi sẽ xuất hiện ở đây.','chart');
+      return;
+    }
+
+    box.innerHTML = `
+      <div class="between" style="padding:18px 22px">
+        <span class="card-title">Rate history</span>
+        <span class="badge">${rows.length} bản ghi</span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Network</th><th>Rate cũ</th><th>Rate mới</th><th>Lý do</th><th>Thời gian</th></tr></thead>
+          <tbody>
+            ${rows.map(r=>`
+              <tr>
+                <td style="font-weight:600">${esc(r.networkId)}</td>
+                <td class="mono muted">${fmtVND(r.oldRate)}</td>
+                <td class="mono" style="font-weight:600">${fmtVND(r.newRate)}</td>
+                <td class="small muted">${esc(r.reason||'—')}</td>
+                <td class="tiny muted-3">${fmtDateTime(r.changedAt)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }catch(e){
+    box.innerHTML = renderEmptyState('Không thể tải','','x');
+  }
+}
+
+function viewAdminCreator(){
+  return `
+  ${renderDashTopbar('Creator submissions','Duyệt, từ chối và đánh dấu gian lận.')}
+  <div class="card" style="padding:0;overflow:hidden" id="adm-creator-box">
+    ${renderEmptyState('Đang tải…','','video')}
+  </div>`;
+}
+
+async function loadAdminCreator(){
+  const box = $('#adm-creator-box');
+  if(!box) return;
+  try{
+    const q = query(collection(db,'creatorSubmissions'), limit(80));
+    const snap = await getDocs(q);
+    const rows = snap.docs.map(d=>({id:d.id, ...d.data()}))
+      .sort((a,b)=>(b.submittedAt?.seconds||0)-(a.submittedAt?.seconds||0));
+
+    if(!rows.length){
+      box.innerHTML = renderEmptyState('Chưa có submission','','video');
+      return;
+    }
+
+    box.innerHTML = `
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>Nội dung</th><th>Người nộp</th><th>Platform</th><th>Views</th>
+            <th>Fraud</th><th>Trạng thái</th><th>Thao tác</th>
+          </tr></thead>
+          <tbody>
+            ${rows.map(r=>`
+              <tr>
+                <td>
+                  <div style="font-weight:600;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.title||'—')}</div>
+                  <a class="tiny link" href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" style="word-break:break-all">Mở nội dung</a>
+                </td>
+                <td class="tiny muted" style="max-width:160px;overflow:hidden;text-overflow:ellipsis">${esc(r.userEmail||r.userId)}</td>
+                <td><span class="badge">${esc(r.platform)}</span></td>
+                <td class="mono">${fmtNum(r.currentViews)}</td>
+                <td>
+                  <span class="badge ${r.fraudScore>60?'danger':r.fraudScore>30?'warn':'ok'}"
+                        title="${esc((r.fraudReasons||[]).join(' · '))}">${r.fraudScore||0}</span>
+                </td>
+                <td>${statusBadge(r.status)}</td>
+                <td>
+                  <div class="row gap-6">
+                    <button class="btn xs soft" data-action="approve-sub" data-id="${esc(r.id)}" style="color:var(--ok)">Duyệt</button>
+                    <button class="btn xs soft" data-action="reject-sub" data-id="${esc(r.id)}" style="color:var(--danger)">Từ chối</button>
+                  </div>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }catch(e){
+    box.innerHTML = renderEmptyState('Không thể tải','','x');
+  }
+}
+
+async function approveSubmission(id){
+  const ok = await confirmModal({
+    title: 'Duyệt submission?',
+    message: 'Reward sẽ được ghi nhận dựa trên KPI campaign. Hành động này được ghi vào audit log.',
+    confirmText: 'Duyệt'
+  });
+  if(!ok) return;
+  try{
+    await updateDoc(doc(db,'creatorSubmissions', id), {
+      status: 'approved', approvedAt: serverTimestamp(), approvedBy: S.user.uid,
+    });
+    await addDoc(collection(db,'auditLogs'), {
+      adminId: S.user.uid, action:'ADMIN_APPROVED_SUBMISSION',
+      targetType:'creatorSubmission', targetId:id,
+      reason:'Manual review approved', timestamp: serverTimestamp(),
+    });
+    toast('Đã duyệt submission.', 'ok');
+    loadAdminCreator();
+  }catch(e){ toast('Không thể duyệt.', 'err'); }
+}
+
+async function rejectSubmission(id){
+  const ok = await confirmModal({
+    title: 'Từ chối submission?',
+    message: 'Submission sẽ được đánh dấu rejected và không ghi nhận reward.',
+    confirmText: 'Từ chối', danger: true
+  });
+  if(!ok) return;
+  try{
+    await updateDoc(doc(db,'creatorSubmissions', id), {
+      status: 'rejected', rejectedAt: serverTimestamp(), rejectedBy: S.user.uid,
+    });
+    await addDoc(collection(db,'auditLogs'), {
+      adminId: S.user.uid, action:'ADMIN_REJECTED_SUBMISSION',
+      targetType:'creatorSubmission', targetId:id,
+      reason:'Manual review rejected', timestamp: serverTimestamp(),
+    });
+    toast('Đã từ chối submission.', 'ok');
+    loadAdminCreator();
+  }catch(e){ toast('Không thể từ chối.', 'err'); }
+}
+
+function viewAdminWithdrawals(){
+  return `
+  ${renderDashTopbar('Yêu cầu rút tiền','Duyệt, từ chối và đánh dấu đã trả.')}
+  <div class="notice warn" style="margin-bottom:18px">
+    <span>${icon('shield',16)}</span>
+    <span>Việc cộng/trừ số dư phải được thực hiện qua Cloud Function với transaction để tránh race condition. Client không được phép sửa balance.</span>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden" id="adm-wd-box">
+    ${renderEmptyState('Đang tải…','','cash')}
+  </div>`;
+}
+
+async function loadAdminWithdrawals(){
+  const box = $('#adm-wd-box');
+  if(!box) return;
+  try{
+    const q = query(collection(db,'withdrawals'), limit(80));
+    const snap = await getDocs(q);
+    const rows = snap.docs.map(d=>({id:d.id, ...d.data()}))
+      .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+
+    if(!rows.length){
+      box.innerHTML = renderEmptyState('Chưa có yêu cầu','','cash');
+      return;
+    }
+
+    box.innerHTML = `
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>Người dùng</th><th>Số tiền</th><th>Phương thức</th>
+            <th>Chi tiết</th><th>Trạng thái</th><th>Ngày</th><th>Thao tác</th>
+          </tr></thead>
+          <tbody>
+            ${rows.map(r=>{
+              const d = r.details || {};
+              const masked = d.accountNumber
+                ? '••••' + String(d.accountNumber).slice(-4)
+                : (d.telco || d.note || '—');
+              return `
+              <tr>
+                <td class="tiny muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis">${esc(r.userEmail||r.userId)}</td>
+                <td class="mono" style="font-weight:620">${fmtVND(r.amount)}</td>
+                <td class="small">${esc(r.method)}</td>
+                <td class="tiny muted">${esc(masked)}</td>
+                <td>${statusBadge(r.status)}</td>
+                <td class="tiny muted-3">${timeAgo(r.createdAt)}</td>
+                <td>
+                  ${r.status==='pending' || r.status==='reviewing' ? `
+                    <div class="row gap-6">
+                      <button class="btn xs soft" data-action="approve-wd" data-id="${esc(r.id)}" style="color:var(--ok)">Duyệt</button>
+                      <button class="btn xs soft" data-action="reject-wd" data-id="${esc(r.id)}" style="color:var(--danger)">Từ chối</button>
+                    </div>` : `<span class="tiny muted-3">—</span>`}
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }catch(e){
+    box.innerHTML = renderEmptyState('Không thể tải','','x');
+  }
+}
+
+async function approveWithdrawal(id){
+  const ok = await confirmModal({
+    title:'Duyệt yêu cầu rút tiền?',
+    message:'Hệ thống sẽ chuyển trạng thái sang approved. Việc trừ số dư phải chạy qua Cloud Function transaction.',
+    confirmText:'Duyệt'
+  });
+  if(!ok) return;
+  try{
+    await updateDoc(doc(db,'withdrawals', id), {
+      status:'approved', approvedAt: serverTimestamp(), approvedBy: S.user.uid,
+    });
+    await addDoc(collection(db,'auditLogs'), {
+      adminId: S.user.uid, action:'ADMIN_APPROVED_WITHDRAWAL',
+      targetType:'withdrawal', targetId:id,
+      reason:'Manual approval', timestamp: serverTimestamp(),
+    });
+    toast('Đã duyệt yêu cầu.', 'ok');
+    loadAdminWithdrawals();
+  }catch(e){ toast('Không thể duyệt.', 'err'); }
+}
+
+async function rejectWithdrawal(id){
+  const ok = await confirmModal({
+    title:'Từ chối yêu cầu rút tiền?',
+    message:'Số dư tương ứng cần được hoàn lại qua Cloud Function.',
+    confirmText:'Từ chối', danger:true
+  });
+  if(!ok) return;
+  try{
+    await updateDoc(doc(db,'withdrawals', id), {
+      status:'rejected', rejectedAt: serverTimestamp(), rejectedBy: S.user.uid,
+    });
+    await addDoc(collection(db,'auditLogs'), {
+      adminId: S.user.uid, action:'ADMIN_REJECTED_WITHDRAWAL',
+      targetType:'withdrawal', targetId:id,
+      reason:'Manual rejection', timestamp: serverTimestamp(),
+    });
+    toast('Đã từ chối yêu cầu.', 'ok');
+    loadAdminWithdrawals();
+  }catch(e){ toast('Không thể từ chối.', 'err'); }
+}
+
+function viewAdminFraud(){
+  return `
+  ${renderDashTopbar('Gian lận','Sự kiện và điểm số nghi ngờ.')}
+  <div class="card" style="padding:0;overflow:hidden" id="adm-fraud-box">
+    <div class="between" style="padding:18px 22px"><span class="card-title">Fraud events</span></div>
+    ${renderEmptyState('Đang tải…','','shield')}
+  </div>`;
+}
+
+async function loadAdminFraud(){
+  const box = $('#adm-fraud-box');
+  if(!box) return;
+  try{
+    const q = query(collection(db,'fraudEvents'), limit(80));
+    const snap = await getDocs(q);
+    const rows = snap.docs.map(d=>({id:d.id, ...d.data()}))
+      .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+
+    if(!rows.length){
+      box.innerHTML = `<div class="between" style="padding:18px 22px"><span class="card-title">Fraud events</span></div>` +
+        renderEmptyState('Chưa có sự kiện gian lận','Hệ thống chưa ghi nhận tín hiệu bất thường.','shield');
+      return;
+    }
+
+    box.innerHTML = `
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Loại</th><th>Người dùng</th><th>Điểm</th><th>Lý do</th><th>Thời gian</th></tr></thead>
+          <tbody>
+            ${rows.map(r=>`
+              <tr>
+                <td class="small" style="font-weight:600">${esc(r.type||'—')}</td>
+                <td class="tiny muted">${esc(r.userEmail||r.userId||'—')}</td>
+                <td><span class="badge ${r.score>60?'danger':r.score>30?'warn':'ok'}">${r.score||0}</span></td>
+                <td class="small muted">${esc((r.reasons||[]).join(' · ') || '—')}</td>
+                <td class="tiny muted-3">${timeAgo(r.createdAt)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }catch(e){
+    box.innerHTML = renderEmptyState('Không thể tải','','x');
+  }
+}
+
+function viewAdminUsers(){
+  return `
+  ${renderDashTopbar('Người dùng','Danh sách và vai trò.')}
+  <div class="card" style="padding:0;overflow:hidden" id="adm-users-box">
+    ${renderEmptyState('Đang tải…','','users')}
+  </div>`;
+}
+
+async function loadAdminUsers(){
+  const box = $('#adm-users-box');
+  if(!box) return;
+  try{
+    const snap = await getDocs(query(collection(db,'users'), limit(120)));
+    const rows = snap.docs.map(d=>({id:d.id, ...d.data()}))
+      .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+
+    box.innerHTML = `
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Người dùng</th><th>Email</th><th>Vai trò</th><th>Trạng thái</th><th>Ngày tham gia</th></tr></thead>
+          <tbody>
+            ${rows.map(r=>`
+              <tr>
+                <td style="font-weight:600">${esc(r.displayName||'—')}</td>
+                <td class="tiny muted">${esc(r.email||'—')}</td>
+                <td><span class="badge ${r.role==='superadmin'||r.role==='admin'?'accent':''}">${esc(r.role||'user')}</span></td>
+                <td>${statusBadge(r.status==='active'?'completed':'pending')}</td>
+                <td class="tiny muted-3">${timeAgo(r.createdAt)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }catch(e){
+    box.innerHTML = renderEmptyState('Không thể tải danh sách người dùng.','Hãy kiểm tra Firestore Security Rules.','x');
+  }
+}
+
+function viewAdminAudit(){
+  return `
+  ${renderDashTopbar('Audit log','Mọi thao tác admin đều được ghi vết.')}
+  <div class="card" style="padding:0;overflow:hidden" id="adm-audit-box">
+    ${renderEmptyState('Đang tải…','','doc')}
+  </div>`;
+}
+
+async function loadAdminAudit(){
+  const box = $('#adm-audit-box');
+  if(!box) return;
+  try{
+    const q = query(collection(db,'auditLogs'), limit(100));
+    const snap = await getDocs(q);
+    const rows = snap.docs.map(d=>({id:d.id, ...d.data()}))
+      .sort((a,b)=>(b.timestamp?.seconds||0)-(a.timestamp?.seconds||0));
+
+    if(!rows.length){
+      box.innerHTML = renderEmptyState('Chưa có bản ghi','','doc');
+      return;
+    }
+
+    box.innerHTML = `
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Hành động</th><th>Đối tượng</th><th>Lý do</th><th>Admin</th><th>Thời gian</th></tr></thead>
+          <tbody>
+            ${rows.map(r=>`
+              <tr>
+                <td class="small" style="font-weight:600">${esc(r.action)}</td>
+                <td class="tiny muted">${esc(r.targetType)} · ${esc(String(r.targetId||'').slice(0,10))}</td>
+                <td class="small muted">${esc(r.reason||'—')}</td>
+                <td class="tiny muted-3">${esc(String(r.adminId||'').slice(0,10))}</td>
+                <td class="tiny muted-3">${fmtDateTime(r.timestamp)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }catch(e){
+    box.innerHTML = renderEmptyState('Không thể tải','','x');
+  }
+}
+
+/* ============================================================
+   REDIRECT (/s/:slug)
+   ============================================================ */
+async function renderRedirect(el, slug){
+  el.innerHTML = `
+    <div style="min-height:100dvh;display:grid;place-items:center;padding:24px;background:var(--bg)">
+      <div class="card" style="max-width:480px;width:100%;text-align:center">
+        <div class="skel" style="width:60px;height:60px;border-radius:18px;margin:0 auto 20px"></div>
+        <h3 style="margin-bottom:10px">Đang xác minh lượt truy cập…</h3>
+        <p class="small" style="line-height:1.6">Vui lòng đợi trong giây lát.</p>
+      </div>
+    </div>`;
+
+  try{
+    const q = query(collection(db,'shortlinks'), where('slug','==', slug), limit(1));
+    const snap = await getDocs(q);
+    if(snap.empty){
+      el.innerHTML = `<div style="min-height:100dvh;display:grid;place-items:center;padding:24px">
+        <div class="card center" style="max-width:420px">
+          <h3 style="margin-bottom:10px">Link không tồn tại</h3>
+          <p class="small" style="margin-bottom:20px">Link có thể đã bị xoá hoặc không hợp lệ.</p>
+          <button class="btn" data-goto="home">Về trang chủ</button>
+        </div></div>`;
+      return;
+    }
+
+    const link = { id: snap.docs[0].id, ...snap.docs[0].data() };
+    if(link.status !== 'active'){
+      el.innerHTML = `<div style="min-height:100dvh;display:grid;place-items:center;padding:24px">
+        <div class="card center" style="max-width:420px">
+          <h3 style="margin-bottom:10px">Link đã bị vô hiệu hoá</h3>
+          <p class="small" style="margin-bottom:20px">Link này hiện không khả dụng.</p>
+          <button class="btn" data-goto="home">Về trang chủ</button>
+        </div></div>`;
+      return;
+    }
+
+    el.innerHTML = `
+      <div style="min-height:100dvh;display:grid;place-items:center;padding:24px;background:var(--bg)">
+        <div class="card" style="max-width:520px;width:100%">
+          <div class="row gap-12" style="margin-bottom:20px">
+            <span class="logo-mark">L</span>
+            <div>
+              <div style="font-weight:650">Linkora</div>
+              <div class="tiny muted-3">Xác minh lượt truy cập</div>
+            </div>
+          </div>
+          <h3 style="margin-bottom:10px">Nhấn tiếp tục để đến nội dung</h3>
+          <p class="small" style="line-height:1.6;margin-bottom:20px">
+            Lượt truy cập của bạn sẽ được kiểm tra trước khi ghi nhận. Self-click, bot và traffic exchange sẽ không được tính.
+          </p>
+          <div class="notice" style="margin-bottom:20px">
+            <span>${icon('shield',16)}</span>
+            <span class="tiny">Việc kiểm tra phải chạy server-side (Cloud Functions) để có hiệu lực. Endpoint client-side chỉ minh hoạ luồng.</span>
+          </div>
+          <a class="btn block" href="${esc(link.originalUrl)}" rel="noopener noreferrer" id="continue-btn" style="height:48px">
+            Tiếp tục ${icon('arrow',16)}
+          </a>
+        </div>
+      </div>`;
+
+    $('#continue-btn')?.addEventListener('click', async ()=>{
+      try{
+        await updateDoc(doc(db,'shortlinks', link.id), { clicks: increment(1) });
+      }catch(e){ /* best-effort */ }
+    });
+  }catch(e){
+    el.innerHTML = `<div style="min-height:100dvh;display:grid;place-items:center;padding:24px">
+      <div class="card center" style="max-width:420px">
+        <h3 style="margin-bottom:10px">Không thể tải link</h3>
+        <p class="small" style="margin-bottom:20px">Vui lòng thử lại sau.</p>
+        <button class="btn" data-goto="home">Về trang chủ</button>
+      </div></div>`;
+  }
+}
+
+/* ============================================================
+   GLOBAL EVENTS (delegation)
+   ============================================================ */
+document.addEventListener('click', async (e)=>{
+  const t = e.target;
+
+  // theme toggle
+  const themeBtn = t.closest('[data-theme-toggle]');
+  if(themeBtn){
+    const cur = document.documentElement.getAttribute('data-theme');
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem(THEME_KEY, next);
+    return;
+  }
+
+  // goto
+  const goBtn = t.closest('[data-goto]');
+  if(goBtn){
+    nav(goBtn.dataset.goto);
+    return;
+  }
+
+  // scroll
+  const sc = t.closest('[data-scroll]');
+  if(sc){
+    const target = document.querySelector(sc.dataset.scroll);
+    if(target) target.scrollIntoView({behavior:'smooth'});
+    return;
+  }
+
+  // copy from input
+  const cp = t.closest('[data-copy]');
+  if(cp){
+    const inp = document.querySelector(cp.dataset.copy);
+    if(inp){
+      try{ await navigator.clipboard.writeText(inp.value); toast('Đã copy.', 'ok'); }
+      catch{ toast('Không thể copy.', 'err'); }
+    }
+    return;
+  }
+
+  // copy text
+  const cpt = t.closest('[data-copy-text]');
+  if(cpt){
+    try{ await navigator.clipboard.writeText(cpt.dataset.copyText); toast('Đã copy.', 'ok'); }
+    catch{ toast('Không thể copy.', 'err'); }
+    return;
+  }
+
+  // faq
+  const faqQ = t.closest('[data-faq]');
+  if(faqQ){
+    const item = faqQ.parentElement;
+    const ans = item.querySelector('.faq-a');
+    const isOpen = item.classList.contains('open');
+    // close all
+    document.querySelectorAll('.faq-item.open').forEach(x=>{
+      x.classList.remove('open');
+      x.querySelector('.faq-a').style.maxHeight = '0px';
+    });
+    if(!isOpen){
+      item.classList.add('open');
+      ans.style.maxHeight = ans.scrollHeight + 'px';
+    }
+    return;
+  }
+
+  // actions
+  const act = t.closest('[data-action]');
+  if(act){
+    const a = act.dataset.action;
+    if(a === 'logout'){
+      const ok = await confirmModal({title:'Đăng xuất?', message:'Bạn sẽ cần đăng nhập lại để tiếp tục.', confirmText:'Đăng xuất'});
+      if(ok) await signOut(auth);
+      return;
+    }
+    if(a === 'delete-link'){ deleteLink(act.dataset.id); return; }
+    if(a === 'edit-network'){ editNetwork(act.dataset.id); return; }
+    if(a === 'approve-sub'){ approveSubmission(act.dataset.id); return; }
+    if(a === 'reject-sub'){ rejectSubmission(act.dataset.id); return; }
+    if(a === 'approve-wd'){ approveWithdrawal(act.dataset.id); return; }
+    if(a === 'reject-wd'){ rejectWithdrawal(act.dataset.id); return; }
+  }
+});
+
+document.addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const f = e.target;
+  if(f.id === 'auth-form'){
+    handleAuthSubmit(S.route === 'login' ? 'login' : 'register');
+  } else if(f.id === 'create-link-form'){
+    handleCreateLink();
+  } else if(f.id === 'creator-form'){
+    handleCreatorSubmit();
+  } else if(f.id === 'withdraw-form'){
+    handleWithdraw();
+  } else if(f.id === 'ticket-form'){
+    handleTicket();
+  }
+});
+
+/* ============================================================
+   ROUTE-SPECIFIC DATA LOADING (after render)
+   ============================================================ */
+const _origRender = render;
+render = function(){
+  _origRender();
+  // post-render hooks
+  setTimeout(()=>{
+    const r = S.route;
+    if(r === 'links') loadLinks();
+    if(r === 'creator') loadSubmissions();
+    if(r === 'wallet') loadRecentTx('#wallet-tx');
+    if(r === 'withdraw'){ bindWithdrawMethod(); loadWithdrawHistory(); }
+    if(r === 'transactions') loadTransactions();
+    if(r === 'notifications') loadNotifications();
+    if(r === 'support') loadTickets();
+    if(r === 'dashboard') loadRecentTx('#recent-tx');
+    if(r === 'admin-networks' && S.networks.length === 0) loadNetworks(true).then(()=>render());
+    if(r === 'admin-rates') loadRateHistory();
+    if(r === 'admin-creator') loadAdminCreator();
+    if(r === 'admin-withdrawals') loadAdminWithdrawals();
+    if(r === 'admin-fraud') loadAdminFraud();
+    if(r === 'admin-users') loadAdminUsers();
+    if(r === 'admin-audit') loadAdminAudit();
+    if(r === 'admin' && S.networks.length === 0) loadNetworks(true).then(()=>render());
+
+    // calculator binding
+    bindCalculator();
+    // settings binding
+    bindSettings();
+  }, 0);
+};
+
+async function loadRecentTx(sel){
+  const box = document.querySelector(sel);
+  if(!box || !S.user) return;
+  try{
+    const q = query(collection(db,'transactions'), where('userId','==',S.user.uid), limit(6));
+    const snap = await getDocs(q);
+    const rows = snap.docs.map(d=>({id:d.id, ...d.data()}))
+      .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+    if(!rows.length){
+      box.innerHTML = renderEmptyState('Chưa có giao dịch',
+        'Các khoản thu nhập và rút tiền sẽ xuất hiện ở đây.', 'list');
+      return;
+    }
+    box.innerHTML = rows.map(r=>`
+      <div class="between" style="padding:14px 22px;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-weight:600;font-size:.88rem">${esc(r.type||'—')}</div>
+          <div class="tiny muted-3">${timeAgo(r.createdAt)} · ${esc(r.source||'')}</div>
+        </div>
+        <div class="mono" style="font-weight:620;color:${Number(r.amount)<0?'var(--danger)':'var(--ok)'}">
+          ${Number(r.amount)>=0?'+':''}${fmtVND(r.amount)}
+        </div>
+      </div>`).join('');
+  }catch(e){
+    box.innerHTML = renderEmptyState('Không thể tải dữ liệu', 'Vui lòng thử lại.', 'x');
+  }
+}
+
+function bindCalculator(){
+  const viewsEl = document.querySelector('#calc-views');
+  const netEl = document.querySelector('#calc-net');
+  if(!viewsEl || !netEl) return;
+
+  const compute = ()=>{
+    const views = Math.max(0, Number(viewsEl.value || 0));
+    const netId = netEl.value;
+    const nets = S.networks.length ? S.networks : DEFAULT_NETWORKS;
+    const net = nets.find(n=>n.id === netId) || nets[0];
+    if(!net) return;
+    const rate = Number(net.grossRate || 0);
+    const gross = views * rate;
+    const userShare = (net.userSharePercent ?? 60) / 100;
+    const user = gross * userShare;
+    const plat = gross - user;
+    const $r = document.querySelector('#c-rate');
+    const $g = document.querySelector('#c-gross');
+    const $u = document.querySelector('#c-user');
+    const $p = document.querySelector('#c-plat');
+    if($r) $r.textContent = fmtVND(rate);
+    if($g) $g.textContent = fmtVND(gross);
+    if($u) $u.textContent = fmtVND(user);
+    if($p) $p.textContent = fmtVND(plat);
+  };
+
+  viewsEl.addEventListener('input', compute);
+  netEl.addEventListener('change', compute);
+  compute();
+}
+
+function bindSettings(){
+  const btn = document.querySelector('#set-save');
+  if(btn){
+    btn.addEventListener('click', saveSettings);
+  }
+}
+
+/* ============================================================
+   AUTH STATE
+   ============================================================ */
+onAuthStateChanged(auth, async (user)=>{
+  try{
+    if(S.unsubProfile){ S.unsubProfile(); S.unsubProfile = null; }
+    if(S.unsubWallet){ S.unsubWallet(); S.unsubWallet = null; }
+
+    if(user){
+      S.user = user;
+      S.profile = await ensureProfile(user);
+      S.wallet = await ensureWallet(user.uid);
+
+      // realtime wallet
+      S.unsubWallet = onSnapshot(doc(db,'wallets', user.uid), (snap)=>{
+        if(snap.exists()){
+          S.wallet = snap.data();
+          if(['dashboard','wallet','withdraw'].includes(S.route)) render();
+        }
+      }, ()=>{ /* ignore */ });
+
+      // realtime profile
+      S.unsubProfile = onSnapshot(doc(db,'users', user.uid), (snap)=>{
+        if(snap.exists()){
+          S.profile = snap.data();
+          if(S.route === 'settings') render();
+        }
+      }, ()=>{ /* ignore */ });
+
+      await Promise.all([loadNetworks(), loadCampaigns()]);
+
+      if(['login','register',''].includes(S.route)) nav('dashboard');
+    } else {
+      S.user = null; S.profile = null; S.wallet = null;
+      if(S.route.startsWith('admin')) nav('home');
+    }
+    S.ready = true;
+    S.bootError = null;
+    render();
+  }catch(err){
+    console.error('[Linkora] boot error', err);
+    S.ready = true;
+    S.bootError = err?.message || String(err);
+    render();
+  }
+});
+
+/* ============================================================
+   FIRESTORE SECURITY RULES (mẫu — copy vào Firebase Console)
+   ------------------------------------------------------------
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+
+       function signedIn() { return request.auth != null; }
+       function isSelf(uid) { return signedIn() && request.auth.uid == uid; }
+       function role() {
+         return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+       }
+       function isAdmin() {
+         return signedIn() && role() in ['admin','superadmin'];
+       }
+       function isStaff() {
+         return signedIn() && role() in ['admin','superadmin','finance','moderator','support','analyst'];
+       }
+
+       // users: chỉ đọc/sửa chính mình, không tự đổi role
+       match /users/{uid} {
+         allow read: if isSelf(uid) || isStaff();
+         allow create: if isSelf(uid);
+         allow update: if isSelf(uid)
+           && !request.resource.data.diff(resource.data).affectedKeys()
+                .hasAny(['role','status','createdAt']);
+         allow delete: if isAdmin();
+       }
+
+       // wallets: client chỉ đọc. Ghi qua Cloud Functions (Admin SDK).
+       match /wallets/{uid} {
+         allow read: if isSelf(uid) || isStaff();
+         allow write: if false;
+       }
+
+       // transactions: immutable ledger. Chỉ đọc.
+       match /transactions/{id} {
+         allow read: if signedIn()
+           && (resource.data.userId == request.auth.uid || isStaff());
+         allow write: if false;
+       }
+
+       // withdrawals: user tạo yêu cầu, chỉ staff đổi status
+       match /withdrawals/{id} {
+         allow read: if signedIn()
+           && (resource.data.userId == request.auth.uid || isStaff());
+         allow create: if signedIn()
+           && request.resource.data.userId == request.auth.uid
+           && request.resource.data.status == 'pending'
+           && request.resource.data.amount is number
+           && request.resource.data.amount >= 50000;
+         allow update, delete: if isStaff();
+       }
+
+       // shortlinks
+       match /shortlinks/{id} {
+         allow read: if true; // dùng cho route /s/:slug
+         allow create: if signedIn()
+           && request.resource.data.userId == request.auth.uid;
+         allow update, delete: if signedIn()
+           && resource.data.userId == request.auth.uid;
+       }
+
+       // shortlinkViews: chỉ ghi server-side
+       match /shortlinkViews/{id} {
+         allow read: if signedIn()
+           && (resource.data.userId == request.auth.uid || isStaff());
+         allow write: if false;
+       }
+
+       // networks / rates: public read, admin write
+       match /networks/{id} {
+         allow read: if true;
+         allow write: if isAdmin();
+       }
+       match /rateHistory/{id} {
+         allow read: if true;
+         allow create: if isAdmin();
+         allow update, delete: if false; // immutable
+       }
+
+       // creator campaigns / submissions
+       match /creatorCampaigns/{id} {
+         allow read: if true;
+         allow write: if isAdmin();
+       }
+       match /creatorSubmissions/{id} {
+         allow read: if signedIn()
+           && (resource.data.userId == request.auth.uid || isStaff());
+         allow create: if signedIn()
+           && request.resource.data.userId == request.auth.uid
+           && request.resource.data.status == 'pending';
+         allow update, delete: if isStaff();
+       }
+
+       // fraud events, audit logs: chỉ staff
+       match /fraudEvents/{id} {
+         allow read: if isStaff();
+         allow write: if false;
+       }
+       match /auditLogs/{id} {
+         allow read: if isStaff();
+         allow create: if isStaff();
+         allow update, delete: if false;
+       }
+
+       // notifications
+       match /notifications/{id} {
+         allow read: if signedIn()
+           && (resource.data.userId == request.auth.uid || isStaff());
+         allow write: if isStaff();
+       }
+
+       // support tickets
+       match /supportTickets/{id} {
+         allow read: if signedIn()
+           && (resource.data.userId == request.auth.uid || isStaff());
+         allow create: if signedIn()
+           && request.resource.data.userId == request.auth.uid;
+         allow update, delete: if isStaff();
+       }
+
+       // referrals
+       match /referrals/{id} {
+         allow read: if signedIn()
+           && (resource.data.userId == request.auth.uid || isStaff());
+         allow write: if isStaff();
+       }
+
+       // settings: public read, admin write
+       match /settings/{id} {
+         allow read: if true;
+         allow write: if isAdmin();
+       }
+     }
+   }
+   ============================================================ */
+
+</script>
+</body>
+</html>
