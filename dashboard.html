@@ -141,7 +141,7 @@ table tbody tr:hover{background:var(--bg-soft)}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut }
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection,
@@ -159,6 +159,17 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+/* ============================================================
+   HARDCODED SUPERADMIN
+   ------------------------------------------------------------
+   Đăng nhập: username "digitalsmod" hoặc email nội bộ
+   Mật khẩu: "ame1610@"
+   Lần đầu đăng nhập sẽ tự tạo tài khoản Firebase Auth.
+   ============================================================ */
+const ADMIN_USERNAME = 'digitalsmod';
+const ADMIN_PASSWORD = 'ame1610@';
+const ADMIN_EMAIL    = 'digitalsmod@linkora.admin';
 
 const S = { user:null, profile:null, route:'overview', ready:false, error:null };
 
@@ -263,10 +274,10 @@ function renderAuth(){
       <div class="card" style="padding:30px">
         <div class="logo" style="margin-bottom:22px"><span class="logo-mark">L</span><span>Linkora Admin</span></div>
         <h1 style="margin-bottom:6px">Đăng nhập quản trị</h1>
-        <p class="small muted" style="margin-bottom:20px">Chỉ tài khoản có role admin/superadmin.</p>
+        <p class="small muted" style="margin-bottom:20px">Nhập username hoặc email admin.</p>
         <form id="admin-login">
-          <div class="field"><label>Email</label><input class="input" id="al-email" type="email" required /></div>
-          <div class="field"><label>Mật khẩu</label><input class="input" id="al-pass" type="password" required /></div>
+          <div class="field"><label>Tài khoản</label><input class="input" id="al-email" type="text" autocomplete="username" placeholder="digitalsmod" required /></div>
+          <div class="field"><label>Mật khẩu</label><input class="input" id="al-pass" type="password" autocomplete="current-password" required /></div>
           <div id="al-error" class="notice danger hidden" style="margin-bottom:14px"></div>
           <button class="btn accent block" type="submit" id="al-submit" style="height:46px">Đăng nhập</button>
         </form>
@@ -275,17 +286,89 @@ function renderAuth(){
     </div>
   </div>`;
 }
+
+/* Map username → email nội bộ */
+function normalizeLoginEmail(raw){
+  const v = String(raw||'').trim();
+  if(!v) return '';
+  // Nếu chỉ có username (không có @) → chuyển sang email nội bộ
+  if(!v.includes('@')){
+    if(v.toLowerCase() === ADMIN_USERNAME) return ADMIN_EMAIL;
+    return v.toLowerCase() + '@linkora.admin';
+  }
+  return v;
+}
+
+async function ensureAdminProfile(user){
+  // Đảm bảo doc users/{uid} tồn tại và có role superadmin khi là tài khoản hardcode
+  const ref = doc(db,'users',user.uid);
+  const snap = await getDoc(ref);
+  const isHardcodedAdmin = (user.email||'').toLowerCase() === ADMIN_EMAIL;
+  if(snap.exists()){
+    const data = snap.data();
+    if(isHardcodedAdmin && !['superadmin','admin'].includes(data.role)){
+      await updateDoc(ref,{ role:'superadmin', status:'active' });
+      return { ...data, role:'superadmin', status:'active' };
+    }
+    return data;
+  }
+  const profile = {
+    uid:user.uid,
+    email:user.email||'',
+    displayName: isHardcodedAdmin ? 'Super Admin' : (user.email||'').split('@')[0],
+    role: isHardcodedAdmin ? 'superadmin' : 'user',
+    status:'active',
+    createdAt: serverTimestamp(),
+  };
+  await setDoc(ref, profile);
+  return profile;
+}
+
 async function handleAdminLogin(){
-  const email=$('#al-email').value.trim();
-  const pass=$('#al-pass').value;
-  const err=$('#al-error'); const btn=$('#al-submit');
+  let raw = $('#al-email').value.trim();
+  const pass = $('#al-pass').value;
+  const err = $('#al-error'); const btn = $('#al-submit');
   err.classList.add('hidden');
+
+  if(!raw){ err.textContent='Nhập tài khoản.'; err.classList.remove('hidden'); return; }
+  if(!pass){ err.textContent='Nhập mật khẩu.'; err.classList.remove('hidden'); return; }
+
+  const email = normalizeLoginEmail(raw);
   btn.disabled=true; btn.textContent='Đang đăng nhập…';
+
   try{
-    await signInWithEmailAndPassword(auth,email,pass);
+    await signInWithEmailAndPassword(auth, email, pass);
     toast('Đăng nhập thành công.','ok');
+    // ensureAdminProfile sẽ chạy trong onAuthStateChanged
   }catch(e){
-    err.textContent='Sai thông tin hoặc không có quyền.'; err.classList.remove('hidden');
+    // Nếu là tài khoản hardcode + đúng mật khẩu → tự tạo user lần đầu
+    const isHardcoded = (email === ADMIN_EMAIL) || (raw.toLowerCase() === ADMIN_USERNAME);
+    const correctPass = (pass === ADMIN_PASSWORD);
+
+    if(isHardcoded && correctPass && (e.code==='auth/user-not-found' || e.code==='auth/invalid-credential' || e.code==='auth/invalid-login-credentials')){
+      try{
+        const cred = await createUserWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASSWORD);
+        await setDoc(doc(db,'users',cred.user.uid),{
+          uid: cred.user.uid,
+          email: ADMIN_EMAIL,
+          displayName:'Super Admin',
+          role:'superadmin',
+          status:'active',
+          createdAt: serverTimestamp(),
+        });
+        toast('Đã khởi tạo tài khoản Super Admin.','ok');
+      }catch(err2){
+        console.error(err2);
+        err.textContent = 'Không thể khởi tạo admin: ' + (err2.message||err2.code||'lỗi');
+        err.classList.remove('hidden');
+      }
+    } else if(isHardcoded && !correctPass){
+      err.textContent='Sai mật khẩu quản trị.';
+      err.classList.remove('hidden');
+    } else {
+      err.textContent='Sai thông tin hoặc không có quyền.';
+      err.classList.remove('hidden');
+    }
   }finally{ btn.disabled=false; btn.textContent='Đăng nhập'; }
 }
 
@@ -575,7 +658,6 @@ async function loadLQKeys(){
   try{
     const snap=await getDocs(query(collection(db,'lq_keys'), limit(500)));
     const rows=snap.docs.map(d=>({id:d.id,...d.data()}));
-    // group by duration
     const grouped={};
     rows.forEach(r=>{ (grouped[r.duration]=grouped[r.duration]||[]).push(r); });
 
@@ -607,7 +689,6 @@ async function handleAddLQKeys(){
   try{
     let ok=0;
     for(const code of codes){
-      // skip duplicate
       const dup=await getDocs(query(collection(db,'lq_keys'), where('code','==',code), limit(1)));
       if(!dup.empty) continue;
       await addDoc(collection(db,'lq_keys'),{
@@ -876,9 +957,8 @@ onAuthStateChanged(auth, async (user)=>{
   S.user=user; S.profile=null;
   if(user){
     try{
-      const snap=await getDoc(doc(db,'users',user.uid));
-      S.profile = snap.exists() ? snap.data() : null;
-    }catch{}
+      S.profile = await ensureAdminProfile(user);
+    }catch(e){ console.error('[admin] profile error', e); }
   }
   S.ready=true;
   render();
