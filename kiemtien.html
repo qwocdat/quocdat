@@ -9,17 +9,17 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
-body{min-height:100dvh;line-height:1.5;-webkit-font-smoothing:antialiased}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
+body{min-height:100dvh;line-height:1.5;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;-webkit-tap-highlight-color:transparent}
 img,svg,video{display:block;max-width:100%}
-input,button,select,textarea{font:inherit;color:inherit;background:transparent;border:0;outline:0;-webkit-appearance:none;appearance:none;border-radius:0}
+input,button,select,textarea{font:inherit;color:inherit;background:transparent;border:0;outline:0;-webkit-appearance:none;appearance:none;border-radius:0;-webkit-tap-highlight-color:transparent}
 button{cursor:pointer}
-a{color:inherit;text-decoration:none}
+a{color:inherit;text-decoration:none;-webkit-tap-highlight-color:transparent}
 ul,ol{list-style:none}
 table{border-collapse:collapse;width:100%}
-input:-webkit-autofill{-webkit-box-shadow:0 0 0 1000px var(--bg-soft) inset;-webkit-text-fill-color:var(--text)}
-::selection{background:var(--accent);color:#fff}
+input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 1000px var(--bg-soft) inset !important;-webkit-text-fill-color:var(--text) !important;transition:background-color 9999s ease-in-out 0s}
+::selection{background:rgba(37,99,235,.18);color:var(--text)}
 :root{
   --bg:#ffffff;--bg-soft:#fafafa;--bg-sunken:#f4f4f5;
   --text:#111;--text-2:#666;--text-3:#9a9a9a;
@@ -67,7 +67,7 @@ p{color:var(--text-2)}
 .wrap-page{max-width:var(--maxw);margin:0 auto;padding:0 22px}
 section{padding:80px 0}
 section.tight{padding:52px 0}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 20px;border-radius:14px;font-size:.9rem;font-weight:600;background:var(--text);color:var(--bg);border:1px solid transparent;transition:transform .18s,box-shadow .22s,background .18s,opacity .18s,border-color .18s;white-space:nowrap;user-select:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 20px;border-radius:14px;font-size:.9rem;font-weight:600;background:var(--text);color:var(--bg);border:1px solid transparent;transition:transform .18s,box-shadow .22s,background .18s,opacity .18s,border-color .18s;white-space:nowrap;user-select:none;-webkit-tap-highlight-color:transparent}
 .btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-sm)}
 .btn:active{transform:translateY(0);box-shadow:none}
 .btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
@@ -86,7 +86,7 @@ section.tight{padding:52px 0}
 .input,.select,.textarea{width:100%;height:46px;padding:0 15px;background:var(--bg-soft);border:1px solid var(--border);border-radius:14px;font-size:.9rem;color:var(--text);transition:border-color .18s,background .18s,box-shadow .18s}
 .textarea{height:auto;min-height:110px;padding:13px 15px;resize:vertical;line-height:1.5}
 .select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px;cursor:pointer}
-.input:focus,.select:focus,.textarea:focus{border-color:var(--accent);background:var(--bg);box-shadow:0 0 0 4px var(--accent-soft)}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--accent);background:var(--bg);box-shadow:0 0 0 4px var(--accent-soft);outline:none}
 .input::placeholder,.textarea::placeholder{color:var(--text-3)}
 .hint{font-size:.75rem;color:var(--text-3);line-height:1.45}
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:22px;transition:border-color .2s,box-shadow .25s,transform .25s}
@@ -247,7 +247,6 @@ table tbody tr:hover{background:var(--bg-soft)}
 .lq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
 .lq-card{border:1px solid var(--border);border-radius:var(--r);padding:18px;background:var(--card);display:flex;flex-direction:column;gap:12px;transition:border-color .2s,transform .2s,box-shadow .25s}
 .lq-card:hover{border-color:var(--border-2);transform:translateY(-2px);box-shadow:var(--shadow)}
-.lq-card .lq-ico{font-size:1.8rem}
 .lq-card .lq-name{font-weight:700;letter-spacing:-0.02em}
 .lq-card .lq-meta{display:flex;justify-content:space-between;align-items:center;font-size:.8rem;color:var(--text-2)}
 .lq-card .lq-price{font-size:1.15rem;font-weight:750;color:var(--accent);letter-spacing:-0.03em}
@@ -256,7 +255,7 @@ table tbody tr:hover{background:var(--bg-soft)}
 .task-item{display:flex;align-items:center;gap:14px;border:1px solid var(--border);border-radius:var(--r);padding:16px;background:var(--card);transition:border-color .2s,transform .2s,box-shadow .25s}
 .task-item:hover{border-color:var(--border-2);transform:translateY(-1px);box-shadow:var(--shadow-sm)}
 .task-item.disabled{opacity:.55;pointer-events:none}
-.task-ico{width:48px;height:48px;border-radius:14px;flex:none;display:grid;place-items:center;font-size:1.5rem;background:var(--bg-sunken);border:1px solid var(--border)}
+.task-avatar{width:48px;height:48px;border-radius:14px;flex:none;display:grid;place-items:center;font-weight:800;font-size:.85rem;letter-spacing:-0.02em;color:#fff;box-shadow:var(--shadow-xs)}
 .task-body{flex:1;min-width:0}
 .task-name{font-weight:650;letter-spacing:-0.015em;margin-bottom:3px}
 .task-meta{font-size:.78rem;color:var(--text-3);display:flex;gap:10px;flex-wrap:wrap}
@@ -315,13 +314,18 @@ const auth = getAuth(app);
 const db   = getFirestore(app);
 
 /* ============================================================
+   CONSTANTS
+   ============================================================ */
+const MIN_WITHDRAW = 5000;
+
+/* ============================================================
    STATE
    ============================================================ */
 const S = {
   user:null, profile:null, wallet:null,
   seller:null, networks:[], campaigns:[],
   lqKeys:[], drawerOpen:false,
-  route:'home', param:null, ready:false, bootError:null,
+  route:'home', param:null, query:null, ready:false, bootError:null,
   unsubWallet:null, unsubProfile:null, unsubSeller:null,
 };
 const THEME_KEY='linkora_theme';
@@ -335,12 +339,27 @@ const DEFAULT_NETWORKS = [
   { id:'link4m', name:'Link4M', website:'https://link4m.co', taskType:'direct', grossRate:300, currency:'VND', userSharePercent:60, platformSharePercent:40, minPayout:50000, maxViewsPerIpPerDay:1, maxViewsPerDevicePerDay:1, cooldownSeconds:86400, enabled:true, apiStatus:'manual', countries:['VN'], note:'Rate tham chiếu.' },
 ];
 
+/* Network avatar chữ — thay emoji */
+const NET_AVATAR = {
+  link4m:     { text:'L4M', color:'#7c3aed' },
+  lentop:     { text:'LTP', color:'#0891b2' },
+  linktop:    { text:'LKT', color:'#ea580c' },
+  traffictop: { text:'TFT', color:'#16a34a' },
+  bbmkts:     { text:'BBM', color:'#dc2626' },
+  _default:   { text:'LNK', color:'#2563eb' },
+};
+function netAvatarHTML(networkId, size=48){
+  const a = NET_AVATAR[networkId] || NET_AVATAR._default;
+  return `<div class="task-avatar" style="background:${a.color};width:${size}px;height:${size}px">${a.text}</div>`;
+}
+
+/* LQ durations — không emoji */
 const LQ_DURATIONS = [
-  { id:'1d',   label:'1 ngày',   icon:'⏱️' },
-  { id:'15d',  label:'15 ngày',  icon:'📅' },
-  { id:'30d',  label:'30 ngày',  icon:'🗓️' },
-  { id:'90d',  label:'90 ngày',  icon:'📆' },
-  { id:'forever', label:'Vĩnh viễn', icon:'♾️' },
+  { id:'1d',   label:'1 ngày',   short:'1D',  color:'#0891b2' },
+  { id:'15d',  label:'15 ngày',  short:'15D', color:'#2563eb' },
+  { id:'30d',  label:'30 ngày',  short:'30D', color:'#7c3aed' },
+  { id:'90d',  label:'90 ngày',  short:'90D', color:'#ea580c' },
+  { id:'forever', label:'Vĩnh viễn', short:'∞', color:'#059669' },
 ];
 
 /* ============================================================
@@ -377,6 +396,18 @@ async function sha256(str){
 }
 function startOfDay(d=new Date()){ const x=new Date(d); x.setHours(0,0,0,0); return x; }
 function daysAgo(n){ const x=new Date(); x.setDate(x.getDate()-n); x.setHours(0,0,0,0); return x; }
+function parseQuery(){
+  const hash = location.hash || '';
+  const qi = hash.indexOf('?');
+  if(qi === -1) return {};
+  const qs = hash.slice(qi+1);
+  const out = {};
+  qs.split('&').forEach(p=>{
+    const [k,v] = p.split('=');
+    if(k) out[decodeURIComponent(k)] = decodeURIComponent(v||'');
+  });
+  return out;
+}
 
 /* ============================================================
    TOAST / MODAL
@@ -446,6 +477,8 @@ const ICON={
   receipt:'<path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/>',
   trend:'<path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
   coin:'<circle cx="12" cy="12" r="9"/><path d="M15 9.5c0-1-1.3-1.8-3-1.8s-3 .8-3 1.8 1 1.6 3 2 3 1 3 2-1.3 1.8-3 1.8-3-.8-3-1.8M12 6v12"/>',
+  lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
 };
 function icon(name,size=17,sw=1.8){
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[name]||''}</svg>`;
@@ -460,12 +493,13 @@ const CAPTCHA_PAIRS = [
   ['🍔','🍟'],['🐸','🐢'],['🎩','👒'],['🥑','🥝'],['📘','📗'],
 ];
 const Captcha = {
-  target:null, pool:null, solved:false,
+  target:null, pool:null, solved:false, nonce:0,
   generate(){
     const [a,b] = CAPTCHA_PAIRS[Math.floor(Math.random()*CAPTCHA_PAIRS.length)];
     const flip = Math.random()<.5;
     this.target = flip ? b : a;
     this.pool   = flip ? a : b;
+    this.nonce++;
     this.solved = false;
   },
   renderHTML(){
@@ -594,14 +628,16 @@ async function loadLQKeys(){
    ============================================================ */
 function parseHash(){
   const h=(location.hash||'#/').replace(/^#\/?/,'');
-  const parts=h.split('/').filter(Boolean);
-  return { route:parts[0]||'home', param:parts[1]||null, sub:parts[2]||null };
+  const qi = h.indexOf('?');
+  const path = qi===-1 ? h : h.slice(0,qi);
+  const parts=path.split('/').filter(Boolean);
+  return { route:parts[0]||'home', param:parts[1]||null, sub:parts[2]||null, query: parseQuery() };
 }
 function nav(path){ location.hash='#/'+path.replace(/^\/+/,''); closeDrawer(); }
 
 function render(){
-  const { route, param }=parseHash();
-  S.route=route; S.param=param;
+  const { route, param, query }=parseHash();
+  S.route=route; S.param=param; S.query=query;
   const el=$('#app');
 
   if(route==='s' && param) return renderRedirect(el,param);
@@ -658,8 +694,7 @@ const renderBootError=()=>`<div style="min-height:100dvh;display:grid;place-item
       <span>${icon('shield',16)}</span><span>${esc(S.bootError)}</span>
     </div>
   </div></div>`;
-
-/* ============================================================
+  /* ============================================================
    LANDING
    ============================================================ */
 function renderLanding(){
@@ -675,7 +710,7 @@ function renderLanding(){
           <div>
             <div class="pill" style="margin-bottom:22px">
               <span class="dot" style="color:var(--ok)"></span>
-              💰 Nhiệm vụ · Shortlink · Seller · Key LQ
+              Hệ Thống Ổn Định
             </div>
             <h1>Vượt link kiếm tiền — nhận tiền ngay.</h1>
             <p class="sub" style="margin-bottom:28px">
@@ -683,7 +718,7 @@ function renderLanding(){
               Hoặc tạo shortlink, đăng ký Seller, mua key Liên Quân.
             </p>
             <div class="btn-group" style="margin-bottom:20px">
-              <button class="btn" data-goto="tasks" style="background:var(--accent);color:#fff">💰 Vào Kiếm tiền ${icon('arrow',16)}</button>
+              <button class="btn" data-goto="tasks" style="background:var(--accent);color:#fff">Vào Kiếm tiền ${icon('arrow',16)}</button>
               <button class="btn ghost" data-goto="register">Tạo tài khoản</button>
             </div>
             <p class="tiny muted-3" style="max-width:48ch;line-height:1.6">
@@ -730,7 +765,7 @@ function renderLanding(){
             ['Nhiệm vụ','5+'],
             ['Thưởng tức thì','3 giây'],
             ['Hoa hồng ref','10%'],
-            ['Ngưỡng rút','50.000đ'],
+            ['Ngưỡng rút','5.000đ'],
           ].map(([l,v])=>`
             <div class="card">
               <div class="stat-label" style="margin-bottom:10px">${l}</div>
@@ -740,34 +775,33 @@ function renderLanding(){
       </div>
     </section>
 
-    <!-- SECTION KIẾM TIỀN / NHIỆM VỤ -->
     <section id="tasks-preview" style="background:var(--bg-soft);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
       <div class="wrap-page">
         <div class="sec-head center">
-          <div class="eyebrow" style="margin-bottom:14px">💰 Kiếm tiền ngay</div>
+          <div class="eyebrow" style="margin-bottom:14px">Kiếm tiền ngay</div>
           <h2>Vượt link — nhận tiền — không cần chờ duyệt.</h2>
           <p>Mỗi nhiệm vụ có mức thưởng riêng. Hoàn thành xong, tiền vào ví ngay lập tức.</p>
         </div>
         <div class="grid c3" style="margin-bottom:32px">
           <div class="card hoverable">
-            <div class="net-avatar" style="margin-bottom:14px">⚡</div>
+            <div class="net-avatar" style="margin-bottom:14px;color:var(--accent)">${icon('trend',20)}</div>
             <div style="font-weight:650;margin-bottom:7px">Thưởng tức thì</div>
-            <p class="small" style="line-height:1.6">Vượt xong nhấn "Đã vượt" — tiền cộng vào ví trong 3 giây.</p>
+            <p class="small" style="line-height:1.6">Vượt xong quay lại tab — hệ thống tự xác nhận và cộng tiền vào ví.</p>
           </div>
           <div class="card hoverable">
-            <div class="net-avatar" style="margin-bottom:14px">🔒</div>
+            <div class="net-avatar" style="margin-bottom:14px;color:var(--accent)">${icon('lock',20)}</div>
             <div style="font-weight:650;margin-bottom:7px">Chống gian lận</div>
             <p class="small" style="line-height:1.6">Mỗi lượt gắn IP hash + device hash. Không thể spam.</p>
           </div>
           <div class="card hoverable">
-            <div class="net-avatar" style="margin-bottom:14px">👥</div>
+            <div class="net-avatar" style="margin-bottom:14px;color:var(--accent)">${icon('users',20)}</div>
             <div style="font-weight:650;margin-bottom:7px">Mời bạn bè</div>
             <p class="small" style="line-height:1.6">Nhận 10% hoa hồng vĩnh viễn từ thu nhập của người bạn giới thiệu.</p>
           </div>
         </div>
         <div class="center">
           <button class="btn" data-goto="tasks" style="height:52px;padding:0 32px;font-size:1rem;background:var(--accent);color:#fff">
-            💰 Vào trang Kiếm tiền ${icon('arrow',18)}
+            Vào trang Kiếm tiền ${icon('arrow',18)}
           </button>
         </div>
       </div>
@@ -800,17 +834,17 @@ function renderLanding(){
         </div>
         <div class="grid c3">
           <div class="card hoverable">
-            <div class="net-avatar" style="margin-bottom:14px">💰</div>
+            <div class="net-avatar" style="margin-bottom:14px;color:var(--accent)">${icon('coin',20)}</div>
             <div style="font-weight:650;margin-bottom:7px">Nhiệm vụ vượt link</div>
             <p class="small" style="line-height:1.6">Vượt link network nhận tiền ngay. Không cần chờ duyệt, không cần KYC.</p>
           </div>
           <div class="card hoverable">
-            <div class="net-avatar" style="margin-bottom:14px">🛒</div>
+            <div class="net-avatar" style="margin-bottom:14px;color:var(--accent)">${icon('shop',20)}</div>
             <div style="font-weight:650;margin-bottom:7px">Seller Center</div>
             <p class="small" style="line-height:1.6">Đăng ký Seller (chờ admin duyệt), quản lý sản phẩm, ghi nhận đơn, xem lợi nhuận.</p>
           </div>
           <div class="card hoverable">
-            <div class="net-avatar" style="margin-bottom:14px">🎮</div>
+            <div class="net-avatar" style="margin-bottom:14px;color:var(--accent)">${icon('game',20)}</div>
             <div style="font-weight:650;margin-bottom:7px">Chợ key Liên Quân</div>
             <p class="small" style="line-height:1.6">Key 1 ngày, 15, 30, 90 ngày và vĩnh viễn — mua bằng số dư ví.</p>
           </div>
@@ -857,6 +891,38 @@ function renderLanding(){
 
     <section>
       <div class="wrap-page">
+        <div class="sec-head">
+          <div class="eyebrow" style="margin-bottom:14px">Máy tính thu nhập</div>
+          <h2>Ước tính dựa trên rate hiện tại.</h2>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <div class="grid" style="grid-template-columns:1fr 1fr">
+            <div style="padding:30px;border-right:1px solid var(--border)">
+              <div class="field">
+                <label for="calc-views">Số lượt hợp lệ</label>
+                <input class="input" id="calc-views" type="number" min="0" step="100" value="1000" />
+              </div>
+              <div class="field">
+                <label for="calc-net">Network</label>
+                <select class="select" id="calc-net">
+                  ${enabled.map(n=>`<option value="${esc(n.id)}">${esc(n.name)} — ${fmtVND(n.grossRate)}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div style="padding:30px;background:var(--bg-soft);display:flex;flex-direction:column;gap:16px;justify-content:center">
+              <div class="between"><span class="muted small">Rate</span><span class="mono" id="c-rate" style="font-weight:650">—</span></div>
+              <div class="between"><span class="muted small">Gross</span><span class="mono" id="c-gross" style="font-weight:650">—</span></div>
+              <div class="divider" style="margin:6px 0"></div>
+              <div class="between"><span style="font-weight:650">Bạn nhận</span><span class="mono" id="c-user" style="font-size:1.7rem;font-weight:750;color:var(--accent)">—</span></div>
+              <div class="between"><span class="muted small">Nền tảng</span><span class="mono" id="c-plat" style="font-weight:650">—</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap-page">
         <div class="grid" style="grid-template-columns:.8fr 1.2fr;gap:56px">
           <div>
             <div class="eyebrow" style="margin-bottom:14px">FAQ</div>
@@ -868,7 +934,7 @@ function renderLanding(){
               ['Vì sao lượt xem không được tính?','Trùng IP/thiết bị, bot, self-click, traffic exchange hoặc network không xác nhận hợp lệ.'],
               ['Nhiệm vụ vượt link là gì?','Vào trang Kiếm tiền, chọn nhiệm vụ, hệ thống mở link network. Vượt xong quay lại nhấn xác nhận để nhận tiền.'],
               ['Mời bạn bè nhận bao nhiêu?','Bạn nhận 10% mỗi lần người bạn giới thiệu kiếm tiền từ nhiệm vụ. Hoa hồng vĩnh viễn.'],
-              ['Rate có cố định không?','Không. Mọi thay đổi rate đều ghi vào rate history, có timestamp và lý do.'],
+              ['Ngưỡng rút tối thiểu?','5.000đ. Yêu cầu rút được admin duyệt và chuyển khoản thật về ngân hàng của bạn.'],
             ].map(([q,a])=>`
               <div class="faq-item">
                 <button class="faq-q"><span>${q}</span><span class="chev">${icon('arrow',15)}</span></button>
@@ -900,7 +966,7 @@ function renderSiteHeader(active){
     <div class="inner">
       <a class="logo" href="#/"><span class="logo-mark">L</span><span>Linkora</span></a>
       <nav class="nav-links">
-        <a href="#/tasks" style="color:var(--accent);font-weight:650">💰 Kiếm tiền</a>
+        <a href="#/tasks" style="color:var(--accent);font-weight:650">Kiếm tiền</a>
         <a href="#/" class="${active==='home'?'active':''}">Trang chủ</a>
         <a href="#/rates">Rate</a>
         <a href="#/lq">Key Liên Quân</a>
@@ -928,7 +994,7 @@ function renderSiteFooter(){
         </div>
         <div class="foot-col">
           <h4>Sản phẩm</h4>
-          <a href="#/tasks">💰 Kiếm tiền</a>
+          <a href="#/tasks">Kiếm tiền</a>
           <a href="#/rates">Bảng rate</a>
           <a href="#/lq">Key Liên Quân</a>
           <a href="#/seller-register">Đăng ký Seller</a>
@@ -1012,14 +1078,14 @@ function renderLQPublic(){
     <div class="sec-head">
       <div class="eyebrow" style="margin-bottom:14px">Chợ key Liên Quân</div>
       <h2>Key hack map Liên Quân Mobile</h2>
-      <p>Key được admin nạp lên Firebase — không random phía client. Mua bằng số dư ví sau khi đăng nhập.</p>
+      <p>Key được admin nạp lên Backend — không random phía client. Mua bằng số dư ví sau khi đăng nhập.</p>
     </div>
     <div class="lq-grid">
       ${LQ_DURATIONS.map(d=>{
         const stock = counts[d.id]||0;
         return `
         <div class="lq-card">
-          <div class="lq-ico">${d.icon}</div>
+          <div class="task-avatar" style="background:${d.color};width:48px;height:48px">${d.short}</div>
           <div class="lq-name">Key ${esc(d.label)}</div>
           <div class="lq-meta">
             <span>Kho: <b>${stock}</b></span>
@@ -1083,7 +1149,7 @@ const LEGAL = {
     <p>Traffic gian lận bị loại, tài khoản vi phạm có thể bị khoá.</p>
   `},
   'payout-policy':{title:'Chính sách thanh toán',body:`
-    <p>Ngưỡng rút tối thiểu 50.000đ. Trạng thái: pending → reviewing → approved → processing → completed.</p>
+    <p>Ngưỡng rút tối thiểu 5.000đ. Trạng thái: pending → reviewing → approved → processing → completed.</p>
     <p>Số dư chờ đối soát không thể rút.</p>
   `},
   'content-policy':{title:'Chính sách nội dung',body:`
@@ -1141,8 +1207,7 @@ function renderNotFound(){
       <button class="btn" data-goto="home">Về trang chủ</button>
     </div></div>`;
 }
-
-/* ============================================================
+  /* ============================================================
    AUTH
    ============================================================ */
 function renderAuth(mode){
@@ -1241,7 +1306,7 @@ async function handleAuthSubmit(mode){
       const cred = await createUserWithEmailAndPassword(auth,email,pass);
       if(name) await updateProfile(cred.user,{displayName:name});
 
-      // Referral: link dạng #/register?ref=CODE
+      // Referral: retry 5 lần để lưu referredBy sau khi ensureProfile xong
       try{
         const refCode = new URLSearchParams((location.hash.split('?')[1]||'')).get('ref');
         if(refCode){
@@ -1249,10 +1314,20 @@ async function handleAuthSubmit(mode){
           const rs = await getDocs(rq);
           if(!rs.empty){
             const referrerUid = rs.docs[0].id;
-            // Chờ 800ms để ensureProfile xong
-            setTimeout(async ()=>{
-              try{ await updateDoc(doc(db,'users',cred.user.uid),{ referredBy: referrerUid }); }catch{}
-            }, 800);
+            let attempts = 0;
+            const saveRef = async ()=>{
+              attempts++;
+              try{
+                const check = await getDoc(doc(db,'users',cred.user.uid));
+                if(check.exists()){
+                  await updateDoc(doc(db,'users',cred.user.uid),{ referredBy: referrerUid });
+                  return true;
+                }
+              }catch{}
+              if(attempts < 5) setTimeout(saveRef, 800);
+              return false;
+            };
+            setTimeout(saveRef, 800);
           }
         }
       }catch(e){ console.warn('ref', e); }
@@ -1282,7 +1357,7 @@ async function handleAuthSubmit(mode){
    DASHBOARD SHELL
    ============================================================ */
 const DASH_NAV = [
-  { sec:'💰 Kiếm tiền', items:[
+  { sec:'Kiếm tiền', items:[
     ['tasks','Nhiệm vụ vượt link','coin'],
     ['my-tasks','Lịch sử nhiệm vụ','receipt'],
   ]},
@@ -1314,7 +1389,7 @@ function renderSidebar(route){
         ${g.items.map(([r,label,ic])=>{
           const sellerLocked = r.startsWith('seller-') && r!=='seller-register' && !isSellerApproved;
           return `<button class="nav-item ${route===r?'on':''}" data-goto="${r}" ${sellerLocked?'data-locked="1"':''}>
-            ${icon(ic,17)}<span>${label}${sellerLocked?' 🔒':''}</span>
+            ${icon(ic,17)}<span>${label}${sellerLocked?' (khoá)':''}</span>
           </button>`;
         }).join('')}
       </div>`).join('')}
@@ -1347,7 +1422,7 @@ function renderDrawer(route){
         ${g.items.map(([r,label,ic])=>{
           const sellerLocked = r.startsWith('seller-') && r!=='seller-register' && !isSellerApproved;
           return `<button class="nav-item ${route===r?'on':''}" data-goto="${r}" ${sellerLocked?'data-locked="1"':''}>
-            ${icon(ic,17)}<span>${label}${sellerLocked?' 🔒':''}</span>
+            ${icon(ic,17)}<span>${label}${sellerLocked?' (khoá)':''}</span>
           </button>`;
         }).join('')}
       </div>`).join('')}
@@ -1466,7 +1541,7 @@ function viewOverview(){
     <div class="card">
       <div class="card-title" style="margin-bottom:16px">Thao tác nhanh</div>
       <div style="display:flex;flex-direction:column;gap:10px">
-        <button class="btn accent block" style="justify-content:flex-start" data-goto="tasks">${icon('coin',16)} 💰 Kiếm tiền ngay</button>
+        <button class="btn accent block" style="justify-content:flex-start" data-goto="tasks">${icon('coin',16)} Kiếm tiền ngay</button>
         <button class="btn soft block" style="justify-content:flex-start" data-goto="create">${icon('plus',16)} Tạo shortlink</button>
         <button class="btn soft block" style="justify-content:flex-start" data-goto="lq-market">${icon('game',16)} Chợ key Liên Quân</button>
         <button class="btn soft block" style="justify-content:flex-start" data-goto="referrals">${icon('users',16)} Mời bạn bè</button>
@@ -1513,7 +1588,7 @@ function viewStatistics(){
 function viewTasks(){
   const w = S.wallet||{};
   return `
-  ${renderDashTopbar('💰 Kiếm tiền','Vượt link để nhận thưởng ngay vào ví.')}
+  ${renderDashTopbar('Kiếm tiền','Vượt link để nhận thưởng ngay vào ví.')}
   <div class="grid c3" style="margin-bottom:20px">
     <div class="stat">
       <div class="top"><span class="stat-label">Số dư ví</span><span class="icon">${icon('wallet',15)}</span></div>
@@ -1533,7 +1608,7 @@ function viewTasks(){
     <span>${icon('shield',16)}</span>
     <span class="tiny">
       Mỗi lượt vượt gắn <b>IP hash</b> + <b>device hash</b> của bạn. Nếu bạn dùng VPN hoặc đổi thiết bị liên tục có thể bị đánh dấu gian lận.
-      Sau khi bấm "Vượt link", <b>đợi trang link đích load xong rồi quay lại tab này</b> để xác nhận.
+      Sau khi bấm "Vượt link", <b>ở tab mới ít nhất 15 giây</b> rồi mới quay lại xác nhận.
     </span>
   </div>`;
 }
@@ -1550,6 +1625,7 @@ function viewMyTasks(){
 let TASKS_CACHE = [];
 let NET_APIS_CACHE = {};
 let _taskTickTimer = null;
+let _visibilityTrackerFn = null;
 
 async function getMyIp(){
   const cached = sessionStorage.getItem('linkora_ip');
@@ -1599,15 +1675,17 @@ async function loadTasksConfig(force=false){
   }catch(e){ console.error(e); TASKS_CACHE=[]; }
   return TASKS_CACHE;
 }
+
 async function loadNetworkApis(force=false){
   if(Object.keys(NET_APIS_CACHE).length && !force) return NET_APIS_CACHE;
   try{
     const snap = await getDocs(collection(db,'networkApis'));
-    NET_APIS_CACHE = {};
+    Object.keys(NET_APIS_CACHE).forEach(k=>delete NET_APIS_CACHE[k]);
     snap.docs.forEach(d=>{ NET_APIS_CACHE[d.id] = {id:d.id, ...d.data()}; });
   }catch(e){ console.error(e); }
   return NET_APIS_CACHE;
 }
+
 function getTaskCooldownRemaining(taskId, cooldownSec){
   const last = Number(localStorage.getItem('task_last_'+taskId)||0);
   const remain = cooldownSec*1000 - (Date.now()-last);
@@ -1640,6 +1718,8 @@ async function loadTasksView(){
     if($d) $d.textContent = fmtNum(todayCount);
   }catch{}
 
+  const hlId = S.query && S.query.id;
+
   container.innerHTML = `
     <div class="task-list">
       ${tasks.map(t=>{
@@ -1648,13 +1728,13 @@ async function loadTasksView(){
         const disabled = cd>0 || !ap || ap.enabled===false;
         return `
           <div class="task-item ${disabled?'disabled':''}" data-task-id="${esc(t.id)}">
-            <div class="task-ico">🎯</div>
+            ${netAvatarHTML(t.networkId)}
             <div class="task-body">
               <div class="task-name">${esc(t.name||'Nhiệm vụ')}</div>
               <div class="task-meta">
-                <span>🌐 ${esc(ap?.name||t.networkId)}</span>
-                <span>⏱ CD ${Math.round((t.cooldown||0)/60)} phút</span>
-                <span>📊 ${t.dailyLimit||'∞'}/ngày</span>
+                <span>${esc(ap?.name||t.networkId)}</span>
+                <span>CD ${Math.round((t.cooldown||0)/60)} phút</span>
+                <span>${t.dailyLimit||'∞'}/ngày</span>
               </div>
               ${t.description ? `<div class="task-status">${esc(t.description)}</div>` : ''}
               ${cd>0 ? `
@@ -1672,6 +1752,18 @@ async function loadTasksView(){
         `;
       }).join('')}
     </div>`;
+
+  if(hlId){
+    setTimeout(()=>{
+      const target = document.querySelector(`[data-task-id="${hlId}"]`);
+      if(target){
+        target.scrollIntoView({behavior:'smooth', block:'center'});
+        target.style.boxShadow = '0 0 0 3px var(--accent)';
+        target.style.borderRadius = '20px';
+        setTimeout(()=>{ target.style.boxShadow = ''; }, 2500);
+      }
+    }, 400);
+  }
 
   if(_taskTickTimer) clearInterval(_taskTickTimer);
   _taskTickTimer = setInterval(()=>{
@@ -1698,7 +1790,7 @@ async function loadMyTasks(){
       .sort((a,b)=>(b.completedAt?.seconds||0)-(a.completedAt?.seconds||0));
     if(!rows.length){
       box.innerHTML = renderEmptyState('Chưa có lượt nào','Vào trang Kiếm tiền để bắt đầu.','coin',
-        '<button class="btn sm accent" data-goto="tasks" style="margin-top:6px">💰 Vào Kiếm tiền</button>');
+        '<button class="btn sm accent" data-goto="tasks" style="margin-top:6px">Vào Kiếm tiền</button>');
       return;
     }
     const total = rows.reduce((s,r)=>s+Number(r.reward||0),0);
@@ -1736,10 +1828,10 @@ async function doTask(taskId){
   const cd = getTaskCooldownRemaining(task.id, Number(task.cooldown||0));
   if(cd>0){ toast(`Chờ ${cd}s nữa.`,'warn'); return; }
 
-  const sessionId = uid(14);
+  const sessionId = uid(16);
   const ip = await getMyIp();
   const deviceHash = await getDeviceHash();
-  const ipHash = await sha256(ip + '|' + S.user.uid);
+  const ipHash = await sha256(ip + '|' + S.user.uid + '|' + sessionId);
   const returnUrl = `${location.origin}${location.pathname}#/task-return/${sessionId}`;
 
   try{
@@ -1754,7 +1846,8 @@ async function doTask(taskId){
       returnUrl,
       status: 'pending',
       createdAt: serverTimestamp(),
-      expiresAt: new Date(Date.now() + 15*60*1000),
+      expiresAt: new Date(Date.now() + 30*60*1000),
+      createdAtMs: Date.now(),
     });
   }catch(e){
     console.error(e);
@@ -1762,32 +1855,59 @@ async function doTask(taskId){
     return;
   }
 
-  const shortUrl = buildNetworkUrl(ap, task.targetUrl || 'https://example.com', returnUrl);
+  // Reset tracking cho session này
+  localStorage.setItem('task_away_'+sessionId, '0');
+  localStorage.removeItem('task_left_at_'+sessionId);
+
+  // Đăng ký visibility tracker để đếm thời gian user ở tab khác
+  if(_visibilityTrackerFn) document.removeEventListener('visibilitychange', _visibilityTrackerFn);
+  _visibilityTrackerFn = ()=>{
+    if(document.hidden){
+      localStorage.setItem('task_left_at_'+sessionId, String(Date.now()));
+    } else {
+      const leftAt = Number(localStorage.getItem('task_left_at_'+sessionId)||0);
+      if(leftAt){
+        const away = (Date.now()-leftAt)/1000;
+        const cur = Number(localStorage.getItem('task_away_'+sessionId)||0);
+        localStorage.setItem('task_away_'+sessionId, String(cur+away));
+        localStorage.removeItem('task_left_at_'+sessionId);
+      }
+    }
+  };
+  document.addEventListener('visibilitychange', _visibilityTrackerFn);
+
+  // URL đích: ưu tiên task.targetUrl, nếu trống dùng trang nhiệm vụ hiện tại
+  const defaultTarget = `${location.origin}${location.pathname}#/tasks`;
+  const shortUrl = buildNetworkUrl(ap, task.targetUrl || defaultTarget, returnUrl);
   if(!shortUrl){ toast('Network chưa cấu hình đúng.','err'); return; }
 
+  setTaskLast(task.id);
   const w = window.open(shortUrl, '_blank', 'noopener');
   if(!w){ toast('Vui lòng cho phép popup để vượt link.','warn'); }
-
   toast('Đã mở link. Vượt xong quay lại tab này để xác nhận.','ok');
-  setTaskLast(task.id);
-
-  setTimeout(()=>showConfirmVượtDialog(sessionId, task), 800);
+  setTimeout(()=>showConfirmVượtDialog(sessionId, task), 600);
   if(S.route==='tasks') setTimeout(()=>loadTasksView(), 1500);
 }
 
 function showConfirmVượtDialog(sessionId, task){
   const back = document.createElement('div'); back.className='modal-back';
-  back.innerHTML = `
-    <div class="modal" style="max-width:440px">
+  const MIN_AWAY = 15;
+  const renderContent = ()=>{
+    const elapsedAway = Number(localStorage.getItem('task_away_'+sessionId)||0);
+    const remain = Math.max(0, Math.ceil(MIN_AWAY - elapsedAway));
+    return `<div class="modal" style="max-width:460px">
       <h3 style="margin-bottom:8px">Đã vượt link xong?</h3>
-      <p style="font-size:.86rem;line-height:1.6;color:var(--text-2);margin-bottom:18px">
-        Sau khi hoàn thành nhiệm vụ <b>${esc(task.name)}</b> ở tab mới, nhấn "Xác nhận" để nhận <b style="color:var(--accent)">+${fmtVND(task.reward)}</b> vào ví.
-      </p>
+      <p style="font-size:.86rem;line-height:1.6;color:var(--text-2);margin-bottom:14px">Hoàn thành nhiệm vụ <b>${esc(task.name)}</b> ở tab mới. Nhấn "Xác nhận" để nhận <b style="color:var(--accent)">+${fmtVND(task.reward)}</b>.</p>
+      ${remain>0
+        ? `<div class="notice warn" style="margin-bottom:14px"><span>${icon('clock',16)}</span><span>Cần ở tab vượt link thêm <b id="wait-count">${remain}</b> giây để xác minh.</span></div>`
+        : `<div class="notice ok" style="margin-bottom:14px"><span>${icon('check',16)}</span><span>Có thể xác nhận.</span></div>`}
       <div class="row gap-8" style="justify-content:flex-end">
         <button class="btn ghost" data-x="cancel">Để sau</button>
-        <button class="btn accent" data-x="ok">✅ Xác nhận đã vượt</button>
+        <button class="btn accent" data-x="ok" ${remain>0?'disabled':''} id="confirm-btn">${remain>0?`Chờ ${remain}s`:'Xác nhận đã vượt'}</button>
       </div>
     </div>`;
+  };
+  back.innerHTML = renderContent();
   const close=v=>{ back.remove(); if(v) completeTask(sessionId); };
   back.addEventListener('click', e=>{
     if(e.target===back) return close(false);
@@ -1795,6 +1915,22 @@ function showConfirmVượtDialog(sessionId, task){
     close(b.dataset.x==='ok');
   });
   $('#modal-root').appendChild(back);
+  const timer = setInterval(()=>{
+    const elapsedAway = Number(localStorage.getItem('task_away_'+sessionId)||0);
+    const remain = Math.max(0, Math.ceil(MIN_AWAY - elapsedAway));
+    const c = back.querySelector('#wait-count');
+    const btn = back.querySelector('#confirm-btn');
+    if(c) c.textContent = remain;
+    if(btn){
+      if(remain<=0){
+        btn.removeAttribute('disabled'); btn.textContent = 'Xác nhận đã vượt';
+        const notice = back.querySelector('.notice');
+        if(notice){ notice.className='notice ok'; notice.innerHTML='<span>'+icon('check',16)+'</span><span>Có thể xác nhận.</span>'; }
+        clearInterval(timer);
+      } else btn.textContent = `Chờ ${remain}s`;
+    }
+    if(remain<=0) clearInterval(timer);
+  }, 1000);
 }
 
 async function completeTask(sessionId){
@@ -1805,6 +1941,14 @@ async function completeTask(sessionId){
     const session = snap.data();
     if(session.userId !== S.user.uid){ toast('Phiên không hợp lệ.','err'); return; }
     if(session.status === 'completed'){ toast('Đã nhận thưởng rồi.','warn'); return; }
+
+    // CHỐNG BẤM NHANH: phải ở tab khác ≥ 15s HOẶC tổng thời gian từ lúc tạo session ≥ 15s
+    const awayTotal = Number(localStorage.getItem('task_away_'+sessionId)||0);
+    const elapsed = (Date.now() - Number(session.createdAtMs || 0))/1000;
+    if(awayTotal < 15 && elapsed < 15){
+      toast(`Cần ở tab vượt link thêm ${Math.ceil(15-awayTotal)}s.`,'warn');
+      return;
+    }
 
     const reward = Number(session.reward||0);
     const taskId = session.taskId;
@@ -1897,6 +2041,9 @@ async function completeTask(sessionId){
       }
     }catch(e){ console.warn('ref bonus', e); }
 
+    localStorage.removeItem('task_away_'+sessionId);
+    localStorage.removeItem('task_left_at_'+sessionId);
+    if(_visibilityTrackerFn){ document.removeEventListener('visibilitychange', _visibilityTrackerFn); _visibilityTrackerFn = null; }
     toast(`+${fmtVND(reward)} vào ví!`, 'ok');
     if(_taskTickTimer) clearInterval(_taskTickTimer);
     setTimeout(()=>{ if(S.route==='tasks'){ render(); } }, 400);
@@ -1943,7 +2090,7 @@ async function renderTaskReturn(el, sessionId){
       el.innerHTML = `
         <div style="min-height:100dvh;display:grid;place-items:center;padding:24px;background:var(--bg)">
           <div class="card" style="max-width:440px;width:100%;text-align:center">
-            <div style="font-size:3rem;margin-bottom:14px">✅</div>
+            <div style="margin-bottom:14px;color:var(--ok);display:flex;justify-content:center">${icon('check',56,2.5)}</div>
             <h3 style="margin-bottom:8px">Đã nhận thưởng trước đó</h3>
             <p class="small muted" style="margin-bottom:20px">Bạn đã hoàn thành nhiệm vụ này.</p>
             <div class="btn-group" style="justify-content:center">
@@ -1955,12 +2102,30 @@ async function renderTaskReturn(el, sessionId){
       return;
     }
 
+    const awayTotal = Number(localStorage.getItem('task_away_'+sessionId)||0);
+    const elapsed = (Date.now() - Number(s.createdAtMs || 0))/1000;
+    if(awayTotal < 15 && elapsed < 15){
+      el.innerHTML = `
+        <div style="min-height:100dvh;display:grid;place-items:center;padding:24px;background:var(--bg)">
+          <div class="card" style="max-width:440px;width:100%;text-align:center">
+            <div style="margin-bottom:14px;color:var(--warn);display:flex;justify-content:center">${icon('clock',56,2)}</div>
+            <h3 style="margin-bottom:8px">Vui lòng đợi thêm</h3>
+            <p class="small muted" style="margin-bottom:20px">Cần ở tab vượt link thêm <b id="rt-wait">${Math.ceil(15-awayTotal)}</b> giây.</p>
+            <button class="btn accent" id="rt-retry">Kiểm tra lại</button>
+          </div>
+        </div>`;
+      let n = Math.ceil(15-awayTotal);
+      const t = setInterval(()=>{ n--; const el2=$('#rt-wait'); if(el2) el2.textContent=n; if(n<=0) clearInterval(t); }, 1000);
+      $('#rt-retry')?.addEventListener('click', ()=>renderTaskReturn(el, sessionId));
+      return;
+    }
+
     await completeTask(sessionId);
 
     el.innerHTML = `
       <div style="min-height:100dvh;display:grid;place-items:center;padding:24px;background:var(--bg)">
         <div class="card" style="max-width:440px;width:100%;text-align:center">
-          <div style="font-size:3rem;margin-bottom:14px">💰</div>
+          <div style="margin-bottom:14px;color:var(--accent);display:flex;justify-content:center">${icon('coin',56,2)}</div>
           <h3 style="margin-bottom:8px">Nhận thưởng thành công!</h3>
           <p class="small muted" style="margin-bottom:20px">
             <b style="color:var(--accent);font-size:1.2rem">+${fmtVND(s.reward)}</b> đã vào ví của bạn.
@@ -1976,8 +2141,7 @@ async function renderTaskReturn(el, sessionId){
     nav('tasks');
   }
 }
-
-/* ============================================================
+  /* ============================================================
    REFERRALS (real)
    ============================================================ */
 async function viewReferralsReal(){
@@ -2012,10 +2176,7 @@ async function viewReferralsReal(){
       <p class="tiny muted" style="line-height:1.6">
         Khi ai đăng ký bằng link của bạn và kiếm tiền, bạn nhận ngay <b>10%</b> mỗi lần họ được thưởng — vĩnh viễn.
       </p>
-      <button class="btn accent block" style="margin-top:14px"
-        onclick="navigator.share?navigator.share({title:'Linkora',text:'Kiếm tiền cùng Linkora',url:'${esc(link)}'}):navigator.clipboard.writeText('${esc(link)}').then(()=>alert('Đã copy link!'))">
-        ${icon('ext',15)} Chia sẻ
-      </button>
+      <button class="btn accent block" id="ref-share-btn" style="margin-top:14px">${icon('ext',15)} Chia sẻ</button>
     </div>
     <div class="grid c2" style="align-content:start">
       <div class="stat">
@@ -2059,7 +2220,7 @@ async function loadRefHistory(){
 }
 
 /* ============================================================
-   CREATE / LINKS / CREATOR / WALLET / WITHDRAW / TRANSACTIONS / NOTIF / SETTINGS / SUPPORT
+   CREATE LINK / LINKS / CREATOR
    ============================================================ */
 function viewCreateLink(){
   const nets=S.networks.length?S.networks:DEFAULT_NETWORKS;
@@ -2309,6 +2470,9 @@ function statusBadge(s){
   return `<span class="badge ${cls}">${label}</span>`;
 }
 
+/* ============================================================
+   WALLET / WITHDRAW / TRANSACTIONS / NOTIF / SETTINGS / SUPPORT
+   ============================================================ */
 function viewWallet(){
   const w=S.wallet||{};
   return `
@@ -2317,7 +2481,7 @@ function viewWallet(){
     <div class="card pad-lg">
       <div class="stat-label" style="margin-bottom:10px">Số dư khả dụng</div>
       <div class="stat-value" style="font-size:2.4rem;margin-bottom:6px">${fmtVND(w.balance)}</div>
-      <p class="tiny muted-3" style="margin-bottom:24px">Rút được khi đạt ngưỡng tối thiểu.</p>
+      <p class="tiny muted-3" style="margin-bottom:24px">Rút được khi đạt ngưỡng tối thiểu ${fmtVND(MIN_WITHDRAW)}.</p>
       <div class="btn-group">
         <button class="btn accent" data-goto="tasks">${icon('coin',15)} Kiếm tiền</button>
         <button class="btn" data-goto="withdraw">${icon('cash',15)} Rút tiền</button>
@@ -2341,51 +2505,33 @@ function viewWallet(){
 
 function viewWithdraw(){
   const w=S.wallet||{};
-  const MIN=50000;
+  const MIN=MIN_WITHDRAW;
   const can=Number(w.balance||0)>=MIN;
   return `
-  ${renderDashTopbar('Rút tiền','Yêu cầu rút được xử lý theo quy trình duyệt.')}
+  ${renderDashTopbar('Rút tiền','Nhập thông tin ngân hàng để nhận tiền thật.')}
   <div class="grid" style="grid-template-columns:1.1fr .9fr;gap:16px">
     <div class="card pad-lg">
       <form id="withdraw-form" novalidate>
-        <div class="field">
-          <label for="w-method">Phương thức</label>
-          <select class="select" id="w-method">
-            <option value="bank">Chuyển khoản ngân hàng</option>
-            <option value="mobile_card">Thẻ điện thoại</option>
-            <option value="other">Khác</option>
-          </select>
+        <div class="field"><label>Phương thức</label>
+          <select class="select" id="w-method"><option value="bank">Chuyển khoản ngân hàng</option></select>
         </div>
-        <div id="wm-bank">
-          <div class="field"><label for="w-bank">Ngân hàng</label><input class="input" id="w-bank" maxlength="60" placeholder="Vietcombank" /></div>
-          <div class="field"><label for="w-acc">Số TK</label><input class="input" id="w-acc" inputmode="numeric" maxlength="24" placeholder="0123456789" /></div>
-          <div class="field"><label for="w-name">Chủ TK</label><input class="input" id="w-name" maxlength="60" placeholder="NGUYEN VAN A" /></div>
-        </div>
-        <div id="wm-card" class="hidden">
-          <div class="field"><label for="w-telco">Nhà mạng</label>
-            <select class="select" id="w-telco"><option value="">— Chưa cấu hình —</option></select>
-          </div>
-        </div>
-        <div id="wm-other" class="hidden">
-          <div class="field"><label for="w-other">Thông tin nhận tiền</label><textarea class="textarea" id="w-other" maxlength="300"></textarea></div>
-        </div>
-        <div class="field">
-          <label for="w-amount">Số tiền (VND)</label>
-          <input class="input" id="w-amount" type="number" min="${MIN}" step="1000" placeholder="${MIN}" />
+        <div class="field"><label for="w-bank">Tên ngân hàng *</label><input class="input" id="w-bank" maxlength="60" placeholder="VD: Vietcombank, MB Bank..." required /></div>
+        <div class="field"><label for="w-acc">Số tài khoản *</label><input class="input" id="w-acc" inputmode="numeric" maxlength="24" placeholder="0123456789" required /></div>
+        <div class="field"><label for="w-name">Chủ tài khoản (không dấu) *</label><input class="input" id="w-name" maxlength="60" placeholder="NGUYEN VAN A" required /></div>
+        <div class="field"><label for="w-amount">Số tiền (VND) *</label>
+          <input class="input" id="w-amount" type="number" min="${MIN}" step="1000" placeholder="${MIN}" required />
           <span class="hint">Tối thiểu ${fmtVND(MIN)} · Khả dụng ${fmtVND(w.balance)}</span>
         </div>
         <div id="w-error" class="notice danger hidden" style="margin-bottom:16px"></div>
-        <button class="btn block" type="submit" id="w-submit" style="height:48px" ${can?'':'disabled'}>
-          ${can?'Gửi yêu cầu':'Số dư chưa đạt ngưỡng'}
-        </button>
+        <button class="btn block accent" type="submit" id="w-submit" style="height:48px" ${can?'':'disabled'}>${can?'Gửi yêu cầu rút tiền':'Số dư chưa đạt ngưỡng'}</button>
       </form>
     </div>
     <div class="card">
-      <div class="card-title" style="margin-bottom:14px">Chính sách</div>
-      <div style="display:flex;flex-direction:column;gap:11px">
-        ${['Ngưỡng tối thiểu 50.000đ.','pending → reviewing → approved → processing → completed.','Số dư chờ đối soát chưa rút được.'].map(t=>`
+      <div class="card-title" style="margin-bottom:14px">Lưu ý quan trọng</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        ${['Ngưỡng tối thiểu 5.000đ.','Thông tin ngân hàng phải chính xác — admin chuyển khoản thật.','Sai thông tin → yêu cầu bị từ chối.','Thời gian xử lý: 1-3 ngày làm việc.'].map(t=>`
           <div class="row gap-12" style="align-items:flex-start">
-            <span style="color:var(--text-3);flex:none;margin-top:2px">${icon('cash',15)}</span>
+            <span style="color:var(--text-3);flex:none;margin-top:2px">${icon('shield',15)}</span>
             <span class="small" style="line-height:1.55;color:var(--text-2)">${t}</span>
           </div>`).join('')}
       </div>
@@ -2395,49 +2541,36 @@ function viewWithdraw(){
     </div>
   </div>`;
 }
-function bindWithdrawMethod(){
-  const sel=$('#w-method'); if(!sel) return;
-  const up=()=>{
-    const v=sel.value;
-    $('#wm-bank').classList.toggle('hidden',v!=='bank');
-    $('#wm-card').classList.toggle('hidden',v!=='mobile_card');
-    $('#wm-other').classList.toggle('hidden',v!=='other');
-  };
-  sel.addEventListener('change',up); up();
-}
 async function handleWithdraw(){
-  const method=$('#w-method').value;
   const amount=Number($('#w-amount').value||0);
-  const err=$('#w-error');
-  const btn=$('#w-submit');
+  const bank=$('#w-bank').value.trim();
+  const acc=$('#w-acc').value.trim();
+  const accName=$('#w-name').value.trim();
+  const err=$('#w-error'); const btn=$('#w-submit');
   err.classList.add('hidden');
   const balance=Number(S.wallet?.balance||0);
-  const MIN=50000;
+  const MIN=MIN_WITHDRAW;
+  if(!bank){ err.textContent='Nhập tên ngân hàng.'; err.classList.remove('hidden'); return; }
+  if(!acc){ err.textContent='Nhập số tài khoản.'; err.classList.remove('hidden'); return; }
+  if(!accName){ err.textContent='Nhập chủ tài khoản.'; err.classList.remove('hidden'); return; }
   if(!Number.isFinite(amount)||amount<MIN){ err.textContent=`Tối thiểu ${fmtVND(MIN)}.`; err.classList.remove('hidden'); return; }
   if(amount>balance){ err.textContent='Vượt số dư.'; err.classList.remove('hidden'); return; }
-  let details={};
-  if(method==='bank'){
-    const bank=$('#w-bank').value.trim(); const acc=$('#w-acc').value.trim(); const name=$('#w-name').value.trim();
-    if(!bank||!acc||!name){ err.textContent='Điền đủ thông tin ngân hàng.'; err.classList.remove('hidden'); return; }
-    details={bankName:bank,accountNumber:acc,accountName:name};
-  } else if(method==='mobile_card'){
-    const telco=$('#w-telco').value;
-    if(!telco){ err.textContent='Phương thức chưa được cấu hình.'; err.classList.remove('hidden'); return; }
-    details={telco};
-  } else {
-    const note=$('#w-other').value.trim();
-    if(!note){ err.textContent='Mô tả phương thức.'; err.classList.remove('hidden'); return; }
-    details={note};
-  }
-  const ok=await confirmModal({title:'Xác nhận rút tiền',message:`Rút ${fmtVND(amount)} qua ${method}. Yêu cầu sẽ được duyệt thủ công.`,confirmText:'Gửi'});
+
+  const ok=await confirmModal({
+    title:'Xác nhận rút tiền',
+    message:`Rút ${fmtVND(amount)} về:\n${bank} · ${acc} · ${accName}\n\nAdmin sẽ chuyển khoản thật trong 1-3 ngày.`,
+    confirmText:'Gửi'
+  });
   if(!ok) return;
+
   btn.disabled=true; const old=btn.innerHTML; btn.innerHTML='Đang gửi…';
   try{
     await addDoc(collection(db,'withdrawals'),{
-      userId:S.user.uid, userEmail:S.user.email||'', amount, method, details,
+      userId:S.user.uid, userEmail:S.user.email||'', amount, method:'bank',
+      details:{ bankName:bank, accountNumber:acc, accountName:accName },
       status:'pending', note:'', txCode:'', createdAt:serverTimestamp(),
     });
-    toast('Đã gửi yêu cầu.','ok'); $('#withdraw-form').reset(); bindWithdrawMethod(); loadWithdrawHistory();
+    toast('Đã gửi yêu cầu.','ok'); $('#withdraw-form').reset(); loadWithdrawHistory();
   }catch(e){ err.textContent='Không thể gửi.'; err.classList.remove('hidden'); }
   finally{ btn.disabled=false; btn.innerHTML=old; }
 }
@@ -2572,7 +2705,7 @@ function viewSupport(){
       ${[
         ['Làm sao để kiếm tiền?','Vào trang Kiếm tiền, chọn nhiệm vụ, vượt link và xác nhận.'],
         ['Vì sao lượt xem bị loại?','Trùng IP/thiết bị, bot, traffic exchange.'],
-        ['Bao lâu rút được tiền?','Qua quy trình duyệt, ngưỡng 50.000đ.'],
+        ['Bao lâu rút được tiền?','Qua quy trình duyệt, ngưỡng 5.000đ.'],
         ['Mời bạn bè nhận gì?','10% hoa hồng vĩnh viễn từ thu nhập người được mời.'],
       ].map(([q,a])=>`
         <div style="padding:12px 0;border-bottom:1px solid var(--border)">
@@ -3176,14 +3309,14 @@ function viewLQMarket(){
       const priceSample = S.lqKeys.find(k=>k.duration===d.id && k.status==='available')?.price || 0;
       return `
       <div class="lq-card">
-        <div class="lq-ico">${d.icon}</div>
+        <div class="task-avatar" style="background:${d.color};width:44px;height:44px">${d.short}</div>
         <div class="lq-name">Key ${esc(d.label)}</div>
         <div class="lq-meta">
           <span>Kho: <b>${stock}</b></span>
           <span class="badge ${stock>0?'ok':'danger'}">${stock>0?'Sẵn hàng':'Hết hàng'}</span>
         </div>
         <div class="lq-price">${priceSample?fmtVND(priceSample):'Liên hệ admin'}</div>
-        <button class="btn block sm" data-action="buy-lq" data-duration="${esc(d.id)}" ${stock>0?'':'disabled'}>
+        <button class="btn block sm accent" data-action="buy-lq" data-duration="${esc(d.id)}" ${stock>0?'':'disabled'}>
           ${icon('game',14)} Mua ngay
         </button>
       </div>`;
@@ -3351,6 +3484,15 @@ document.addEventListener('click', async (e)=>{
   const cpt=t.closest('[data-copy-text]');
   if(cpt){ try{ await navigator.clipboard.writeText(cpt.dataset.copyText); toast('Đã copy.','ok'); }catch{ toast('Không thể copy.','err'); } return; }
 
+  if(t.closest('#ref-share-btn')){
+    const link = $('#ref-link')?.value || '';
+    try{
+      if(navigator.share) await navigator.share({ title:'Linkora', text:'Kiếm tiền cùng Linkora', url: link });
+      else { await navigator.clipboard.writeText(link); toast('Đã copy link.','ok'); }
+    }catch{}
+    return;
+  }
+
   const faqBtn=t.closest('.faq-q');
   if(faqBtn){
     const item=faqBtn.parentElement;
@@ -3415,7 +3557,7 @@ render = function(){
     if(r==='links') loadLinks();
     if(r==='creator') loadSubmissions();
     if(r==='wallet') loadRecentTx('#wallet-tx');
-    if(r==='withdraw'){ bindWithdrawMethod(); loadWithdrawHistory(); }
+    if(r==='withdraw') loadWithdrawHistory();
     if(r==='transactions') loadTransactions();
     if(r==='notifications') loadNotifications();
     if(r==='support') loadTickets();
@@ -3477,7 +3619,7 @@ function bindCalculator(){
   netEl.addEventListener('change',compute);
   compute();
 }
-function bindSettings(){ const btn=document.querySelector('#set-save'); if(btn) btn.addEventListener('click',saveSettings); }
+function bindSettings(){ const btn=document.querySelector('#set-save'); if(btn) btn.onclick = saveSettings; }
 
 /* ============================================================
    AUTH STATE
