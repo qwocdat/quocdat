@@ -1,473 +1,200 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>V-TTS Web | Vietnamese AI Voice</title>
-
-    <meta
-        name="description"
-        content="Vietnamese Text-to-Speech chạy trực tiếp trên trình duyệt bằng ONNX Runtime Web."
-    >
-
-    <!-- ONNX Runtime Web -->
-    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.17.0/dist/ort.min.js"></script>
-
-    <!-- Vietnamese G2P -->
-    <script src="https://huggingface.co/spaces/letrggghieu/v-vietnamese-tts-web/resolve/main/vietnamese_g2p.js"></script>
-
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        :root {
-            --bg: #08090d;
-            --card: rgba(255,255,255,.07);
-            --border: rgba(255,255,255,.1);
-            --text: #fff;
-            --muted: #9297a5;
-            --accent: #00d4ff;
-            --accent2: #007aff;
-            --danger: #ff453a;
-            --success: #30d158;
-        }
-
-        body {
-            min-height: 100vh;
-            font-family:
-                Inter,
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                sans-serif;
-
-            color: var(--text);
-
-            background:
-                radial-gradient(
-                    circle at 20% 0%,
-                    rgba(0,122,255,.22),
-                    transparent 35%
-                ),
-                radial-gradient(
-                    circle at 90% 20%,
-                    rgba(0,212,255,.12),
-                    transparent 30%
-                ),
-                var(--bg);
-
-            padding: 20px;
-        }
-
-        .app {
-            width: min(760px, 100%);
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            padding: 35px 10px 25px;
-        }
-
-        .logo {
-            width: 64px;
-            height: 64px;
-            margin: 0 auto 16px;
-
-            display: grid;
-            place-items: center;
-
-            border-radius: 20px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(0,212,255,.9),
-                    rgba(0,122,255,.9)
-                );
-
-            box-shadow:
-                0 15px 50px rgba(0,122,255,.35);
-
-            font-size: 28px;
-        }
-
-        h1 {
-            font-size: clamp(28px, 7vw, 42px);
-            letter-spacing: -1.5px;
-        }
-
-        .subtitle {
-            margin-top: 8px;
-            color: var(--muted);
-            font-size: 14px;
-        }
-
-        .card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 28px;
-            padding: 22px;
-
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-
-            box-shadow:
-                0 25px 80px rgba(0,0,0,.3);
-        }
-
-        .status {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-
-            padding: 13px 15px;
-            margin-bottom: 18px;
-
-            border-radius: 17px;
-
-            background: rgba(255,255,255,.05);
-
-            color: var(--muted);
-
-            font-size: 13px;
-        }
-
-        .dot {
-            width: 9px;
-            height: 9px;
-
-            border-radius: 50%;
-            background: #ffcc00;
-
-            box-shadow:
-                0 0 12px rgba(255,204,0,.7);
-        }
-
-        .dot.ready {
-            background: var(--success);
-            box-shadow:
-                0 0 12px rgba(48,209,88,.7);
-        }
-
-        .dot.error {
-            background: var(--danger);
-            box-shadow:
-                0 0 12px rgba(255,69,58,.7);
-        }
-
-        .progress {
-            height: 4px;
-            margin-top: -8px;
-            margin-bottom: 18px;
-
-            border-radius: 20px;
-            overflow: hidden;
-
-            background: rgba(255,255,255,.08);
-        }
-
-        .progress.hidden {
-            display: none;
-        }
-
-        .progress-bar {
-            width: 0%;
-            height: 100%;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    var(--accent2),
-                    var(--accent)
-                );
-
-            transition: width .3s ease;
-        }
-
-        .label {
-            display: block;
-            margin-bottom: 9px;
-
-            font-size: 13px;
-            font-weight: 600;
-
-            color: #dfe3ec;
-        }
-
-        textarea {
-            width: 100%;
-            min-height: 160px;
-
-            resize: vertical;
-
-            padding: 16px;
-
-            border: 1px solid var(--border);
-            border-radius: 20px;
-
-            outline: none;
-
-            color: white;
-            background: rgba(0,0,0,.2);
-
-            font-family: inherit;
-            font-size: 16px;
-            line-height: 1.6;
-
-            transition:
-                border-color .2s,
-                box-shadow .2s;
-        }
-
-        textarea:focus {
-            border-color: rgba(0,212,255,.6);
-
-            box-shadow:
-                0 0 0 4px rgba(0,212,255,.08);
-        }
-
-        .controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-
-            margin-top: 16px;
-        }
-
-        .field {
-            min-width: 0;
-        }
-
-        select,
-        input[type="range"] {
-            width: 100%;
-        }
-
-        select {
-            height: 48px;
-
-            padding: 0 14px;
-
-            border-radius: 15px;
-            border: 1px solid var(--border);
-
-            outline: none;
-
-            background: rgba(255,255,255,.06);
-            color: white;
-
-            font-size: 14px;
-        }
-
-        select option {
-            background: #111318;
-            color: white;
-        }
-
-        .range-row {
-            height: 48px;
-
-            display: flex;
-            align-items: center;
-            gap: 12px;
-
-            padding: 0 13px;
-
-            border-radius: 15px;
-            border: 1px solid var(--border);
-
-            background: rgba(255,255,255,.06);
-        }
-
-        input[type="range"] {
-            accent-color: var(--accent);
-        }
-
-        .range-value {
-            width: 42px;
-            text-align: right;
-
-            color: var(--accent);
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        button {
-            width: 100%;
-            height: 54px;
-
-            margin-top: 18px;
-
-            border: 0;
-            border-radius: 18px;
-
-            color: white;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    var(--accent2),
-                    var(--accent)
-                );
-
-            font-size: 15px;
-            font-weight: 700;
-
-            cursor: pointer;
-
-            box-shadow:
-                0 12px 35px rgba(0,122,255,.25);
-
-            transition:
-                transform .15s,
-                opacity .15s;
-        }
-
-        button:hover {
-            transform: translateY(-1px);
-        }
-
-        button:active {
-            transform: scale(.985);
-        }
-
-        button:disabled {
-            opacity: .45;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .loading {
-            display: none;
-
-            margin-top: 18px;
-
-            text-align: center;
-            color: var(--muted);
-
-            font-size: 13px;
-        }
-
-        .loading.show {
-            display: block;
-        }
-
-        .spinner {
-            width: 28px;
-            height: 28px;
-
-            margin: 0 auto 10px;
-
-            border: 3px solid rgba(255,255,255,.1);
-            border-top-color: var(--accent);
-
-            border-radius: 50%;
-
-            animation: spin .8s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .result {
-            display: none;
-
-            margin-top: 18px;
-
-            padding: 16px;
-
-            border-radius: 20px;
-
-            background: rgba(255,255,255,.05);
-            border: 1px solid var(--border);
-        }
-
-        .result.show {
-            display: block;
-        }
-
-        audio {
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .download {
-            display: block;
-
-            margin-top: 10px;
-
-            padding: 12px;
-
-            border-radius: 14px;
-
-            text-align: center;
-            text-decoration: none;
-
-            color: white;
-            background: rgba(255,255,255,.08);
-
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .message {
-            display: none;
-
-            margin-top: 15px;
-            padding: 12px 14px;
-
-            border-radius: 15px;
-
-            font-size: 13px;
-        }
-
-        .message.show {
-            display: block;
-        }
-
-        .message.error {
-            color: #ffb3ae;
-            background: rgba(255,69,58,.1);
-        }
-
-        .message.success {
-            color: #a5efb9;
-            background: rgba(48,209,88,.1);
-        }
-
-        .footer {
-            padding: 20px;
-
-            text-align: center;
-
-            color: #686d79;
-            font-size: 11px;
-            line-height: 1.6;
-        }
-
-        @media(max-width: 600px) {
-            body {
-                padding: 12px;
-            }
-
-            .card {
-                padding: 16px;
-                border-radius: 24px;
-            }
-
-            .controls {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>DIGITALSMOD TTS</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Inter, system-ui, sans-serif;
+    background:
+        radial-gradient(circle at 20% 10%, #1d2635, transparent 35%),
+        radial-gradient(circle at 80% 90%, #162033, transparent 35%),
+        #07090d;
+    color: #fff;
+}
+
+.app {
+    width: min(900px, calc(100% - 28px));
+    margin: auto;
+    padding: 35px 0 70px;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -1px;
+}
+
+.sub {
+    margin-top: 8px;
+    color: #8e98a8;
+    font-size: 14px;
+}
+
+.card {
+    border: 1px solid rgba(255,255,255,.09);
+    background: rgba(255,255,255,.045);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border-radius: 28px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 20px 70px rgba(0,0,0,.25);
+}
+
+textarea {
+    width: 100%;
+    min-height: 190px;
+    resize: vertical;
+    border: 0;
+    outline: 0;
+    border-radius: 20px;
+    padding: 18px;
+    background: rgba(0,0,0,.25);
+    color: white;
+    font-size: 16px;
+    line-height: 1.65;
+}
+
+textarea::placeholder {
+    color: #687181;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+select,
+input[type=range] {
+    width: 100%;
+}
+
+select {
+    padding: 15px;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 16px;
+    background: #11151d;
+    color: white;
+    outline: none;
+}
+
+label {
+    display: block;
+    font-size: 12px;
+    color: #8791a1;
+    margin-bottom: 8px;
+}
+
+button {
+    width: 100%;
+    margin-top: 16px;
+    padding: 16px;
+    border: 0;
+    border-radius: 18px;
+    background: white;
+    color: #080a0d;
+    font-weight: 800;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+.secondary {
+    background: rgba(255,255,255,.08);
+    color: white;
+}
+
+.progress-box {
+    display: none;
+}
+
+.progress {
+    height: 10px;
+    background: rgba(255,255,255,.08);
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    width: 0%;
+    height: 100%;
+    background: white;
+    transition: width .2s ease;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+
+.status {
+    color: #9ba5b5;
+}
+
+.storage {
+    margin-top: 14px;
+    color: #7e8999;
+    font-size: 12px;
+}
+
+audio {
+    width: 100%;
+    margin-top: 15px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.voice-info {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 15px;
+    background: rgba(255,255,255,.04);
+    color: #9da6b4;
+    font-size: 13px;
+}
+
+@media(max-width:650px) {
+    .row {
+        grid-template-columns: 1fr;
+    }
+
+    .app {
+        width: min(100% - 18px, 900px);
+        padding-top: 20px;
+    }
+
+    .card {
+        border-radius: 22px;
+    }
+}
+</style>
 </head>
 
 <body>
@@ -475,192 +202,150 @@
 <div class="app">
 
     <header class="header">
-
-        <div class="logo">
-            🎙️
+        <div class="logo">DIGITALSMOD TTS</div>
+        <div class="sub">
+            Vietnamese AI Voice • On-device
         </div>
-
-        <h1>V-TTS</h1>
-
-        <p class="subtitle">
-            Vietnamese AI Voice • ONNX Runtime Web
-        </p>
-
     </header>
 
+    <!-- MODEL -->
+    <section class="card">
 
-    <main class="card">
-
-        <div class="status">
-
-            <span
-                id="statusDot"
-                class="dot"
-            ></span>
-
-            <span id="statusText">
-                Đang tải model AI...
-            </span>
-
+        <div class="progress-info">
+            <span>Voice Engine</span>
+            <strong id="modelPercent">0%</strong>
         </div>
 
-
-        <div
-            id="progress"
-            class="progress"
-        >
-            <div
-                id="progressBar"
-                class="progress-bar"
-            ></div>
+        <div class="progress">
+            <div id="modelProgress" class="progress-bar"></div>
         </div>
 
+        <div class="status" id="modelStatus">
+            Đang kiểm tra dữ liệu...
+        </div>
 
-        <label class="label">
-            Văn bản tiếng Việt
-        </label>
+        <div class="storage" id="storageInfo">
+            Chưa kiểm tra bộ nhớ
+        </div>
+
+        <button
+            id="loadModelBtn"
+            class="secondary">
+            Tải dữ liệu giọng nói
+        </button>
+
+    </section>
+
+    <!-- TEXT -->
+    <section class="card">
+
+        <label>NỘI DUNG</label>
 
         <textarea
             id="text"
-            maxlength="3000"
-            placeholder="Nhập nội dung bạn muốn chuyển thành giọng nói..."
-        >Xin chào! Đây là hệ thống chuyển văn bản tiếng Việt thành giọng nói chạy trực tiếp trên trình duyệt.</textarea>
+            placeholder="Nhập nội dung bạn muốn lồng tiếng...
 
+Ví dụ:
+Anh em ơi, hôm nay mình sẽ giới thiệu cho mọi người một ứng dụng cực kỳ hay."></textarea>
 
-        <div class="controls">
+        <div class="row">
 
-            <div class="field">
+            <div>
+                <label>GIỌNG</label>
 
-                <label class="label">
-                    Giọng đọc
-                </label>
-
-                <select id="speaker">
-
-                    <option value="0">
-                        NF • Nữ miền Bắc
+                <select id="voice">
+                    <option value="bao_kim">
+                        Bảo Kim • Nữ
                     </option>
 
-                    <option value="1" selected>
-                        SF • Nữ miền Nam
+                    <option value="khanh_vy">
+                        Khánh Vy • Nữ
                     </option>
 
-                    <option value="2">
-                        NM1 • Nam miền Bắc
+                    <option value="ngoc_huyen">
+                        Ngọc Huyền • Nữ
                     </option>
 
-                    <option value="3">
-                        SM • Nam miền Nam
+                    <option value="phuong_linh">
+                        Phương Linh • Nữ
                     </option>
 
-                    <option value="4">
-                        NM2 • Nam miền Bắc
+                    <option value="quynh_nhu">
+                        Quỳnh Như • Nữ
                     </option>
 
+                    <option value="gia_bao">
+                        Gia Bảo • Nam
+                    </option>
+
+                    <option value="hoang_nam">
+                        Hoàng Nam • Nam
+                    </option>
+
+                    <option value="huu_dat">
+                        Hữu Đạt • Nam
+                    </option>
+
+                    <option value="quang_huy">
+                        Quang Huy • Nam
+                    </option>
+
+                    <option value="thanh_phong">
+                        Thanh Phong • Nam
+                    </option>
                 </select>
-
             </div>
 
+            <div>
+                <label>TỐC ĐỘ</label>
 
-            <div class="field">
+                <input
+                    id="speed"
+                    type="range"
+                    min=".75"
+                    max="1.25"
+                    value="1"
+                    step=".01">
 
-                <label class="label">
-                    Tốc độ
-                </label>
-
-                <div class="range-row">
-
-                    <input
-                        id="speed"
-                        type="range"
-                        min="0.5"
-                        max="2"
-                        step="0.05"
-                        value="1"
-                    >
-
-                    <span
-                        id="speedValue"
-                        class="range-value"
-                    >
-                        1.00x
-                    </span>
-
+                <div id="speedValue">
+                    1.00x
                 </div>
-
             </div>
 
         </div>
 
+        <div class="voice-info">
+            Engine được thiết kế để chạy trực tiếp trên thiết bị.
+            Model được lưu local sau lần tải đầu tiên.
+        </div>
 
-        <button
-            id="generateBtn"
-            disabled
-        >
+        <button id="generateBtn" disabled>
             Tạo giọng nói
         </button>
 
+    </section>
 
-        <div
-            id="loading"
-            class="loading"
-        >
+    <!-- RESULT -->
+    <section id="resultCard" class="card hidden">
 
-            <div class="spinner"></div>
+        <label>ÂM THANH</label>
 
-            <div id="loadingText">
-                Đang xử lý...
-            </div>
+        <audio
+            id="audio"
+            controls>
+        </audio>
 
-        </div>
+        <button id="downloadBtn">
+            Tải WAV
+        </button>
 
-
-        <div
-            id="message"
-            class="message"
-        ></div>
-
-
-        <div
-            id="result"
-            class="result"
-        >
-
-            <div class="label">
-                Kết quả
-            </div>
-
-            <audio
-                id="audio"
-                controls
-            ></audio>
-
-            <a
-                id="download"
-                class="download"
-                download="vtts-output.wav"
-            >
-                Tải WAV
-            </a>
-
-        </div>
-
-    </main>
-
-
-    <footer class="footer">
-
-        V-TTS chạy trực tiếp trên thiết bị của bạn.<br>
-
-        Model được tải từ Hugging Face • ONNX Runtime Web
-
-    </footer>
+    </section>
 
 </div>
 
-
-<!-- App logic -->
-<script src="./app.js"></script>
+<script src="model-loader.js"></script>
+<script src="tts-engine.js"></script>
+<script src="app.js"></script>
 
 </body>
 </html>
