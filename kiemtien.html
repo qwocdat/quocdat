@@ -314,13 +314,10 @@ const auth = getAuth(app);
 const db   = getFirestore(app);
 
 /* ============================================================
-   CONSTANTS
+   CONSTANTS & STATE
    ============================================================ */
 const MIN_WITHDRAW = 5000;
 
-/* ============================================================
-   STATE
-   ============================================================ */
 const S = {
   user:null, profile:null, wallet:null,
   seller:null, networks:[], campaigns:[],
@@ -339,7 +336,6 @@ const DEFAULT_NETWORKS = [
   { id:'link4m', name:'Link4M', website:'https://link4m.co', taskType:'direct', grossRate:300, currency:'VND', userSharePercent:60, platformSharePercent:40, minPayout:50000, maxViewsPerIpPerDay:1, maxViewsPerDevicePerDay:1, cooldownSeconds:86400, enabled:true, apiStatus:'manual', countries:['VN'], note:'Rate tham chiếu.' },
 ];
 
-/* Network avatar chữ — thay emoji */
 const NET_AVATAR = {
   link4m:     { text:'L4M', color:'#7c3aed' },
   lentop:     { text:'LTP', color:'#0891b2' },
@@ -353,7 +349,6 @@ function netAvatarHTML(networkId, size=48){
   return `<div class="task-avatar" style="background:${a.color};width:${size}px;height:${size}px">${a.text}</div>`;
 }
 
-/* LQ durations — không emoji */
 const LQ_DURATIONS = [
   { id:'1d',   label:'1 ngày',   short:'1D',  color:'#0891b2' },
   { id:'15d',  label:'15 ngày',  short:'15D', color:'#2563eb' },
@@ -365,8 +360,7 @@ const LQ_DURATIONS = [
 /* ============================================================
    UTILS
    ============================================================ */
-const $=(s,r=document)=>r.querySelector(s);
-const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtVND=n=>Number(n||0).toLocaleString('vi-VN')+'đ';
 const fmtNum=n=>Number(n||0).toLocaleString('vi-VN');
@@ -408,7 +402,6 @@ function parseQuery(){
   });
   return out;
 }
-
 /* ============================================================
    TOAST / MODAL
    ============================================================ */
@@ -694,7 +687,8 @@ const renderBootError=()=>`<div style="min-height:100dvh;display:grid;place-item
       <span>${icon('shield',16)}</span><span>${esc(S.bootError)}</span>
     </div>
   </div></div>`;
-  /* ============================================================
+
+/* ============================================================
    LANDING
    ============================================================ */
 function renderLanding(){
@@ -905,7 +899,7 @@ function renderLanding(){
               <div class="field">
                 <label for="calc-net">Network</label>
                 <select class="select" id="calc-net">
-                  ${enabled.map(n=>`<option value="${esc(n.id)}">${esc(n.name)} — ${fmtVND(n.grossRate)}</option>`).join('')}
+                  ${enabled.map(n=>`<option value="${esc(n.id)}">${esc(n.name)} —${fmtVND(n.grossRate)}</option>`).join('')}
                 </select>
               </div>
             </div>
@@ -1092,8 +1086,7 @@ function renderLQPublic(){
             <span class="badge ${stock>0?'ok':'danger'}">${stock>0?'Sẵn hàng':'Hết hàng'}</span>
           </div>
           <div class="lq-price">Liên hệ admin</div>
-          <button class="btn block sm" data-goto="lq-market" ${stock>0?'':'disabled'}>
-            ${icon('game',14)} Mua bằng ví
+          <button class="btn block sm" data-goto="lq-market" ${stock>0?'':'disabled'}>${icon('game',14)} Mua bằng ví
           </button>
         </div>`;
       }).join('')}
@@ -1207,7 +1200,7 @@ function renderNotFound(){
       <button class="btn" data-goto="home">Về trang chủ</button>
     </div></div>`;
 }
-  /* ============================================================
+/* ============================================================
    AUTH
    ============================================================ */
 function renderAuth(mode){
@@ -1306,7 +1299,7 @@ async function handleAuthSubmit(mode){
       const cred = await createUserWithEmailAndPassword(auth,email,pass);
       if(name) await updateProfile(cred.user,{displayName:name});
 
-      // Referral: retry 5 lần để lưu referredBy sau khi ensureProfile xong
+      // FIX REFERRAL: Retry lưu referredBy chắc chắn sau khi ensureProfile khởi tạo
       try{
         const refCode = new URLSearchParams((location.hash.split('?')[1]||'')).get('ref');
         if(refCode){
@@ -1330,7 +1323,7 @@ async function handleAuthSubmit(mode){
             setTimeout(saveRef, 800);
           }
         }
-      }catch(e){ console.warn('ref', e); }
+      }catch(e){ console.warn('ref error', e); }
 
       toast('Tài khoản đã được tạo.','ok');
     }
@@ -1385,8 +1378,7 @@ function renderSidebar(route){
     <div class="brand"><a class="logo" href="#/"><span class="logo-mark">L</span><span>Linkora</span></a></div>
     ${DASH_NAV.map(g=>`
       <div class="nav-sec">
-        <div class="nav-sec-label">${g.sec}</div>
-        ${g.items.map(([r,label,ic])=>{
+        <div class="nav-sec-label">${g.sec}</div>${g.items.map(([r,label,ic])=>{
           const sellerLocked = r.startsWith('seller-') && r!=='seller-register' && !isSellerApproved;
           return `<button class="nav-item ${route===r?'on':''}" data-goto="${r}" ${sellerLocked?'data-locked="1"':''}>
             ${icon(ic,17)}<span>${label}${sellerLocked?' (khoá)':''}</span>
@@ -1418,8 +1410,7 @@ function renderDrawer(route){
     </div>
     ${DASH_NAV.map(g=>`
       <div class="nav-sec">
-        <div class="nav-sec-label">${g.sec}</div>
-        ${g.items.map(([r,label,ic])=>{
+        <div class="nav-sec-label">${g.sec}</div>${g.items.map(([r,label,ic])=>{
           const sellerLocked = r.startsWith('seller-') && r!=='seller-register' && !isSellerApproved;
           return `<button class="nav-item ${route===r?'on':''}" data-goto="${r}" ${sellerLocked?'data-locked="1"':''}>
             ${icon(ic,17)}<span>${label}${sellerLocked?' (khoá)':''}</span>
@@ -1583,7 +1574,7 @@ function viewStatistics(){
 }
 
 /* ============================================================
-   TASKS VIEW
+   TASKS VIEW & SYSTEM GENERATED ID / SESSION ENGINE (CHỐNG BYPASS)
    ============================================================ */
 function viewTasks(){
   const w = S.wallet||{};
@@ -1607,8 +1598,8 @@ function viewTasks(){
   <div class="notice warn" style="margin-top:20px">
     <span>${icon('shield',16)}</span>
     <span class="tiny">
-      Mỗi lượt vượt gắn <b>IP hash</b> + <b>device hash</b> của bạn. Nếu bạn dùng VPN hoặc đổi thiết bị liên tục có thể bị đánh dấu gian lận.
-      Sau khi bấm "Vượt link", <b>ở tab mới ít nhất 15 giây</b> rồi mới quay lại xác nhận.
+      Mỗi lượt vượt được hệ thống tự động sinh <b>Session ID & Hash mã hoá duy nhất</b> (IPv4 + Reward + ID).
+      Mỗi link duy nhất chỉ được thưởng <b>1 LẦN</b>. Nhấn làm nhiệm vụ tiếp theo sẽ khởi tạo Session ID mới từ Hệ thống.
     </span>
   </div>`;
 }
@@ -1620,7 +1611,7 @@ function viewMyTasks(){
 }
 
 /* ============================================================
-   TASK ENGINE
+   TASK ENGINE (CHỐNG BYPASS CHUYÊN SÂU)
    ============================================================ */
 let TASKS_CACHE = [];
 let NET_APIS_CACHE = {};
@@ -1637,7 +1628,7 @@ async function getMyIp(){
     sessionStorage.setItem('linkora_ip', j.ip);
     sessionStorage.setItem('linkora_ip_ts', String(Date.now()));
     return j.ip;
-  }catch{ return 'unknown'; }
+  }catch{ return '127.0.0.1'; }
 }
 
 async function getDeviceHash(){
@@ -1714,8 +1705,8 @@ async function loadTasksView(){
     });
     const $t = document.getElementById('tk-today');
     const $d = document.getElementById('tk-done');
-    if($t) $t.textContent = fmtVND(todayReward);
-    if($d) $d.textContent = fmtNum(todayCount);
+    if($t)$t.textContent = fmtVND(todayReward);
+    if($d)$d.textContent = fmtNum(todayCount);
   }catch{}
 
   const hlId = S.query && S.query.id;
@@ -1828,38 +1819,44 @@ async function doTask(taskId){
   const cd = getTaskCooldownRemaining(task.id, Number(task.cooldown||0));
   if(cd>0){ toast(`Chờ ${cd}s nữa.`,'warn'); return; }
 
-  const sessionId = uid(16);
-  const ip = await getMyIp();
+  // THIẾT LẬP ID PHIÊN TỰ ĐỘNG & HASH CHỐNG BYPASS
+  const sessionId = uid(18);
+  const userIp = await getMyIp();
   const deviceHash = await getDeviceHash();
-  const ipHash = await sha256(ip + '|' + S.user.uid + '|' + sessionId);
+  const rewardAmt = Number(task.reward||0);
+  
+  // Mã hoá hash kết hợp: TaskID + SessionID + UserUID + IPv4 + RewardAmount
+  const secureHash = await sha256(`${task.id}|${sessionId}|${S.user.uid}|${userIp}|${rewardAmt}`);
   const returnUrl = `${location.origin}${location.pathname}#/task-return/${sessionId}`;
 
   try{
     await setDoc(doc(db,'taskSessions',sessionId),{
+      sessionId,
       userId: S.user.uid,
       userEmail: S.user.email || '',
       taskId: task.id,
       taskName: task.name || '',
       networkId: task.networkId,
-      reward: Number(task.reward||0),
-      ipHash, deviceHash,
+      reward: rewardAmt,
+      userIp,
+      secureHash,
+      deviceHash,
       returnUrl,
       status: 'pending',
+      used: false, // Ngăn tái sử dụng 1 link nhiều lần
       createdAt: serverTimestamp(),
       expiresAt: new Date(Date.now() + 30*60*1000),
       createdAtMs: Date.now(),
     });
   }catch(e){
     console.error(e);
-    toast('Không thể tạo phiên.','err');
+    toast('Không thể khởi tạo phiên làm việc bảo mật.','err');
     return;
   }
 
-  // Reset tracking cho session này
   localStorage.setItem('task_away_'+sessionId, '0');
   localStorage.removeItem('task_left_at_'+sessionId);
 
-  // Đăng ký visibility tracker để đếm thời gian user ở tab khác
   if(_visibilityTrackerFn) document.removeEventListener('visibilitychange', _visibilityTrackerFn);
   _visibilityTrackerFn = ()=>{
     if(document.hidden){
@@ -1876,15 +1873,17 @@ async function doTask(taskId){
   };
   document.addEventListener('visibilitychange', _visibilityTrackerFn);
 
-  // URL đích: ưu tiên task.targetUrl, nếu trống dùng trang nhiệm vụ hiện tại
-  const defaultTarget = `${location.origin}${location.pathname}#/tasks`;
-  const shortUrl = buildNetworkUrl(ap, task.targetUrl || defaultTarget, returnUrl);
-  if(!shortUrl){ toast('Network chưa cấu hình đúng.','err'); return; }
+  // Link đích chứa tham số Session ID & Hash đã kiểm duyệt từ Firebase
+  const targetWithHash = (task.targetUrl || `${location.origin}${location.pathname}#/tasks`) + 
+    `?sid=${sessionId}&thash=${secureHash}`;
+
+  const shortUrl = buildNetworkUrl(ap, targetWithHash, returnUrl);
+  if(!shortUrl){ toast('Cấu hình quicklink network gặp sự cố.','err'); return; }
 
   setTaskLast(task.id);
   const w = window.open(shortUrl, '_blank', 'noopener');
-  if(!w){ toast('Vui lòng cho phép popup để vượt link.','warn'); }
-  toast('Đã mở link. Vượt xong quay lại tab này để xác nhận.','ok');
+  if(!w){ toast('Vui lòng cho phép mở popup trình duyệt.','warn'); }
+  toast('Đã khởi tạo link nhiệm vụ bảo mật duy nhất!','ok');
   setTimeout(()=>showConfirmVượtDialog(sessionId, task), 600);
   if(S.route==='tasks') setTimeout(()=>loadTasksView(), 1500);
 }
@@ -1937,16 +1936,27 @@ async function completeTask(sessionId){
   try{
     const sessionRef = doc(db,'taskSessions',sessionId);
     const snap = await getDoc(sessionRef);
-    if(!snap.exists()){ toast('Phiên không tồn tại.','err'); return; }
+    if(!snap.exists()){ toast('Phiên làm việc không tồn tại hoặc không hợp lệ.','err'); return; }
     const session = snap.data();
-    if(session.userId !== S.user.uid){ toast('Phiên không hợp lệ.','err'); return; }
-    if(session.status === 'completed'){ toast('Đã nhận thưởng rồi.','warn'); return; }
+    
+    if(session.userId !== S.user.uid){ toast('Lỗi truy cập tài khoản.','err'); return; }
+    if(session.status === 'completed' || session.used === true){ 
+      toast('Mã nhiệm vụ này đã được nhận thưởng trước đó! Vui lòng tạo lượt mới.','warn'); 
+      return; 
+    }
 
-    // CHỐNG BẤM NHANH: phải ở tab khác ≥ 15s HOẶC tổng thời gian từ lúc tạo session ≥ 15s
+    // Kiểm tra Hash trùng khớp chống Bypass dữ liệu
+    const currentIp = await getMyIp();
+    const expectedHash = await sha256(`${session.taskId}|${sessionId}|${S.user.uid}|${session.userIp}|${session.reward}`);
+    if(session.secureHash !== expectedHash){
+      toast('Phát hiện dữ liệu nhiệm vụ bị can thiệp!','danger');
+      return;
+    }
+
     const awayTotal = Number(localStorage.getItem('task_away_'+sessionId)||0);
     const elapsed = (Date.now() - Number(session.createdAtMs || 0))/1000;
     if(awayTotal < 15 && elapsed < 15){
-      toast(`Cần ở tab vượt link thêm ${Math.ceil(15-awayTotal)}s.`,'warn');
+      toast(`Cần tương tác ở tab nhiệm vụ thêm ${Math.ceil(15-awayTotal)}s.`,'warn');
       return;
     }
 
@@ -1975,7 +1985,7 @@ async function completeTask(sessionId){
         taskId, taskName, networkId,
         reward,
         sessionId,
-        ipHash: session.ipHash || '',
+        userIp: currentIp,
         deviceHash: session.deviceHash || '',
         completedAt: serverTimestamp(),
       });
@@ -1991,13 +2001,15 @@ async function completeTask(sessionId){
         createdAt: serverTimestamp(),
       });
 
+      // ĐÁNH DẤU PHIÊN ĐÃ SỬ DỤNG - CHỈ DÙNG ĐƯỢC 1 LẦN
       tx.update(sessionRef, {
         status: 'completed',
+        used: true,
         completedAt: serverTimestamp(),
       });
     });
 
-    // Referral bonus
+    // CHIA HOA HỒNG REFERRAL TRỰC TIẾP TỰ ĐỘNG
     try{
       const refUser = S.profile?.referredBy;
       if(refUser && refUser !== S.user.uid){
@@ -2024,7 +2036,7 @@ async function completeTask(sessionId){
               type: 'referral_bonus',
               amount: bonus,
               source: 'ref:'+S.user.uid,
-              note: `Hoa hồng từ ${S.user.email}`,
+              note: `Hoa hồng 10% từ ${S.user.email}`,
               status: 'completed',
               createdAt: serverTimestamp(),
             });
@@ -2039,17 +2051,17 @@ async function completeTask(sessionId){
           });
         }
       }
-    }catch(e){ console.warn('ref bonus', e); }
+    }catch(e){ console.warn('ref bonus error', e); }
 
     localStorage.removeItem('task_away_'+sessionId);
     localStorage.removeItem('task_left_at_'+sessionId);
     if(_visibilityTrackerFn){ document.removeEventListener('visibilitychange', _visibilityTrackerFn); _visibilityTrackerFn = null; }
-    toast(`+${fmtVND(reward)} vào ví!`, 'ok');
+    toast(`+${fmtVND(reward)} đã vào ví!`, 'ok');
     if(_taskTickTimer) clearInterval(_taskTickTimer);
     setTimeout(()=>{ if(S.route==='tasks'){ render(); } }, 400);
   }catch(e){
     console.error(e);
-    toast('Không thể xác nhận: '+(e.message||e), 'err');
+    toast('Không thể hoàn tất nhiệm vụ: '+(e.message||e), 'err');
   }
 }
 
@@ -2061,8 +2073,8 @@ async function renderTaskReturn(el, sessionId){
     <div style="min-height:100dvh;display:grid;place-items:center;padding:24px;background:var(--bg)">
       <div class="card" style="max-width:460px;width:100%;text-align:center">
         <div class="skel" style="width:60px;height:60px;border-radius:18px;margin:0 auto 20px"></div>
-        <h3 style="margin-bottom:10px">Đang xác nhận…</h3>
-        <p class="small muted">Vui lòng đợi trong giây lát.</p>
+        <h3 style="margin-bottom:10px">Đang đối soát mã phiên…</h3>
+        <p class="small muted">Hệ thống đang kiểm tra tính duy nhất của liên kết.</p>
       </div>
     </div>`;
 
@@ -2072,7 +2084,7 @@ async function renderTaskReturn(el, sessionId){
       el.innerHTML = `<div style="min-height:100dvh;display:grid;place-items:center;padding:24px">
         <div class="card center" style="max-width:420px">
           <h3 style="margin-bottom:10px">Phiên không tồn tại</h3>
-          <p class="small muted" style="margin-bottom:16px">Có thể phiên đã hết hạn.</p>
+          <p class="small muted" style="margin-bottom:16px">Liên kết này không do hệ thống khởi tạo hoặc đã hết hạn.</p>
           <button class="btn" data-goto="tasks">Về trang nhiệm vụ</button>
         </div></div>`;
       return;
@@ -2086,15 +2098,15 @@ async function renderTaskReturn(el, sessionId){
         </div></div>`;
       return;
     }
-    if(s.status === 'completed'){
+    if(s.status === 'completed' || s.used === true){
       el.innerHTML = `
         <div style="min-height:100dvh;display:grid;place-items:center;padding:24px;background:var(--bg)">
           <div class="card" style="max-width:440px;width:100%;text-align:center">
             <div style="margin-bottom:14px;color:var(--ok);display:flex;justify-content:center">${icon('check',56,2.5)}</div>
-            <h3 style="margin-bottom:8px">Đã nhận thưởng trước đó</h3>
-            <p class="small muted" style="margin-bottom:20px">Bạn đã hoàn thành nhiệm vụ này.</p>
+            <h3 style="margin-bottom:8px">Liên kết đã sử dụng</h3>
+            <p class="small muted" style="margin-bottom:20px">Mỗi link chỉ thưởng 1 lần. Hãy khởi tạo lượt làm việc tiếp theo.</p>
             <div class="btn-group" style="justify-content:center">
-              <button class="btn accent" data-goto="tasks">Làm nhiệm vụ khác</button>
+              <button class="btn accent" data-goto="tasks">Khởi tạo lượt mới</button>
               <button class="btn ghost" data-goto="my-tasks">Xem lịch sử</button>
             </div>
           </div>
@@ -2109,9 +2121,9 @@ async function renderTaskReturn(el, sessionId){
         <div style="min-height:100dvh;display:grid;place-items:center;padding:24px;background:var(--bg)">
           <div class="card" style="max-width:440px;width:100%;text-align:center">
             <div style="margin-bottom:14px;color:var(--warn);display:flex;justify-content:center">${icon('clock',56,2)}</div>
-            <h3 style="margin-bottom:8px">Vui lòng đợi thêm</h3>
-            <p class="small muted" style="margin-bottom:20px">Cần ở tab vượt link thêm <b id="rt-wait">${Math.ceil(15-awayTotal)}</b> giây.</p>
-            <button class="btn accent" id="rt-retry">Kiểm tra lại</button>
+            <h3 style="margin-bottom:8px">Vui lòng chờ xác minh</h3>
+            <p class="small muted" style="margin-bottom:20px">Cần tương tác với link nhiệm vụ thêm <b id="rt-wait">${Math.ceil(15-awayTotal)}</b> giây.</p>
+            <button class="btn accent" id="rt-retry">Xác minh lại</button>
           </div>
         </div>`;
       let n = Math.ceil(15-awayTotal);
@@ -2126,12 +2138,12 @@ async function renderTaskReturn(el, sessionId){
       <div style="min-height:100dvh;display:grid;place-items:center;padding:24px;background:var(--bg)">
         <div class="card" style="max-width:440px;width:100%;text-align:center">
           <div style="margin-bottom:14px;color:var(--accent);display:flex;justify-content:center">${icon('coin',56,2)}</div>
-          <h3 style="margin-bottom:8px">Nhận thưởng thành công!</h3>
+          <h3 style="margin-bottom:8px">Xác nhận thành công!</h3>
           <p class="small muted" style="margin-bottom:20px">
-            <b style="color:var(--accent);font-size:1.2rem">+${fmtVND(s.reward)}</b> đã vào ví của bạn.
+            <b style="color:var(--accent);font-size:1.2rem">+${fmtVND(s.reward)}</b> đã được cộng trực tiếp vào ví.
           </p>
           <div class="btn-group" style="justify-content:center">
-            <button class="btn accent" data-goto="tasks">Làm nhiệm vụ tiếp</button>
+            <button class="btn accent" data-goto="tasks">Tạo lượt mới</button>
             <button class="btn ghost" data-goto="wallet">Xem ví</button>
           </div>
         </div>
@@ -2141,7 +2153,7 @@ async function renderTaskReturn(el, sessionId){
     nav('tasks');
   }
 }
-  /* ============================================================
+/* ============================================================
    REFERRALS (real)
    ============================================================ */
 async function viewReferralsReal(){
@@ -2237,7 +2249,7 @@ function viewCreateLink(){
         <div class="field">
           <label for="cl-net">Network</label>
           <select class="select" id="cl-net">
-            ${enabled.map(n=>`<option value="${esc(n.id)}">${esc(n.name)} — ${fmtVND(n.grossRate)}</option>`).join('')}
+            ${enabled.map(n=>`<option value="${esc(n.id)}">${esc(n.name)} —${fmtVND(n.grossRate)}</option>`).join('')}
             <option value="auto">Auto</option>
           </select>
         </div>
@@ -2389,7 +2401,7 @@ function viewCreator(){
       <div class="card-title" style="margin-bottom:14px">Quy trình xác minh</div>
       <div style="display:flex;flex-direction:column;gap:14px">
         ${[['Pending','Vừa gửi.'],['Reviewing','Admin đang xem.'],['Approved','Đạt KPI, ghi nhận thưởng.'],['Rejected','Không đạt.'],['Fraud','Có dấu hiệu gian lận.']].map(([s,d])=>`
-          <div><span class="badge ${s==='Approved'?'ok':s==='Rejected'||s==='Fraud'?'danger':s==='Reviewing'?'warn':''}">${s}</span>
+          <div><span class="badge ${s==='Approved'?'ok':s==='Rejected'\vert{}\vert{}s==='Fraud'?'danger':s==='Reviewing'?'warn':''}">${s}</span>
           <p class="tiny muted" style="line-height:1.55;margin-top:4px">${d}</p></div>`).join('')}
       </div>
     </div>
@@ -2749,7 +2761,6 @@ async function loadTickets(){
         <td class="tiny muted-3">${timeAgo(r.createdAt)}</td></tr>`).join('')}</tbody></table></div>`;
   }catch{ box.innerHTML=renderEmptyState('Không thể tải','','x'); }
 }
-
 /* ============================================================
    SELLER MODULE
    ============================================================ */
@@ -3316,8 +3327,7 @@ function viewLQMarket(){
           <span class="badge ${stock>0?'ok':'danger'}">${stock>0?'Sẵn hàng':'Hết hàng'}</span>
         </div>
         <div class="lq-price">${priceSample?fmtVND(priceSample):'Liên hệ admin'}</div>
-        <button class="btn block sm accent" data-action="buy-lq" data-duration="${esc(d.id)}" ${stock>0?'':'disabled'}>
-          ${icon('game',14)} Mua ngay
+        <button class="btn block sm accent" data-action="buy-lq" data-duration="${esc(d.id)}" ${stock>0?'':'disabled'}>${icon('game',14)} Mua ngay
         </button>
       </div>`;
     }).join('')}
@@ -3485,27 +3495,7 @@ document.addEventListener('click', async (e)=>{
   if(cpt){ try{ await navigator.clipboard.writeText(cpt.dataset.copyText); toast('Đã copy.','ok'); }catch{ toast('Không thể copy.','err'); } return; }
 
   if(t.closest('#ref-share-btn')){
-    const link = $('#ref-link')?.value || '';
-    try{
-      if(navigator.share) await navigator.share({ title:'Linkora', text:'Kiếm tiền cùng Linkora', url: link });
-      else { await navigator.clipboard.writeText(link); toast('Đã copy link.','ok'); }
-    }catch{}
-    return;
-  }
-
-  const faqBtn=t.closest('.faq-q');
-  if(faqBtn){
-    const item=faqBtn.parentElement;
-    const ans=item.querySelector('.faq-a');
-    const isOpen=item.classList.contains('open');
-    document.querySelectorAll('.faq-item.open').forEach(x=>{ x.classList.remove('open'); x.querySelector('.faq-a').style.maxHeight='0px'; });
-    if(!isOpen){ item.classList.add('open'); ans.style.maxHeight=ans.scrollHeight+'px'; }
-    return;
-  }
-
-  const rangeBtn=t.closest('[data-range]');
-  if(rangeBtn){
-    $$('#stats-range button').forEach(b=>b.classList.remove('soft'));
+    const link = $('#ref-link')?.value \vert{}\vert{} '';     try{       if(navigator.share) await navigator.share({ title:'Linkora', text:'Kiếm tiền cùng Linkora', url: link });       else { await navigator.clipboard.writeText(link); toast('Đã copy link.','ok'); }     }catch{}     return;   }    const faqBtn=t.closest('.faq-q');   if(faqBtn){     const item=faqBtn.parentElement;     const ans=item.querySelector('.faq-a');     const isOpen=item.classList.contains('open');     document.querySelectorAll('.faq-item.open').forEach(x=>{ x.classList.remove('open'); x.querySelector('.faq-a').style.maxHeight='0px'; });     if(!isOpen){ item.classList.add('open'); ans.style.maxHeight=ans.scrollHeight+'px'; }     return;   }    const rangeBtn=t.closest('[data-range]');   if(rangeBtn){     $$('#stats-range button').forEach(b=>b.classList.remove('soft'));
     rangeBtn.classList.remove('soft');
     document.querySelectorAll('#stats-range button').forEach(b=>{ if(b!==rangeBtn) b.classList.add('soft'); });
     loadSellerStats(rangeBtn.dataset.range);
@@ -3610,10 +3600,10 @@ function bindCalculator(){
     const $g=document.querySelector('#c-gross');
     const $u=document.querySelector('#c-user');
     const $p=document.querySelector('#c-plat');
-    if($r) $r.textContent=fmtVND(rate);
-    if($g) $g.textContent=fmtVND(gross);
-    if($u) $u.textContent=fmtVND(user);
-    if($p) $p.textContent=fmtVND(plat);
+    if($r)$r.textContent=fmtVND(rate);
+    if($g)$g.textContent=fmtVND(gross);
+    if($u)$u.textContent=fmtVND(user);
+    if($p)$p.textContent=fmtVND(plat);
   };
   viewsEl.addEventListener('input',compute);
   netEl.addEventListener('change',compute);
