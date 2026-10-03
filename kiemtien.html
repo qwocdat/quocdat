@@ -322,7 +322,7 @@ const S = {
   user:null, profile:null, wallet:null,
   seller:null, networks:[], campaigns:[],
   lqKeys:[], drawerOpen:false,
-  route:'home', param:null, query:null, ready:false, bootError:null,
+  route:'home', param:null, query:{}, ready:false, bootError:null,
   unsubWallet:null, unsubProfile:null, unsubSeller:null,
 };
 const THEME_KEY='linkora_theme';
@@ -390,18 +390,17 @@ async function sha256(str){
 }
 function startOfDay(d=new Date()){ const x=new Date(d); x.setHours(0,0,0,0); return x; }
 function daysAgo(n){ const x=new Date(); x.setDate(x.getDate()-n); x.setHours(0,0,0,0); return x; }
-function parseQuery(){
-  const hash = location.hash || '';
-  const qi = hash.indexOf('?');
-  if(qi === -1) return {};
-  const qs = hash.slice(qi+1);
+
+function parseQuery(queryString){
   const out = {};
-  qs.split('&').forEach(p=>{
+  if(!queryString) return out;
+  queryString.split('&').forEach(p=>{
     const [k,v] = p.split('=');
     if(k) out[decodeURIComponent(k)] = decodeURIComponent(v||'');
   });
   return out;
 }
+
 /* ============================================================
    TOAST / MODAL
    ============================================================ */
@@ -617,21 +616,35 @@ async function loadLQKeys(){
 }
 
 /* ============================================================
-   ROUTER
+   ROUTER (FIXED: ROUTE PARSING WITH QUERY STRINGS)
    ============================================================ */
 function parseHash(){
-  const h=(location.hash||'#/').replace(/^#\/?/,'');
-  const qi = h.indexOf('?');
-  const path = qi===-1 ? h : h.slice(0,qi);
-  const parts=path.split('/').filter(Boolean);
-  return { route:parts[0]||'home', param:parts[1]||null, sub:parts[2]||null, query: parseQuery() };
+  const h = (location.hash || '#/').replace(/^#\/?/, '');
+  const qIdx = h.indexOf('?');
+  
+  let pathStr = h;
+  let queryStr = '';
+  
+  if (qIdx !== -1) {
+    pathStr = h.slice(0, qIdx);
+    queryStr = h.slice(qIdx + 1);
+  }
+  
+  const parts = pathStr.split('/').filter(Boolean);
+  const route = parts[0] || 'home';
+  const param = parts[1] || null;
+  const sub = parts[2] || null;
+  const query = parseQuery(queryStr);
+
+  return { route, param, sub, query };
 }
+
 function nav(path){ location.hash='#/'+path.replace(/^\/+/,''); closeDrawer(); }
 
 function render(){
-  const { route, param, query }=parseHash();
-  S.route=route; S.param=param; S.query=query;
-  const el=$('#app');
+  const { route, param, query } = parseHash();
+  S.route = route; S.param = param; S.query = query;
+  const el = $('#app');
 
   if(route==='s' && param) return renderRedirect(el,param);
   if(route==='task-return' && param){ renderTaskReturn(el,param); return; }
@@ -1200,6 +1213,7 @@ function renderNotFound(){
       <button class="btn" data-goto="home">Về trang chủ</button>
     </div></div>`;
 }
+
 /* ============================================================
    AUTH
    ============================================================ */
@@ -1573,7 +1587,7 @@ function viewStatistics(){
 }
 
 /* ============================================================
-   TASKS VIEW & SYSTEM GENERATED ID / SESSION ENGINE (CHỐNG BYPASS)
+   TASKS VIEW & SYSTEM GENERATED ID / SESSION ENGINE
    ============================================================ */
 function viewTasks(){
   const w = S.wallet||{};
@@ -1611,7 +1625,7 @@ function viewMyTasks(){
 }
 
 /* ============================================================
-   TASK ENGINE (SỬA ĐỔI: 10 PHÚT, POPUP XÁC NHẬN & TỰ ĐỘNG CỘNG TIỀN)
+   TASK ENGINE (SỬA ĐỔI: TỰ ĐỘNG XÁC NHẬN KHI CÓ SID VÀ THASH)
    ============================================================ */
 let TASKS_CACHE = [];
 let NET_APIS_CACHE = {};
@@ -1730,6 +1744,16 @@ async function cancelDoingTask(sessionId){
 }
 
 async function loadTasksView(){
+  // Tự động kiểm tra nếu URL có chứa sid & thash
+  if(S.query && S.query.sid){
+    const sid = S.query.sid;
+    toast('Đang xác minh lượt vượt link...', 'info');
+    await completeTask(sid);
+    // Xoá param khỏi URL để tránh trigger lại
+    window.history.replaceState(null, '', location.pathname + '#/tasks');
+    S.query = {};
+  }
+
   const container = document.getElementById('tasks-container');
   const banner = document.getElementById('active-task-banner');
   if(!container) return;
@@ -1946,8 +1970,9 @@ async function doTask(taskId){
   
   const secureHash = await sha256(`${task.id}|${sessionId}|${S.user.uid}|${userIp}|${rewardAmt}`);
   const returnUrl = `${location.origin}${location.pathname}#/task-return/${sessionId}`;
-  const targetWithHash = (task.targetUrl || `${location.origin}${location.pathname}#/tasks`) + 
-    `?sid=${sessionId}&thash=${secureHash}`;
+  
+  // URL mục tiêu trả về trang /tasks với query sid & thash
+  const targetWithHash = `${location.origin}${location.pathname}#/tasks?sid=${sessionId}&thash=${secureHash}`;
 
   const shortUrl = buildNetworkUrl(ap, targetWithHash, returnUrl);
   if(!shortUrl){ toast('Cấu hình quicklink network gặp sự cố.','err'); return; }
@@ -2802,6 +2827,7 @@ async function loadTickets(){
         <td class="tiny muted-3">${timeAgo(r.createdAt)}</td></tr>`).join('')}</tbody></table></div>`;
   }catch{ box.innerHTML=renderEmptyState('Không thể tải','','x'); }
 }
+
 /* ============================================================
    SELLER MODULE
    ============================================================ */
@@ -3696,6 +3722,7 @@ onAuthStateChanged(auth, async (user)=>{
           if(['dashboard','wallet','withdraw','lq-market','tasks'].includes(S.route)) render();
         }
       },()=>{});
+      S.profile=await ensureProfile(user);
       S.unsubProfile=onSnapshot(doc(db,'users',user.uid),(snap)=>{
         if(snap.exists()){
           S.profile=snap.data();
