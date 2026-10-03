@@ -1593,12 +1593,13 @@ function viewTasks(){
       <div class="stat-value" id="tk-done">0</div>
     </div>
   </div>
+  <div id="active-task-banner" style="margin-bottom:20px"></div>
   <div id="tasks-container">${renderEmptyState('Đang tải nhiệm vụ…','','coin')}</div>
   <div class="notice warn" style="margin-top:20px">
     <span>${icon('shield',16)}</span>
     <span class="tiny">
-      Mỗi lượt vượt được hệ thống tự động sinh <b>Session ID & Hash mã hoá duy nhất</b> (IPv4 + Reward + ID).
-      Mỗi link duy nhất chỉ được thưởng <b>1 LẦN</b>. Nhấn làm nhiệm vụ tiếp theo sẽ khởi tạo Session ID mới từ Hệ thống.
+      Mỗi lượt vượt được hệ thống tự động sinh <b>Session ID & Hash mã hoá duy nhất</b>.
+      Mỗi nhiệm vụ sau khi xác nhận nhận sẽ được xử lý trong <b>10 phút</b>. Vượt link đến đúng URL chứa ID để hoàn thành tự động.
     </span>
   </div>`;
 }
@@ -1610,12 +1611,12 @@ function viewMyTasks(){
 }
 
 /* ============================================================
-   TASK ENGINE (CHỐNG BYPASS CHUYÊN SÂU)
+   TASK ENGINE (SỬA ĐỔI: 10 PHÚT, POPUP XÁC NHẬN & TỰ ĐỘNG CỘNG TIỀN)
    ============================================================ */
 let TASKS_CACHE = [];
 let NET_APIS_CACHE = {};
 let _taskTickTimer = null;
-let _visibilityTrackerFn = null;
+let _activeTaskTimer = null;
 
 async function getMyIp(){
   const cached = sessionStorage.getItem('linkora_ip');
@@ -1683,11 +1684,112 @@ function getTaskCooldownRemaining(taskId, cooldownSec){
 }
 function setTaskLast(taskId){ localStorage.setItem('task_last_'+taskId, String(Date.now())); }
 
+async function getActiveDoingTask(){
+  if(!S.user) return null;
+  try{
+    const q = query(
+      collection(db, 'taskSessions'),
+      where('userId', '==', S.user.uid),
+      where('status', '==', 'doing'),
+      limit(1)
+    );
+    const snap = await getDocs(q);
+    if(snap.empty) return null;
+    const docData = snap.docs[0].data();
+    const docId = snap.docs[0].id;
+    const nowMs = Date.now();
+    const expiresAtMs = docData.expiresAtMs || (docData.createdAtMs + 10*60*1000);
+    
+    if(nowMs >= expiresAtMs){
+      await updateDoc(doc(db, 'taskSessions', docId), {
+        status: 'cancelled',
+        cancelReason: 'timeout',
+        updatedAt: serverTimestamp()
+      });
+      return null;
+    }
+    return { id: docId, ...docData };
+  }catch(e){
+    console.error('Error fetching active task:', e);
+    return null;
+  }
+}
+
+async function cancelDoingTask(sessionId){
+  try{
+    await updateDoc(doc(db, 'taskSessions', sessionId), {
+      status: 'cancelled',
+      cancelReason: 'user_cancelled',
+      updatedAt: serverTimestamp()
+    });
+    toast('Đã hủy nhiệm vụ thành công.', 'ok');
+    if(S.route === 'tasks') loadTasksView();
+  }catch(e){
+    toast('Không thể hủy nhiệm vụ: ' + (e.message||e), 'err');
+  }
+}
+
 async function loadTasksView(){
   const container = document.getElementById('tasks-container');
+  const banner = document.getElementById('active-task-banner');
   if(!container) return;
 
-  const [tasks, apis] = await Promise.all([loadTasksConfig(true), loadNetworkApis(true)]);
+  const [tasks, apis, activeTask] = await Promise.all([
+    loadTasksConfig(true), 
+    loadNetworkApis(true),
+    getActiveDoingTask()
+  ]);
+
+  if(_activeTaskTimer) clearInterval(_activeTaskTimer);
+
+  if(activeTask && banner){
+    banner.innerHTML = `
+      <div class="card" style="border-color:var(--accent);background:var(--accent-soft)">
+        <div class="between wrap" style="gap:12px">
+          <div>
+            <div class="badge accent" style="margin-bottom:6px">ĐANG LÀM NHIỆM VỤ</div>
+            <div style="font-weight:700;font-size:1.05rem">${esc(activeTask.taskName)}</div>
+            <div class="small muted" style="margin-top:4px">
+              Hạn hoàn thành: <b id="doing-timer" style="color:var(--danger)" class="mono">--:--</b> 
+              | Thưởng: <b style="color:var(--accent)">+${fmtVND(activeTask.reward)}</b>
+            </div>
+          </div>
+          <div class="row gap-8">
+            <button class="btn sm danger" id="btn-cancel-task">${icon('x',14)} Hủy nhiệm vụ</button>
+            <a class="btn sm accent" href="${esc(activeTask.shortUrl)}" target="_blank" rel="noopener">${icon('ext',14)} Tiếp tục vượt link</a>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    $('#btn-cancel-task')?.addEventListener('click', async ()=>{
+      const ok = await confirmModal({
+        title: 'Hủy nhiệm vụ?',
+        message: 'Bạn có chắc chắn muốn hủy nhiệm vụ này không? Bạn có thể nhận lại sau khi hủy.',
+        confirmText: 'Đồng ý hủy',
+        danger: true
+      });
+      if(ok) cancelDoingTask(activeTask.id);
+    });
+
+    const updateTimer = ()=>{
+      const remainMs = (activeTask.expiresAtMs || (activeTask.createdAtMs + 10*60*1000)) - Date.now();
+      if(remainMs <= 0){
+        clearInterval(_activeTaskTimer);
+        toast('Nhiệm vụ đã hết thời gian làm (10 phút).', 'warn');
+        loadTasksView();
+        return;
+      }
+      const m = Math.floor(remainMs / 60000);
+      const s = Math.floor((remainMs % 60000) / 1000);
+      const timerEl = document.getElementById('doing-timer');
+      if(timerEl) timerEl.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    };
+    updateTimer();
+    _activeTaskTimer = setInterval(updateTimer, 1000);
+  } else if(banner) {
+    banner.innerHTML = '';
+  }
 
   if(!tasks.length){
     container.innerHTML = renderEmptyState('Chưa có nhiệm vụ', 'Admin chưa cấu hình nhiệm vụ nào.','coin');
@@ -1715,7 +1817,8 @@ async function loadTasksView(){
       ${tasks.map(t=>{
         const ap = apis[t.networkId];
         const cd = getTaskCooldownRemaining(t.id, Number(t.cooldown||0));
-        const disabled = cd>0 || !ap || ap.enabled===false;
+        const hasActiveTask = !!activeTask;
+        const disabled = cd>0 || !ap || ap.enabled===false || hasActiveTask;
         return `
           <div class="task-item ${disabled?'disabled':''}" data-task-id="${esc(t.id)}">
             ${netAvatarHTML(t.networkId)}
@@ -1735,7 +1838,7 @@ async function loadTasksView(){
             <div style="text-align:right">
               <div class="task-reward">+${fmtVND(t.reward)}</div>
               <button class="btn sm ${disabled?'soft':'accent'}" data-action="do-task" data-task-id="${esc(t.id)}" ${disabled?'disabled':''} style="margin-top:8px">
-                ${cd>0 ? 'Chờ' : 'Vượt link'}
+                ${hasActiveTask ? 'Đang làm nhiệm vụ khác' : (cd>0 ? 'Chờ' : 'Vượt link')}
               </button>
             </div>
           </div>
@@ -1763,8 +1866,10 @@ async function loadTasksView(){
       const cd = getTaskCooldownRemaining(t.id, Number(t.cooldown||0));
       if(cd<=0){
         el.textContent = '';
-        const btn = document.querySelector(`button[data-task-id="${t.id}"]`);
-        if(btn){ btn.removeAttribute('disabled'); btn.classList.remove('soft'); btn.classList.add('accent'); btn.textContent = 'Vượt link'; }
+        if(!activeTask){
+          const btn = document.querySelector(`button[data-task-id="${t.id}"]`);
+          if(btn){ btn.removeAttribute('disabled'); btn.classList.remove('soft'); btn.classList.add('accent'); btn.textContent = 'Vượt link'; }
+        }
       } else {
         el.textContent = 'Chờ '+cd+'s';
       }
@@ -1807,10 +1912,26 @@ async function loadMyTasks(){
 
 async function doTask(taskId){
   if(!S.user){ nav('login'); return; }
+
+  const activeTask = await getActiveDoingTask();
+  if(activeTask){
+    toast('Bạn đang có nhiệm vụ chưa hoàn thành! Vui lòng hoàn thành hoặc hủy nhiệm vụ cũ trước.','warn');
+    loadTasksView();
+    return;
+  }
+
   const tasks = await loadTasksConfig(true);
   const apis  = await loadNetworkApis(true);
   const task  = tasks.find(t=>t.id===taskId);
   if(!task){ toast('Nhiệm vụ không tồn tại.','err'); return; }
+
+  const ok = await confirmModal({
+    title: 'Xác nhận làm nhiệm vụ',
+    message: `Bạn có xác nhận thực hiện nhiệm vụ "${task.name}" không? Bạn có 10 phút để hoàn thành vượt link sau khi bấm xác nhận.`,
+    confirmText: 'Xác nhận ngay',
+    cancelText: 'Để sau'
+  });
+  if(!ok) return;
 
   const ap = apis[task.networkId];
   if(!ap || ap.enabled===false){ toast('Network chưa khả dụng.','err'); return; }
@@ -1825,6 +1946,14 @@ async function doTask(taskId){
   
   const secureHash = await sha256(`${task.id}|${sessionId}|${S.user.uid}|${userIp}|${rewardAmt}`);
   const returnUrl = `${location.origin}${location.pathname}#/task-return/${sessionId}`;
+  const targetWithHash = (task.targetUrl || `${location.origin}${location.pathname}#/tasks`) + 
+    `?sid=${sessionId}&thash=${secureHash}`;
+
+  const shortUrl = buildNetworkUrl(ap, targetWithHash, returnUrl);
+  if(!shortUrl){ toast('Cấu hình quicklink network gặp sự cố.','err'); return; }
+
+  const createdAtMs = Date.now();
+  const expiresAtMs = createdAtMs + 10 * 60 * 1000;
 
   try{
     await setDoc(doc(db,'taskSessions',sessionId),{
@@ -1839,11 +1968,12 @@ async function doTask(taskId){
       secureHash,
       deviceHash,
       returnUrl,
-      status: 'pending',
+      shortUrl,
+      status: 'doing',
       used: false,
       createdAt: serverTimestamp(),
-      expiresAt: new Date(Date.now() + 30*60*1000),
-      createdAtMs: Date.now(),
+      createdAtMs,
+      expiresAtMs,
     });
   }catch(e){
     console.error(e);
@@ -1851,81 +1981,11 @@ async function doTask(taskId){
     return;
   }
 
-  localStorage.setItem('task_away_'+sessionId, '0');
-  localStorage.removeItem('task_left_at_'+sessionId);
-
-  if(_visibilityTrackerFn) document.removeEventListener('visibilitychange', _visibilityTrackerFn);
-  _visibilityTrackerFn = ()=>{
-    if(document.hidden){
-      localStorage.setItem('task_left_at_'+sessionId, String(Date.now()));
-    } else {
-      const leftAt = Number(localStorage.getItem('task_left_at_'+sessionId)||0);
-      if(leftAt){
-        const away = (Date.now()-leftAt)/1000;
-        const cur = Number(localStorage.getItem('task_away_'+sessionId)||0);
-        localStorage.setItem('task_away_'+sessionId, String(cur+away));
-        localStorage.removeItem('task_left_at_'+sessionId);
-      }
-    }
-  };
-  document.addEventListener('visibilitychange', _visibilityTrackerFn);
-
-  const targetWithHash = (task.targetUrl || `${location.origin}${location.pathname}#/tasks`) + 
-    `?sid=${sessionId}&thash=${secureHash}`;
-
-  const shortUrl = buildNetworkUrl(ap, targetWithHash, returnUrl);
-  if(!shortUrl){ toast('Cấu hình quicklink network gặp sự cố.','err'); return; }
-
   setTaskLast(task.id);
   const w = window.open(shortUrl, '_blank', 'noopener');
-  if(!w){ toast('Vui lòng cho phép mở popup trình duyệt.','warn'); }
-  toast('Đã khởi tạo link nhiệm vụ bảo mật duy nhất!','ok');
-  setTimeout(()=>showConfirmVượtDialog(sessionId, task), 600);
-  if(S.route==='tasks') setTimeout(()=>loadTasksView(), 1500);
-}
-
-function showConfirmVượtDialog(sessionId, task){
-  const back = document.createElement('div'); back.className='modal-back';
-  const MIN_AWAY = 15;
-  const renderContent = ()=>{
-    const elapsedAway = Number(localStorage.getItem('task_away_'+sessionId)||0);
-    const remain = Math.max(0, Math.ceil(MIN_AWAY - elapsedAway));
-    return `<div class="modal" style="max-width:460px">
-      <h3 style="margin-bottom:8px">Đã vượt link xong?</h3>
-      <p style="font-size:.86rem;line-height:1.6;color:var(--text-2);margin-bottom:14px">Hoàn thành nhiệm vụ <b>${esc(task.name)}</b> ở tab mới. Nhấn "Xác nhận" để nhận <b style="color:var(--accent)">+${fmtVND(task.reward)}</b>.</p>
-      ${remain>0
-        ? `<div class="notice warn" style="margin-bottom:14px"><span>${icon('clock',16)}</span><span>Cần ở tab vượt link thêm <b id="wait-count">${remain}</b> giây để xác minh.</span></div>`
-        : `<div class="notice ok" style="margin-bottom:14px"><span>${icon('check',16)}</span><span>Có thể xác nhận.</span></div>`}
-      <div class="row gap-8" style="justify-content:flex-end">
-        <button class="btn ghost" data-x="cancel">Để sau</button>
-        <button class="btn accent" data-x="ok" ${remain>0?'disabled':''} id="confirm-btn">${remain>0?`Chờ ${remain}s`:'Xác nhận đã vượt'}</button>
-      </div>
-    </div>`;
-  };
-  back.innerHTML = renderContent();
-  const close=v=>{ back.remove(); if(v) completeTask(sessionId); };
-  back.addEventListener('click', e=>{
-    if(e.target===back) return close(false);
-    const b = e.target.closest('[data-x]'); if(!b) return;
-    close(b.dataset.x==='ok');
-  });
-  $('#modal-root').appendChild(back);
-  const timer = setInterval(()=>{
-    const elapsedAway = Number(localStorage.getItem('task_away_'+sessionId)||0);
-    const remain = Math.max(0, Math.ceil(MIN_AWAY - elapsedAway));
-    const c = back.querySelector('#wait-count');
-    const btn = back.querySelector('#confirm-btn');
-    if(c) c.textContent = remain;
-    if(btn){
-      if(remain<=0){
-        btn.removeAttribute('disabled'); btn.textContent = 'Xác nhận đã vượt';
-        const notice = back.querySelector('.notice');
-        if(notice){ notice.className='notice ok'; notice.innerHTML='<span>'+icon('check',16)+'</span><span>Có thể xác nhận.</span>'; }
-        clearInterval(timer);
-      } else btn.textContent = `Chờ ${remain}s`;
-    }
-    if(remain<=0) clearInterval(timer);
-  }, 1000);
+  if(!w){ toast('Vui lòng cho phép mở popup trình duyệt để đến trang vượt link.','warn'); }
+  toast('Đã nhận nhiệm vụ! Bạn có 10 phút để vượt link.','ok');
+  loadTasksView();
 }
 
 async function completeTask(sessionId){
@@ -1937,21 +1997,18 @@ async function completeTask(sessionId){
     
     if(session.userId !== S.user.uid){ toast('Lỗi truy cập tài khoản.','err'); return; }
     if(session.status === 'completed' || session.used === true){ 
-      toast('Mã nhiệm vụ này đã được nhận thưởng trước đó! Vui lòng tạo lượt mới.','warn'); 
+      toast('Nhiệm vụ này đã được nhận thưởng trước đó!','warn'); 
       return; 
+    }
+    if(session.status === 'cancelled'){
+      toast('Nhiệm vụ này đã bị hủy hoặc hết hạn thời gian!','err');
+      return;
     }
 
     const currentIp = await getMyIp();
     const expectedHash = await sha256(`${session.taskId}|${sessionId}|${S.user.uid}|${session.userIp}|${session.reward}`);
     if(session.secureHash !== expectedHash){
       toast('Phát hiện dữ liệu nhiệm vụ bị can thiệp!','danger');
-      return;
-    }
-
-    const awayTotal = Number(localStorage.getItem('task_away_'+sessionId)||0);
-    const elapsed = (Date.now() - Number(session.createdAtMs || 0))/1000;
-    if(awayTotal < 15 && elapsed < 15){
-      toast(`Cần tương tác ở tab nhiệm vụ thêm ${Math.ceil(15-awayTotal)}s.`,'warn');
       return;
     }
 
@@ -2046,9 +2103,6 @@ async function completeTask(sessionId){
       }
     }catch(e){ console.warn('ref bonus error', e); }
 
-    localStorage.removeItem('task_away_'+sessionId);
-    localStorage.removeItem('task_left_at_'+sessionId);
-    if(_visibilityTrackerFn){ document.removeEventListener('visibilitychange', _visibilityTrackerFn); _visibilityTrackerFn = null; }
     toast(`+${fmtVND(reward)} đã vào ví!`, 'ok');
     if(_taskTickTimer) clearInterval(_taskTickTimer);
     setTimeout(()=>{ if(S.route==='tasks'){ render(); } }, 400);
@@ -2066,8 +2120,8 @@ async function renderTaskReturn(el, sessionId){
     <div style="min-height:100dvh;display:grid;place-items:center;padding:24px;background:var(--bg)">
       <div class="card" style="max-width:460px;width:100%;text-align:center">
         <div class="skel" style="width:60px;height:60px;border-radius:18px;margin:0 auto 20px"></div>
-        <h3 style="margin-bottom:10px">Đang đối soát mã phiên…</h3>
-        <p class="small muted">Hệ thống đang kiểm tra tính duy nhất của liên kết.</p>
+        <h3 style="margin-bottom:10px">Đang xác minh mã nhiệm vụ…</h3>
+        <p class="small muted">Hệ thống đang kiểm tra và tự động cộng tiền.</p>
       </div>
     </div>`;
 
@@ -2075,8 +2129,8 @@ async function renderTaskReturn(el, sessionId){
     const snap = await getDoc(doc(db,'taskSessions',sessionId));
     if(!snap.exists()){
       el.innerHTML = `<div style="min-height:100dvh;display:grid;place-items:center;padding:24px">
-        <div class="card center" style="max-width:420px"><h3 style="margin-bottom:10px">Phiên không tồn tại</h3>
-          <p class="small muted" style="margin-bottom:16px">Liên kết này không do hệ thống khởi tạo hoặc đã hết hạn.</p>
+        <div class="card center" style="max-width:420px"><h3 style="margin-bottom:10px">Mã nhiệm vụ không tồn tại</h3>
+          <p class="small muted" style="margin-bottom:16px">Liên kết này không do hệ thống khởi tạo hoặc đã bị xóa.</p>
           <button class="btn" data-goto="tasks">Về trang nhiệm vụ</button>
         </div></div>`;
       return;
@@ -2085,7 +2139,7 @@ async function renderTaskReturn(el, sessionId){
     if(s.userId !== S.user.uid){
       el.innerHTML = `<div style="min-height:100dvh;display:grid;place-items:center;padding:24px">
         <div class="card center" style="max-width:420px">
-          <h3>Phiên không khớp tài khoản</h3>
+          <h3>Nhiệm vụ không khớp tài khoản</h3>
           <button class="btn" data-goto="tasks" style="margin-top:14px">Về trang nhiệm vụ</button>
         </div></div>`;
       return;
@@ -2095,32 +2149,26 @@ async function renderTaskReturn(el, sessionId){
         <div style="min-height:100dvh;display:grid;place-items:center;padding:24px;background:var(--bg)">
           <div class="card" style="max-width:440px;width:100%;text-align:center">
             <div style="margin-bottom:14px;color:var(--ok);display:flex;justify-content:center">${icon('check',56,2.5)}</div>
-            <h3 style="margin-bottom:8px">Liên kết đã sử dụng</h3>
-            <p class="small muted" style="margin-bottom:20px">Mỗi link chỉ thưởng 1 lần. Hãy khởi tạo lượt làm việc tiếp theo.</p>
+            <h3 style="margin-bottom:8px">Nhiệm vụ đã hoàn thành</h3>
+            <p class="small muted" style="margin-bottom:20px">Bạn đã nhận thưởng cho lượt vượt link này trước đó.</p>
             <div class="btn-group" style="justify-content:center">
-              <button class="btn accent" data-goto="tasks">Khởi tạo lượt mới</button>
+              <button class="btn accent" data-goto="tasks">Kiếm tiền tiếp</button>
               <button class="btn ghost" data-goto="my-tasks">Xem lịch sử</button>
             </div>
           </div>
         </div>`;
       return;
     }
-
-    const awayTotal = Number(localStorage.getItem('task_away_'+sessionId)||0);
-    const elapsed = (Date.now() - Number(s.createdAtMs || 0))/1000;
-    if(awayTotal < 15 && elapsed < 15){
+    if(s.status === 'cancelled'){
       el.innerHTML = `
         <div style="min-height:100dvh;display:grid;place-items:center;padding:24px;background:var(--bg)">
           <div class="card" style="max-width:440px;width:100%;text-align:center">
-            <div style="margin-bottom:14px;color:var(--warn);display:flex;justify-content:center">${icon('clock',56,2)}</div>
-            <h3 style="margin-bottom:8px">Vui lòng chờ xác minh</h3>
-            <p class="small muted" style="margin-bottom:20px">Cần tương tác với link nhiệm vụ thêm <b id="rt-wait">${Math.ceil(15-awayTotal)}</b> giây.</p>
-            <button class="btn accent" id="rt-retry">Xác minh lại</button>
+            <div style="margin-bottom:14px;color:var(--danger);display:flex;justify-content:center">${icon('x',56,2)}</div>
+            <h3 style="margin-bottom:8px">Nhiệm vụ đã bị hủy / quá hạn</h3>
+            <p class="small muted" style="margin-bottom:20px">Nhiệm vụ này đã quá thời gian làm 10 phút hoặc bạn đã nhấn hủy.</p>
+            <button class="btn accent" data-goto="tasks">Làm nhiệm vụ khác</button>
           </div>
         </div>`;
-      let n = Math.ceil(15-awayTotal);
-      const t = setInterval(()=>{ n--; const el2=$('#rt-wait'); if(el2) el2.textContent=n; if(n<=0) clearInterval(t); }, 1000);
-      $('#rt-retry')?.addEventListener('click', ()=>renderTaskReturn(el, sessionId));
       return;
     }
 
@@ -2130,9 +2178,9 @@ async function renderTaskReturn(el, sessionId){
       <div style="min-height:100dvh;display:grid;place-items:center;padding:24px;background:var(--bg)">
         <div class="card" style="max-width:440px;width:100%;text-align:center">
           <div style="margin-bottom:14px;color:var(--accent);display:flex;justify-content:center">${icon('coin',56,2)}</div>
-          <h3 style="margin-bottom:8px">Xác nhận thành công!</h3>
+          <h3 style="margin-bottom:8px">Vượt link thành công!</h3>
           <p class="small muted" style="margin-bottom:20px">
-            <b style="color:var(--accent);font-size:1.2rem">+${fmtVND(s.reward)}</b> đã được cộng trực tiếp vào ví.
+            <b style="color:var(--accent);font-size:1.2rem">+${fmtVND(s.reward)}</b> đã được cộng trực tiếp vào ví của bạn.
           </p>
           <div class="btn-group" style="justify-content:center">
             <button class="btn accent" data-goto="tasks">Tạo lượt mới</button>
