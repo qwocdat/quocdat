@@ -312,6 +312,7 @@ const firebaseConfig = {
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
+
 /* ============================================================
    CONSTANTS & STATE
    ============================================================ */
@@ -359,180 +360,7 @@ const LQ_DURATIONS = [
 /* ============================================================
    UTILS
    ============================================================ */
-const $=(s,r=document)=>r.querySelector(s); const$$=(s,r=document)=>Array.from(r.querySelectorAll(s));
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const fmtVND=n=>Number(n||0).toLocaleString('vi-VN')+'đ';
-const fmtNum=n=>Number(n||0).toLocaleString('vi-VN');
-function toDate(ts){ if(!ts) return null; return ts.toDate ? ts.toDate() : new Date(ts); }
-function fmtDate(ts){ const d=toDate(ts); return d? d.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric'}) : '—'; }
-function fmtDateTime(ts){ const d=toDate(ts); return d? d.toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—'; }
-function timeAgo(ts){
-  const d=toDate(ts); if(!d) return '—';
-  const s=(Date.now()-d.getTime())/1000;
-  if(s<60) return 'vừa xong';
-  if(s<3600) return Math.floor(s/60)+' phút trước';
-  if(s<86400) return Math.floor(s/3600)+' giờ trước';
-  if(s<2592000) return Math.floor(s/86400)+' ngày trước';
-  return fmtDate(ts);
-}
-function uid(len=10){
-  const c='abcdefghijkmnpqrstuvwxyz23456789';
-  const a=crypto.getRandomValues(new Uint8Array(len));
-  let s=''; for(let i=0;i<len;i++) s+=c[a[i]%c.length];
-  return s;
-}
-const isEmail=v=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
-function safeUrl(v){ try{const u=new URL(v); if(!['http:','https:'].includes(u.protocol)) return null; return u.toString();}catch{return null;} }
-async function sha256(str){
-  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-function startOfDay(d=new Date()){ const x=new Date(d); x.setHours(0,0,0,0); return x; }
-function daysAgo(n){ const x=new Date(); x.setDate(x.getDate()-n); x.setHours(0,0,0,0); return x; }
-function parseQuery(){
-  const hash = location.hash || '';
-  const qi = hash.indexOf('?');
-  if(qi === -1) return {};
-  const qs = hash.slice(qi+1);
-  const out = {};
-  qs.split('&').forEach(p=>{
-    const [k,v] = p.split('=');
-    if(k) out[decodeURIComponent(k)] = decodeURIComponent(v||'');
-  });
-  return out;
-}
-/* ============================================================
-   TOAST / MODAL
-   ============================================================ */
-function toast(msg,type='info'){
-  const root=$('#toast-root'); if(!root) return;
-  const t=document.createElement('div'); t.className='toast '+type;
-  t.innerHTML=`<span class="bar"></span><span>${esc(msg)}</span>`;
-  root.appendChild(t);
-  requestAnimationFrame(()=>t.classList.add('show'));
-  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),350);},3400);
-}
-function confirmModal({title,message,confirmText='Xác nhận',cancelText='Huỷ',danger=false}){
-  return new Promise(resolve=>{
-    const back=document.createElement('div'); back.className='modal-back';
-    back.innerHTML=`
-      <div class="modal" role="dialog" aria-modal="true">
-        <h3>${esc(title)}</h3>
-        <p style="font-size:.9rem;line-height:1.6;margin:10px 0 22px">${esc(message)}</p>
-        <div class="btn-group" style="justify-content:flex-end">
-          <button class="btn ghost" data-x="cancel">${esc(cancelText)}</button>
-          <button class="btn ${danger?'danger':''}" data-x="ok">${esc(confirmText)}</button>
-        </div>
-      </div>`;
-    const close=v=>{back.remove();resolve(v);};
-    back.addEventListener('click',e=>{
-      if(e.target===back) close(false);
-      const b=e.target.closest('[data-x]'); if(!b) return;
-      close(b.dataset.x==='ok');
-    });
-    $('#modal-root').appendChild(back);
-  });
-}
-
-/* ============================================================
-   ICONS
-   ============================================================ */
-const ICON={
-  menu:'<path d="M3 6h18M3 12h18M3 18h18"/>',
-  home:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>',
-  link:'<path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5"/>',
-  plus:'<path d="M12 5v14M5 12h14"/>',
-  chart:'<path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/>',
-  video:'<rect x="2" y="5" width="14" height="14" rx="2"/><path d="m16 10 6-3v10l-6-3"/>',
-  wallet:'<rect x="2" y="6" width="20" height="14" rx="3"/><path d="M16 13h3"/>',
-  cash:'<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>',
-  list:'<path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1.2"/><circle cx="3.5" cy="12" r="1.2"/><circle cx="3.5" cy="18" r="1.2"/>',
-  users:'<circle cx="9" cy="8" r="3.2"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16.5 5.2a3.2 3.2 0 0 1 0 5.6"/><path d="M18 20a6.5 6.5 0 0 0-2-4.6"/>',
-  shield:'<path d="M12 3 4 6v6c0 5 3.4 8.4 8 9 4.6-.6 8-4 8-9V6l-8-3Z"/>',
-  settings:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',
-  help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.6 2.6 0 1 1 3.4 2.5c-.6.2-.9.8-.9 1.5v.3"/><circle cx="12" cy="17" r=".6" fill="currentColor"/>',
-  bell:'<path d="M6 9a6 6 0 1 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
-  logout:'<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 17l-5-5 5-5"/><path d="M5 12h11"/>',
-  copy:'<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
-  trash:'<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>',
-  ext:'<path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
-  check:'<path d="m4 12 5 5L20 6"/>',
-  x:'<path d="M6 6l12 12M18 6 6 18"/>',
-  moon:'<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>',
-  arrow:'<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/>',
-  net:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18Z"/>',
-  scale:'<path d="M12 3v18"/><path d="M5 7h14"/><path d="m5 7-3 7h6L5 7Z"/><path d="m19 7-3 7h6l-3-7Z"/>',
-  doc:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5"/>',
-  shop:'<path d="M3 9 4 4h16l1 5"/><path d="M4 9v11h16V9"/><path d="M9 22V14h6v8"/>',
-  game:'<rect x="2" y="7" width="20" height="12" rx="3"/><path d="M7 12h2M8 11v2M15 12h.01M18 12h.01M16 10h.01M16 14h.01"/>',
-  box:'<path d="m21 8-9-5-9 5 9 5 9-5Z"/><path d="m3 8v8l9 5 9-5V8"/><path d="M12 13v8"/>',
-  receipt:'<path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/>',
-  trend:'<path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
-  coin:'<circle cx="12" cy="12" r="9"/><path d="M15 9.5c0-1-1.3-1.8-3-1.8s-3 .8-3 1.8 1 1.6 3 2 3 1 3 2-1.3 1.8-3 1.8-3-.8-3-1.8M12 6v12"/>',
-  lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
-  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
-};
-function icon(name,size=17,sw=1.8){
-  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[name]||''}</svg>`;
-}
-
-/* ============================================================
-   CAPTCHA
-   ============================================================ */
-const CAPTCHA_PAIRS = [
-  ['🍎','🍏'],['🐶','🐺'],['🚗','🚙'],['⭐','🌟'],['🍕','🥧'],
-  ['🐱','🐯'],['🌞','🌝'],['🎈','🎀'],['⚽','🏀'],['🌸','🌺'],
-  ['🍔','🍟'],['🐸','🐢'],['🎩','Dưới đây là **PART 2/5**:
-
-```html
-/* ============================================================
-   CONSTANTS & STATE
-   ============================================================ */
-const MIN_WITHDRAW = 5000;
-
-const S = {
-  user:null, profile:null, wallet:null,
-  seller:null, networks:[], campaigns:[],
-  lqKeys:[], drawerOpen:false,
-  route:'home', param:null, query:null, ready:false, bootError:null,
-  unsubWallet:null, unsubProfile:null, unsubSeller:null,
-};
-const THEME_KEY='linkora_theme';
-document.documentElement.setAttribute('data-theme', localStorage.getItem(THEME_KEY)||'light');
-
-const DEFAULT_NETWORKS = [
-  { id:'traffictop', name:'TrafficTop', website:'[https://traffictop.net](https://traffictop.net)', taskType:'keyword', grossRate:400, currency:'VND', userSharePercent:60, platformSharePercent:40, minPayout:50000, maxViewsPerIpPerDay:1, maxViewsPerDevicePerDay:1, cooldownSeconds:86400, enabled:true, apiStatus:'manual', countries:['VN'], note:'Rate tham chiếu.' },
-  { id:'linktop', name:'LinkTop', website:'[https://linktop.one](https://linktop.one)', taskType:'direct', grossRate:380, currency:'VND', userSharePercent:60, platformSharePercent:40, minPayout:50000, maxViewsPerIpPerDay:1, maxViewsPerDevicePerDay:1, cooldownSeconds:86400, enabled:true, apiStatus:'manual', countries:['VN'], note:'Rate tham chiếu.' },
-  { id:'lentop', name:'LenTop', website:'[https://lentop.one](https://lentop.one)', taskType:'direct', grossRate:350, currency:'VND', userSharePercent:60, platformSharePercent:40, minPayout:50000, maxViewsPerIpPerDay:1, maxViewsPerDevicePerDay:1, cooldownSeconds:86400, enabled:true, apiStatus:'manual', countries:['VN'], note:'Rate tham chiếu.' },
-  { id:'bbmkts', name:'BBMKTS', website:'[https://bbmkts.com](https://bbmkts.com)', taskType:'direct', grossRate:320, currency:'VND', userSharePercent:60, platformSharePercent:40, minPayout:50000, maxViewsPerIpPerDay:1, maxViewsPerDevicePerDay:1, cooldownSeconds:86400, enabled:true, apiStatus:'manual', countries:['VN'], note:'Rate tham chiếu.' },
-  { id:'link4m', name:'Link4M', website:'[https://link4m.co](https://link4m.co)', taskType:'direct', grossRate:300, currency:'VND', userSharePercent:60, platformSharePercent:40, minPayout:50000, maxViewsPerIpPerDay:1, maxViewsPerDevicePerDay:1, cooldownSeconds:86400, enabled:true, apiStatus:'manual', countries:['VN'], note:'Rate tham chiếu.' },
-];
-
-const NET_AVATAR = {
-  link4m:     { text:'L4M', color:'#7c3aed' },
-  lentop:     { text:'LTP', color:'#0891b2' },
-  linktop:    { text:'LKT', color:'#ea580c' },
-  traffictop: { text:'TFT', color:'#16a34a' },
-  bbmkts:     { text:'BBM', color:'#dc2626' },
-  _default:   { text:'LNK', color:'#2563eb' },
-};
-function netAvatarHTML(networkId, size=48){
-  const a = NET_AVATAR[networkId] || NET_AVATAR._default;
-  return `<div class="task-avatar" style="background:${a.color};width:${size}px;height:${size}px">${a.text}</div>`;
-}
-
-const LQ_DURATIONS = [
-  { id:'1d',   label:'1 ngày',   short:'1D',  color:'#0891b2' },
-  { id:'15d',  label:'15 ngày',  short:'15D', color:'#2563eb' },
-  { id:'30d',  label:'30 ngày',  short:'30D', color:'#7c3aed' },
-  { id:'90d',  label:'90 ngày',  short:'90D', color:'#ea580c' },
-  { id:'forever', label:'Vĩnh viễn', short:'∞', color:'#059669' },
-];
-
-/* ============================================================
-   UTILS
-   ============================================================ */
-const $=(s,r=document)=>r.querySelector(s); const$$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtVND=n=>Number(n||0).toLocaleString('vi-VN')+'đ';
 const fmtNum=n=>Number(n||0).toLocaleString('vi-VN');
@@ -658,7 +486,7 @@ const CAPTCHA_PAIRS = [
   ['🍔','🍟'],['🐸','🐢'],['🎩','👒'],['🥑','🥝'],['📘','📗'],
 ];
 const Captcha = {
-  target:null, pool:null, solved:false, nonce:0,
+  target:null, pool:null, solved:false, nonce:0, _idx:0,
   generate(){
     const [a,b] = CAPTCHA_PAIRS[Math.floor(Math.random()*CAPTCHA_PAIRS.length)];
     const flip = Math.random()<.5;
@@ -690,7 +518,7 @@ const Captcha = {
   init(){
     this._idx = Math.floor(Math.random()*9);
     this.solved = false;
-    this.generate(); this._idx = Math.floor(Math.random()*9);
+    this.generate();
   },
   attach(root){
     if(!root) return;
@@ -787,6 +615,7 @@ async function loadLQKeys(){
   }catch{ S.lqKeys=[]; }
   return S.lqKeys;
 }
+
 /* ============================================================
    ROUTER
    ============================================================ */
@@ -803,7 +632,6 @@ function render(){
   const { route, param, query }=parseHash();
   S.route=route; S.param=param; S.query=query;
   const el=$('#app');
-  if(!el) return;
 
   if(route==='s' && param) return renderRedirect(el,param);
   if(route==='task-return' && param){ renderTaskReturn(el,param); return; }
@@ -1471,7 +1299,6 @@ async function handleAuthSubmit(mode){
       const cred = await createUserWithEmailAndPassword(auth,email,pass);
       if(name) await updateProfile(cred.user,{displayName:name});
 
-      // FIX REFERRAL: Retry lưu referredBy chắc chắn sau khi ensureProfile khởi tạo
       try{
         const refCode = new URLSearchParams((location.hash.split('?')[1]||'')).get('ref');
         if(refCode){
@@ -1991,13 +1818,11 @@ async function doTask(taskId){
   const cd = getTaskCooldownRemaining(task.id, Number(task.cooldown||0));
   if(cd>0){ toast(`Chờ ${cd}s nữa.`,'warn'); return; }
 
-  // THIẾT LẬP ID PHIÊN TỰ ĐỘNG & HASH CHỐNG BYPASS
   const sessionId = uid(18);
   const userIp = await getMyIp();
   const deviceHash = await getDeviceHash();
   const rewardAmt = Number(task.reward||0);
   
-  // Mã hoá hash kết hợp: TaskID + SessionID + UserUID + IPv4 + RewardAmount
   const secureHash = await sha256(`${task.id}|${sessionId}|${S.user.uid}|${userIp}|${rewardAmt}`);
   const returnUrl = `${location.origin}${location.pathname}#/task-return/${sessionId}`;
 
@@ -2015,7 +1840,7 @@ async function doTask(taskId){
       deviceHash,
       returnUrl,
       status: 'pending',
-      used: false, // Ngăn tái sử dụng 1 link nhiều lần
+      used: false,
       createdAt: serverTimestamp(),
       expiresAt: new Date(Date.now() + 30*60*1000),
       createdAtMs: Date.now(),
@@ -2045,7 +1870,6 @@ async function doTask(taskId){
   };
   document.addEventListener('visibilitychange', _visibilityTrackerFn);
 
-  // Link đích chứa tham số Session ID & Hash đã kiểm duyệt từ Firebase
   const targetWithHash = (task.targetUrl || `${location.origin}${location.pathname}#/tasks`) + 
     `?sid=${sessionId}&thash=${secureHash}`;
 
@@ -2117,7 +1941,6 @@ async function completeTask(sessionId){
       return; 
     }
 
-    // Kiểm tra Hash trùng khớp chống Bypass dữ liệu
     const currentIp = await getMyIp();
     const expectedHash = await sha256(`${session.taskId}|${sessionId}|${S.user.uid}|${session.userIp}|${session.reward}`);
     if(session.secureHash !== expectedHash){
@@ -2173,7 +1996,6 @@ async function completeTask(sessionId){
         createdAt: serverTimestamp(),
       });
 
-      // ĐÁNH DẤU PHIÊN ĐÃ SỬ DỤNG - CHỈ DÙNG ĐƯỢC 1 LẦN
       tx.update(sessionRef, {
         status: 'completed',
         used: true,
@@ -2181,7 +2003,6 @@ async function completeTask(sessionId){
       });
     });
 
-    // CHIA HOA HỒNG REFERRAL TRỰC TIẾP TỰ ĐỘNG
     try{
       const refUser = S.profile?.referredBy;
       if(refUser && refUser !== S.user.uid){
@@ -2254,8 +2075,7 @@ async function renderTaskReturn(el, sessionId){
     const snap = await getDoc(doc(db,'taskSessions',sessionId));
     if(!snap.exists()){
       el.innerHTML = `<div style="min-height:100dvh;display:grid;place-items:center;padding:24px">
-        <div class="card center" style="max-width:420px">
-          <h3 style="margin-bottom:10px">Phiên không tồn tại</h3>
+        <div class="card center" style="max-width:420px"><h3 style="margin-bottom:10px">Phiên không tồn tại</h3>
           <p class="small muted" style="margin-bottom:16px">Liên kết này không do hệ thống khởi tạo hoặc đã hết hạn.</p>
           <button class="btn" data-goto="tasks">Về trang nhiệm vụ</button>
         </div></div>`;
@@ -2325,6 +2145,7 @@ async function renderTaskReturn(el, sessionId){
     nav('tasks');
   }
 }
+
 /* ============================================================
    REFERRALS (real)
    ============================================================ */
@@ -2457,7 +2278,6 @@ async function handleCreateLink(){
   const alias=($('#cl-alias')?.value||'').trim().toLowerCase();
   const err=$('#cl-error');
   const btn=$('#cl-submit');
-  if(!err || !btn) return;
   err.classList.add('hidden');
   const safe=safeUrl(url);
   if(!safe){ err.textContent='URL không hợp lệ.'; err.classList.remove('hidden'); return; }
@@ -2473,17 +2293,14 @@ async function handleCreateLink(){
       status:'active', createdAt:serverTimestamp(),
     });
     const shortUrl=`${location.origin}${location.pathname}#/s/${slug}`;
-    const resEl = $('#cl-result');
-    if(resEl){
-      resEl.classList.remove('hidden');
-      resEl.innerHTML=`
-        <div class="notice ok" style="margin-bottom:16px">${icon('check',16)}<span>Đã tạo shortlink.</span></div>
-        <div class="field"><label>Short URL</label>
-          <div class="copy-field"><input readonly value="${esc(shortUrl)}" id="short-out" />
-            <button class="btn xs" data-copy="#short-out" type="button">${icon('copy',14)} Copy</button>
-          </div>
-        </div>`;
-    }
+    $('#cl-result').classList.remove('hidden');
+    $('#cl-result').innerHTML=`
+      <div class="notice ok" style="margin-bottom:16px">${icon('check',16)}<span>Đã tạo shortlink.</span></div>
+      <div class="field"><label>Short URL</label>
+        <div class="copy-field"><input readonly value="${esc(shortUrl)}" id="short-out" />
+          <button class="btn xs" data-copy="#short-out" type="button">${icon('copy',14)} Copy</button>
+        </div>
+      </div>`;
     toast('Đã tạo shortlink.','ok');
   }catch(e){
     err.textContent='Không thể tạo.'; err.classList.remove('hidden');
@@ -2577,7 +2394,7 @@ function viewCreator(){
       <div class="card-title" style="margin-bottom:14px">Quy trình xác minh</div>
       <div style="display:flex;flex-direction:column;gap:14px">
         ${[['Pending','Vừa gửi.'],['Reviewing','Admin đang xem.'],['Approved','Đạt KPI, ghi nhận thưởng.'],['Rejected','Không đạt.'],['Fraud','Có dấu hiệu gian lận.']].map(([s,d])=>`
-          <div><span class="badge ${s==='Approved'?'ok':(s==='Rejected'||s==='Fraud')?'danger':s==='Reviewing'?'warn':''}">${s}</span>
+          <div><span class="badge ${s==='Approved'?'ok':s==='Rejected'||s==='Fraud'?'danger':s==='Reviewing'?'warn':''}">${s}</span>
           <p class="tiny muted" style="line-height:1.55;margin-top:4px">${d}</p></div>`).join('')}
       </div>
     </div>
@@ -2588,16 +2405,15 @@ function viewCreator(){
   </div>`;
 }
 async function handleCreatorSubmit(){
-  const platform=$('#cr-platform')?.value||'tiktok';
-  const url=$('#cr-url')?.value.trim()||'';
-  const title=$('#cr-title')?.value.trim()||'';
-  const views=Number($('#cr-views')?.value||0);
-  const likes=Number($('#cr-likes')?.value||0);
-  const comments=Number($('#cr-comments')?.value||0);
-  const desc=$('#cr-desc')?.value.trim()||'';
+  const platform=$('#cr-platform').value;
+  const url=$('#cr-url').value.trim();
+  const title=$('#cr-title').value.trim();
+  const views=Number($('#cr-views').value||0);
+  const likes=Number($('#cr-likes').value||0);
+  const comments=Number($('#cr-comments').value||0);
+  const desc=$('#cr-desc').value.trim();
   const err=$('#cr-error');
   const btn=$('#cr-submit');
-  if(!err || !btn) return;
   err.classList.add('hidden');
   const safe=safeUrl(url);
   if(!safe){ err.textContent='URL không hợp lệ.'; err.classList.remove('hidden'); return; }
@@ -2616,8 +2432,7 @@ async function handleCreatorSubmit(){
       submittedAt:serverTimestamp(), status:'pending', fraudScore:score, fraudReasons:reasons, reward:0,
     });
     toast('Đã gửi submission.','ok');
-    const form = $('#creator-form'); if(form) form.reset();
-    loadSubmissions();
+    $('#creator-form').reset(); loadSubmissions();
   }catch(e){ err.textContent='Không thể gửi.'; err.classList.remove('hidden'); }
   finally{ btn.disabled=false; btn.innerHTML=old; }
 }
@@ -2732,12 +2547,11 @@ function viewWithdraw(){
   </div>`;
 }
 async function handleWithdraw(){
-  const amount=Number($('#w-amount')?.value||0);
-  const bank=$('#w-bank')?.value.trim()||'';
-  const acc=$('#w-acc')?.value.trim()||'';
-  const accName=$('#w-name')?.value.trim()||'';
+  const amount=Number($('#w-amount').value||0);
+  const bank=$('#w-bank').value.trim();
+  const acc=$('#w-acc').value.trim();
+  const accName=$('#w-name').value.trim();
   const err=$('#w-error'); const btn=$('#w-submit');
-  if(!err || !btn) return;
   err.classList.add('hidden');
   const balance=Number(S.wallet?.balance||0);
   const MIN=MIN_WITHDRAW;
@@ -2761,9 +2575,7 @@ async function handleWithdraw(){
       details:{ bankName:bank, accountNumber:acc, accountName:accName },
       status:'pending', note:'', txCode:'', createdAt:serverTimestamp(),
     });
-    toast('Đã gửi yêu cầu.','ok');
-    const form = $('#withdraw-form'); if(form) form.reset();
-    loadWithdrawHistory();
+    toast('Đã gửi yêu cầu.','ok'); $('#withdraw-form').reset(); loadWithdrawHistory();
   }catch(e){ err.textContent='Không thể gửi.'; err.classList.remove('hidden'); }
   finally{ btn.disabled=false; btn.innerHTML=old; }
 }
@@ -2865,12 +2677,11 @@ function viewSettings(){
   </div>`;
 }
 async function saveSettings(){
-  const name=$('#set-name')?.value.trim()||'';
+  const name=$('#set-name').value.trim();
   if(!name){ toast('Tên không được để trống.','err'); return; }
   try{
     await updateDoc(doc(db,'users',S.user.uid),{displayName:name});
-    if(S.profile) S.profile.displayName=name;
-    toast('Đã lưu.','ok'); render();
+    S.profile.displayName=name; toast('Đã lưu.','ok'); render();
   }catch{ toast('Không thể lưu.','err'); }
 }
 
@@ -2914,20 +2725,18 @@ function viewSupport(){
   </div>`;
 }
 async function handleTicket(){
-  const subject=$('#t-subject')?.value.trim()||'';
-  const category=$('#t-category')?.value||'general';
-  const body=$('#t-body')?.value.trim()||'';
+  const subject=$('#t-subject').value.trim();
+  const category=$('#t-category').value;
+  const body=$('#t-body').value.trim();
   if(!subject||!body){ toast('Điền tiêu đề và nội dung.','err'); return; }
-  const btn=$('#t-submit'); if(btn) btn.disabled=true;
+  const btn=$('#t-submit'); btn.disabled=true;
   try{
     await addDoc(collection(db,'supportTickets'),{
       userId:S.user.uid, userEmail:S.user.email||'', subject, category, body,
       status:'open', createdAt:serverTimestamp(),
     });
-    toast('Đã gửi ticket.','ok');
-    const form = $('#ticket-form'); if(form) form.reset();
-    loadTickets();
-  }catch{ toast('Không thể gửi.','err'); } finally{ if(btn) btn.disabled=false; }
+    toast('Đã gửi ticket.','ok'); $('#ticket-form').reset(); loadTickets();
+  }catch{ toast('Không thể gửi.','err'); } finally{ btn.disabled=false; }
 }
 async function loadTickets(){
   const box=$('#tickets-box'); if(!box) return;
@@ -2945,7 +2754,6 @@ async function loadTickets(){
         <td class="tiny muted-3">${timeAgo(r.createdAt)}</td></tr>`).join('')}</tbody></table></div>`;
   }catch{ box.innerHTML=renderEmptyState('Không thể tải','','x'); }
 }
-
 /* ============================================================
    SELLER MODULE
    ============================================================ */
@@ -3019,12 +2827,11 @@ function viewSellerRegister(){
   </div>`;
 }
 async function handleSellerRegister(){
-  const shopName=$('#sr-shop')?.value.trim()||'';
-  const phone=$('#sr-phone')?.value.trim()||'';
-  const category=$('#sr-cat')?.value||'digital';
-  const description=$('#sr-desc')?.value.trim()||'';
+  const shopName=$('#sr-shop').value.trim();
+  const phone=$('#sr-phone').value.trim();
+  const category=$('#sr-cat').value;
+  const description=$('#sr-desc').value.trim();
   const err=$('#sr-error'); const btn=$('#sr-submit');
-  if(!err || !btn) return;
   err.classList.add('hidden');
   if(!shopName){ err.textContent='Tên shop không được để trống.'; err.classList.remove('hidden'); return; }
   if(!phone || phone.length<8){ err.textContent='SĐT không hợp lệ.'; err.classList.remove('hidden'); return; }
@@ -3192,13 +2999,12 @@ async function loadSellerProducts(){
   }catch{ box.innerHTML=renderEmptyState('Không thể tải','','x'); }
 }
 async function handleAddProduct(){
-  const name=$('#pr-name')?.value.trim()||'';
-  const price=Number($('#pr-price')?.value||0);
-  const cost=Number($('#pr-cost')?.value||0);
-  const stock=Number($('#pr-stock')?.value||0);
-  const note=$('#pr-note')?.value.trim()||'';
+  const name=$('#pr-name').value.trim();
+  const price=Number($('#pr-price').value||0);
+  const cost=Number($('#pr-cost').value||0);
+  const stock=Number($('#pr-stock').value||0);
+  const note=$('#pr-note').value.trim();
   const err=$('#pr-error'); const btn=$('#pr-submit');
-  if(!err || !btn) return;
   err.classList.add('hidden');
   if(!name){ err.textContent='Tên sản phẩm không được để trống.'; err.classList.remove('hidden'); return; }
   if(price<0||cost<0||stock<0){ err.textContent='Số không hợp lệ.'; err.classList.remove('hidden'); return; }
@@ -3209,8 +3015,7 @@ async function handleAddProduct(){
       createdAt:serverTimestamp(),
     });
     toast('Đã thêm sản phẩm.','ok');
-    const form = $('#product-form'); if(form) form.reset();
-    loadSellerProducts();
+    $('#product-form').reset(); loadSellerProducts();
   }catch{ err.textContent='Không thể thêm.'; err.classList.remove('hidden'); }
   finally{ btn.disabled=false; btn.innerHTML=old; }
 }
@@ -3264,8 +3069,8 @@ async function loadSellerSales(){
       sel.addEventListener('change',()=>{
         const o=sel.selectedOptions[0];
         if(o && o.value){
-          const pEl = $('#sl-price'); if(pEl) pEl.value=o.dataset.price||0;
-          const cEl = $('#sl-cost'); if(cEl) cEl.value=o.dataset.cost||0;
+          $('#sl-price').value=o.dataset.price||0;
+          $('#sl-cost').value=o.dataset.cost||0;
         }
       });
     }catch{}
@@ -3296,13 +3101,12 @@ async function loadSellerSales(){
 }
 async function handleAddSale(){
   const sel=$('#sl-product');
-  const pid=sel?.value||'';
-  const qty=Number($('#sl-qty')?.value||1);
-  const price=Number($('#sl-price')?.value||0);
-  const cost=Number($('#sl-cost')?.value||0);
-  const note=$('#sl-note')?.value.trim()||'';
+  const pid=sel.value;
+  const qty=Number($('#sl-qty').value||1);
+  const price=Number($('#sl-price').value||0);
+  const cost=Number($('#sl-cost').value||0);
+  const note=$('#sl-note').value.trim();
   const err=$('#sl-error'); const btn=$('#sl-submit');
-  if(!err || !btn) return;
   err.classList.add('hidden');
   if(!pid){ err.textContent='Chọn sản phẩm.'; err.classList.remove('hidden'); return; }
   if(qty<1){ err.textContent='Số lượng tối thiểu 1.'; err.classList.remove('hidden'); return; }
@@ -3323,8 +3127,7 @@ async function handleAddSale(){
       createdAt:serverTimestamp(),
     });
     toast('Đã ghi nhận đơn.','ok');
-    const form = $('#sale-form'); if(form) form.reset();
-    const qtyEl = $('#sl-qty'); if(qtyEl) qtyEl.value=1;
+    $('#sale-form').reset(); $('#sl-qty').value=1;
     loadSellerSales();
   }catch(e){ err.textContent='Không thể ghi đơn.'; err.classList.remove('hidden'); }
   finally{ btn.disabled=false; btn.innerHTML=old; }
@@ -3472,19 +3275,17 @@ async function loadSellerFinance(){
   }catch{}
 }
 async function handleAddFinance(){
-  const type=$('#fn-type')?.value||'income';
-  const category=$('#fn-cat')?.value||'sale';
-  const amount=Number($('#fn-amount')?.value||0);
-  const note=$('#fn-note')?.value.trim()||'';
+  const type=$('#fn-type').value;
+  const category=$('#fn-cat').value;
+  const amount=Number($('#fn-amount').value||0);
+  const note=$('#fn-note').value.trim();
   if(amount<=0){ toast('Số tiền phải > 0.','err'); return; }
   try{
     await addDoc(collection(db,'sellerTransactions'),{
       sellerId:S.user.uid, type, category, amount, note,
       createdAt:serverTimestamp(),
     });
-    toast('Đã thêm.','ok');
-    const form = $('#fin-form'); if(form) form.reset();
-    loadSellerFinance();
+    toast('Đã thêm.','ok'); $('#fin-form').reset(); loadSellerFinance();
   }catch{ toast('Không thể thêm.','err'); }
 }
 
@@ -3687,9 +3488,28 @@ document.addEventListener('click', async (e)=>{
   if(cpt){ try{ await navigator.clipboard.writeText(cpt.dataset.copyText); toast('Đã copy.','ok'); }catch{ toast('Không thể copy.','err'); } return; }
 
   if(t.closest('#ref-share-btn')){
-    const link = $('#ref-link')?.value \vert{}\vert{} '';     try{       if(navigator.share) await navigator.share({ title:'Linkora', text:'Kiếm tiền cùng Linkora', url: link });       else { await navigator.clipboard.writeText(link); toast('Đã copy link.','ok'); }     }catch{}     return;   }    const faqBtn=t.closest('.faq-q');   if(faqBtn){     const item=faqBtn.parentElement;     const ans=item.querySelector('.faq-a');     const isOpen=item.classList.contains('open');     document.querySelectorAll('.faq-item.open').forEach(x=>{ x.classList.remove('open'); x.querySelector('.faq-a').style.maxHeight='0px'; });     if(!isOpen){ item.classList.add('open'); ans.style.maxHeight=ans.scrollHeight+'px'; }     return;   }    const rangeBtn=t.closest('[data-range]');   if(rangeBtn){     $$('#stats-range button').forEach(b=>b.classList.remove('soft'));
+    const link = $('#ref-link')?.value || '';
+    try{
+      if(navigator.share) await navigator.share({ title:'Linkora', text:'Kiếm tiền cùng Linkora', url: link });
+      else { await navigator.clipboard.writeText(link); toast('Đã copy link.','ok'); }
+    }catch{}
+    return;
+  }
+
+  const faqBtn=t.closest('.faq-q');
+  if(faqBtn){
+    const item=faqBtn.parentElement;
+    const ans=item.querySelector('.faq-a');
+    const isOpen=item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(x=>{ x.classList.remove('open'); x.querySelector('.faq-a').style.maxHeight='0px'; });
+    if(!isOpen){ item.classList.add('open'); ans.style.maxHeight=ans.scrollHeight+'px'; }
+    return;
+  }
+
+  const rangeBtn=t.closest('[data-range]');
+  if(rangeBtn){
+    $$('#stats-range button').forEach(b=>b.classList.add('soft'));
     rangeBtn.classList.remove('soft');
-    document.querySelectorAll('#stats-range button').forEach(b=>{ if(b!==rangeBtn) b.classList.add('soft'); });
     loadSellerStats(rangeBtn.dataset.range);
     return;
   }
