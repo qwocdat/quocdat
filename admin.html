@@ -8,14 +8,16 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%}
-body{min-height:100dvh;line-height:1.5;-webkit-font-smoothing:antialiased}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+body{min-height:100dvh;line-height:1.5;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 img,svg{display:block;max-width:100%}
-input,button,select,textarea{font:inherit;color:inherit;background:transparent;border:0;outline:0;-webkit-appearance:none;border-radius:0}
+input,button,select,textarea{font:inherit;color:inherit;background:transparent;border:0;outline:0;-webkit-appearance:none;border-radius:0;-webkit-tap-highlight-color:transparent}
 button{cursor:pointer}
-a{color:inherit;text-decoration:none}
+a{color:inherit;text-decoration:none;-webkit-tap-highlight-color:transparent}
 table{border-collapse:collapse;width:100%}
+input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 1000px var(--bg-soft) inset !important;-webkit-text-fill-color:var(--text) !important;transition:background-color 9999s ease-in-out 0s}
+::selection{background:rgba(37,99,235,.18);color:var(--text)}
 :root{
   --bg:#fff;--bg-soft:#fafafa;--bg-sunken:#f4f4f5;--text:#111;--text-2:#666;--text-3:#9a9a9a;
   --border:rgba(0,0,0,.08);--border-2:rgba(0,0,0,.14);--card:#fff;
@@ -56,9 +58,10 @@ h1{font-size:1.5rem}h2{font-size:1.2rem}h3{font-size:1rem}
 .input,.select,.textarea{width:100%;height:42px;padding:0 13px;background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;font-size:.88rem}
 .textarea{height:auto;min-height:100px;padding:12px 13px;line-height:1.5;resize:vertical}
 .select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;cursor:pointer}
-.input:focus,.select:focus,.textarea:focus{border-color:var(--accent);background:var(--bg);box-shadow:0 0 0 4px var(--accent-soft)}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--accent);background:var(--bg);box-shadow:0 0 0 4px var(--accent-soft);outline:none}
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
 .field>label{font-size:.78rem;font-weight:600;color:var(--text-2)}
+.hint{font-size:.72rem;color:var(--text-3);line-height:1.45;margin-top:2px}
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px}
 .card-title{font-size:.92rem;font-weight:650}
 .stat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:8px}
@@ -119,6 +122,8 @@ table tbody tr:hover{background:var(--bg-soft)}
 .modal{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px;max-width:460px;width:100%;box-shadow:var(--shadow)}
 .auth-wrap{min-height:100dvh;display:grid;place-items:center;padding:24px}
 .auth-card{width:100%;max-width:400px}
+.copy-box{background:var(--bg-sunken);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-family:'SF Mono',monospace;font-size:.82rem;word-break:break-all;cursor:pointer;transition:background .15s}
+.copy-box:hover{background:var(--bg-soft)}
 </style>
 </head>
 <body>
@@ -127,14 +132,8 @@ table tbody tr:hover{background:var(--bg-soft)}
 <div id="modal-root"></div>
 
 <script type="module">
-/* ============================================================
-   FIREBASE — CHỈ DÙNG FIRESTORE
-   ============================================================ */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection,
-  query, where, limit, getDocs, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection, query, where, limit, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAUuV5euNNLHE2Cf6tXzUHV-ChKwNF593Y",
@@ -145,12 +144,9 @@ const firebaseConfig = {
   appId: "1:685476439350:web:949054ecba7f0a0c383f97"
 };
 const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
+const db = getFirestore(app);
 
-/* ============================================================
-   SUPABASE STORAGE
-   ============================================================ */
-const SUPABASE_URL  = 'https://ahyvakkgziwdmweyzyoe.supabase.co';
+const SUPABASE_URL = 'https://ahyvakkgziwdmweyzyoe.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoeXZha2tneml3ZG13ZXl6eW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2MDI1NTEsImV4cCI6MjEwNjE3ODU1MX0.KYRSNIx1hp_9zUq0a_Noo31b-BwbVVxLewU_3qdjhWY';
 const SUPABASE_BUCKET = 'file';
 
@@ -164,22 +160,14 @@ async function supaUpload(bucket, file, opts={}){
   const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2,10)}.${ext}`;
   const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${bucket}/${path}`,{
     method:'POST',
-    headers:{
-      'Authorization': `Bearer ${SUPABASE_ANON}`,
-      'apikey': SUPABASE_ANON,
-      'Content-Type': file.type,
-      'x-upsert': 'true',
-    },
+    headers:{ 'Authorization': `Bearer ${SUPABASE_ANON}`, 'apikey': SUPABASE_ANON, 'Content-Type': file.type, 'x-upsert': 'true' },
     body:file,
   });
   if(!res.ok){ const t = await res.text(); throw new Error('Upload lỗi: ' + t); }
   return { path, url:`${SUPABASE_URL}/storage/v1/object/public/${bucket}/${path}` };
 }
 function supaDelete(bucket, path){
-  return fetch(`${SUPABASE_URL}/storage/v1/object/${bucket}/${path}`,{
-    method:'DELETE',
-    headers:{ 'Authorization': `Bearer ${SUPABASE_ANON}`, 'apikey': SUPABASE_ANON },
-  }).catch(()=>{});
+  return fetch(`${SUPABASE_URL}/storage/v1/object/${bucket}/${path}`,{ method:'DELETE', headers:{ 'Authorization': `Bearer ${SUPABASE_ANON}`, 'apikey': SUPABASE_ANON } }).catch(()=>{});
 }
 function supaPathFromUrl(bucket, url){
   if(!url) return '';
@@ -189,15 +177,11 @@ function supaPathFromUrl(bucket, url){
   return url.slice(i + marker.length);
 }
 
-/* ============================================================
-   HARDCODED ADMIN
-   Username: digitalsmod  |  Password: ame1610@
-   ============================================================ */
 const ADMIN_USERNAME = 'digitalsmod';
 const ADMIN_PASSWORD = 'ame1610@';
-const ADMIN_ID       = 'digitalsmod';
-const SESSION_KEY    = 'linkora_admin_session';
-const SESSION_TTL    = 1000 * 60 * 60 * 12;
+const ADMIN_ID = 'digitalsmod';
+const SESSION_KEY = 'linkora_admin_session';
+const SESSION_TTL = 1000 * 60 * 60 * 12;
 
 const S = { authed:false, route:'overview', ready:false };
 
@@ -211,13 +195,13 @@ function timeAgo(ts){ const d=toDate(ts); if(!d) return '—'; const s=(Date.now
   if(s<60) return 'vừa xong'; if(s<3600) return Math.floor(s/60)+'p';
   if(s<86400) return Math.floor(s/3600)+'h'; if(s<2592000) return Math.floor(s/86400)+'d';
   return d.toLocaleDateString('vi-VN'); }
+function fmtDateTime(ts){ const d=toDate(ts); return d? d.toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—'; }
+
 function saveSession(){ try{ localStorage.setItem(SESSION_KEY, JSON.stringify({ user: ADMIN_USERNAME, ts: Date.now() })); }catch{} }
 function loadSession(){
   try{
-    const raw = localStorage.getItem(SESSION_KEY);
-    if(!raw) return false;
-    const obj = JSON.parse(raw);
-    if(!obj || !obj.ts) return false;
+    const raw = localStorage.getItem(SESSION_KEY); if(!raw) return false;
+    const obj = JSON.parse(raw); if(!obj || !obj.ts) return false;
     if(Date.now() - obj.ts > SESSION_TTL){ localStorage.removeItem(SESSION_KEY); return false; }
     return true;
   }catch{ return false; }
@@ -232,13 +216,13 @@ function toast(msg,type='info'){
   requestAnimationFrame(()=>t.classList.add('show'));
   setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300);},3200);
 }
-function confirmModal({title,message,confirmText='Xác nhận',danger=false}){
+function confirmModal({title,message,confirmText='Xác nhận',danger=false,cancelText='Huỷ'}){
   return new Promise(resolve=>{
     const back=document.createElement('div'); back.className='modal-back';
     back.innerHTML=`<div class="modal"><h3>${esc(title)}</h3>
-      <p style="margin:8px 0 18px;font-size:.86rem;line-height:1.6;color:var(--text-2)">${esc(message)}</p>
+      <p style="margin:8px 0 18px;font-size:.86rem;line-height:1.6;color:var(--text-2);white-space:pre-wrap">${esc(message)}</p>
       <div class="row gap-8" style="justify-content:flex-end">
-        <button class="btn ghost" data-x="cancel">Huỷ</button>
+        <button class="btn ghost" data-x="cancel">${esc(cancelText)}</button>
         <button class="btn ${danger?'danger':''}" data-x="ok">${esc(confirmText)}</button>
       </div></div>`;
     const close=v=>{ back.remove(); resolve(v); };
@@ -251,12 +235,26 @@ function confirmModal({title,message,confirmText='Xác nhận',danger=false}){
   });
 }
 
-/* ---------------- NAV ---------------- */
+/* Network avatar chữ — thay emoji */
+const NET_AVATAR = {
+  bbmkts:     { text:'BBM', color:'#dc2626' },
+  lentop:     { text:'LTP', color:'#0891b2' },
+  link4m:     { text:'L4M', color:'#7c3aed' },
+  linktop:    { text:'LKT', color:'#ea580c' },
+  traffictop: { text:'TFT', color:'#16a34a' },
+  _default:   { text:'LNK', color:'#2563eb' },
+};
+function netAvatar(networkId, size=32){
+  const a = NET_AVATAR[networkId] || NET_AVATAR._default;
+  return `<div style="width:${size}px;height:${size}px;border-radius:${Math.round(size*0.28)}px;background:${a.color};color:#fff;display:grid;place-items:center;font-weight:800;font-size:${Math.round(size*0.36)}px;letter-spacing:-0.02em;flex:none">${a.text}</div>`;
+}
+
 const NAV = [
   { sec:'Tổng quan', items:[['overview','Dashboard'],['economics','Network Economics']]},
-  { sec:'💰 Nhiệm vụ', items:[['tasks','Quản lý Tasks'],['net-apis','Network APIs'],['task-log','Lịch sử vượt link']]},
+  { sec:'Nhiệm vụ', items:[['tasks','Quản lý Tasks'],['net-apis','Network APIs'],['task-log','Lịch sử vượt link']]},
   { sec:'Nội dung', items:[['networks','Networks'],['rates','Rate history']]},
-  { sec:'Kinh doanh', items:[['sellers','Seller duyệt'],['lq-keys','Key Liên Quân'],['creator','Creator subs'],['withdrawals','Rút tiền']]},
+  { sec:'Kinh doanh', items:[['sellers','Seller duyệt'],['lq-keys','Key Liên Quân'],['creator','Creator subs']]},
+  { sec:'Tài chính', items:[['withdrawals','Yêu cầu rút tiền']]},
   { sec:'Vận hành', items:[['fraud','Gian lận'],['users','Người dùng'],['audit','Audit log']]},
 ];
 
@@ -265,14 +263,11 @@ function renderSidebar(route){
   const initial = name[0].toUpperCase();
   return `
   <aside class="sidebar">
-    <div style="padding:4px 8px 14px">
-      <a class="logo" href="#/"><span class="logo-mark">L</span><span>Admin</span></a>
-    </div>
+    <div style="padding:4px 8px 14px"><a class="logo" href="#/"><span class="logo-mark">L</span><span>Admin</span></a></div>
     ${NAV.map(g=>`
       <div class="nav-sec">
         <div class="nav-sec-label">${g.sec}</div>
-        ${g.items.map(([r,label])=>`
-          <button class="nav-item ${route===r?'on':''}" data-goto="${r}">${label}</button>`).join('')}
+        ${g.items.map(([r,label])=>`<button class="nav-item ${route===r?'on':''}" data-goto="${r}">${label}</button>`).join('')}
       </div>`).join('')}
     <div style="margin-top:auto;padding-top:14px;border-top:1px solid var(--border)">
       <div class="row gap-8" style="padding:6px 8px">
@@ -290,14 +285,11 @@ function renderDrawer(route){
   return `
   <div class="drawer-back" id="drawer-back"></div>
   <aside class="drawer" id="drawer">
-    <div class="logo" style="padding:6px 10px 14px;border-bottom:1px solid var(--border);margin-bottom:12px">
-      <span class="logo-mark">L</span><span>Admin</span>
-    </div>
+    <div class="logo" style="padding:6px 10px 14px;border-bottom:1px solid var(--border);margin-bottom:12px"><span class="logo-mark">L</span><span>Admin</span></div>
     ${NAV.map(g=>`
       <div class="nav-sec">
         <div class="nav-sec-label">${g.sec}</div>
-        ${g.items.map(([r,label])=>`
-          <button class="nav-item ${route===r?'on':''}" data-goto="${r}">${label}</button>`).join('')}
+        ${g.items.map(([r,label])=>`<button class="nav-item ${route===r?'on':''}" data-goto="${r}">${label}</button>`).join('')}
       </div>`).join('')}
     <button class="nav-item" data-action="logout" style="margin-top:auto">Đăng xuất</button>
   </aside>`;
@@ -307,65 +299,47 @@ function closeDrawer(){ $('#drawer')?.classList.remove('open'); $('#drawer-back'
 function nav(r){ location.hash='#/'+r; closeDrawer(); }
 function parseHash(){ return (location.hash||'#/').replace(/^#\/?/,'')||'overview'; }
 
-/* ---------------- AUTH ---------------- */
 function renderAuth(){
-  return `<div class="auth-wrap">
-    <div class="auth-card">
-      <div class="card" style="padding:30px">
-        <div class="logo" style="margin-bottom:22px"><span class="logo-mark">L</span><span>Linkora Admin</span></div>
-        <h1 style="margin-bottom:6px">Đăng nhập quản trị</h1>
-        <p class="small muted" style="margin-bottom:20px">Nhập tài khoản và mật khẩu quản trị.</p>
-        <form id="admin-login" autocomplete="off">
-          <div class="field"><label>Tài khoản</label>
-            <input class="input" id="al-user" type="text" autocomplete="off" placeholder="Tài khoản" required />
-          </div>
-          <div class="field"><label>Mật khẩu</label>
-            <input class="input" id="al-pass" type="password" autocomplete="new-password" placeholder="Mật khẩu" required />
-          </div>
-          <div id="al-error" class="notice danger hidden" style="margin-bottom:14px"></div>
-          <button class="btn accent block" type="submit" id="al-submit" style="height:46px">Đăng nhập</button>
-        </form>
-        <p class="tiny muted-3" style="margin-top:16px;text-align:center">Linkora Admin · <a class="link" href="index.html" style="color:var(--accent)">Về trang người dùng</a></p>
-      </div>
+  return `<div class="auth-wrap"><div class="auth-card">
+    <div class="card" style="padding:30px">
+      <div class="logo" style="margin-bottom:22px"><span class="logo-mark">L</span><span>Linkora Admin</span></div>
+      <h1 style="margin-bottom:6px">Đăng nhập quản trị</h1>
+      <p class="small muted" style="margin-bottom:20px">Nhập tài khoản và mật khẩu quản trị.</p>
+      <form id="admin-login" autocomplete="off">
+        <div class="field"><label>Tài khoản</label><input class="input" id="al-user" type="text" autocomplete="off" placeholder="Tài khoản" required /></div>
+        <div class="field"><label>Mật khẩu</label><input class="input" id="al-pass" type="password" autocomplete="new-password" placeholder="Mật khẩu" required /></div>
+        <div id="al-error" class="notice danger hidden" style="margin-bottom:14px"></div>
+        <button class="btn accent block" type="submit" id="al-submit" style="height:46px">Đăng nhập</button>
+      </form>
+      <p class="tiny muted-3" style="margin-top:16px;text-align:center">Linkora Admin · <a class="link" href="index.html" style="color:var(--accent)">Về trang người dùng</a></p>
     </div>
-  </div>`;
+  </div></div>`;
 }
 function handleAdminLogin(){
   const user = ($('#al-user').value || '').trim();
   const pass = $('#al-pass').value || '';
-  const err  = $('#al-error');
-  const btn  = $('#al-submit');
+  const err = $('#al-error'); const btn = $('#al-submit');
   err.classList.add('hidden');
   if(!user){ err.textContent='Nhập tài khoản.'; err.classList.remove('hidden'); return; }
   if(!pass){ err.textContent='Nhập mật khẩu.'; err.classList.remove('hidden'); return; }
   btn.disabled = true; btn.textContent = 'Đang kiểm tra…';
   setTimeout(()=>{
     if(user === ADMIN_USERNAME && pass === ADMIN_PASSWORD){
-      S.authed = true;
-      saveSession();
+      S.authed = true; saveSession();
       toast('Đăng nhập thành công.','ok');
       btn.disabled=false; btn.textContent='Đăng nhập';
       if(!location.hash || location.hash === '#/' || location.hash === '#') location.hash = '#/overview';
       render();
     } else {
-      err.textContent = 'Sai tài khoản hoặc mật khẩu.';
-      err.classList.remove('hidden');
+      err.textContent = 'Sai tài khoản hoặc mật khẩu.'; err.classList.remove('hidden');
       btn.disabled = false; btn.textContent = 'Đăng nhập';
     }
   }, 220);
 }
-function handleAdminLogout(){
-  clearSession();
-  S.authed = false;
-  toast('Đã đăng xuất.','ok');
-  location.hash = '#/';
-  render();
-}
+function handleAdminLogout(){ clearSession(); S.authed = false; toast('Đã đăng xuất.','ok'); location.hash = '#/'; render(); }
 
-/* ---------------- PAGE WRAPPER ---------------- */
 function renderPage(title, sub, actions=''){
-  return `
-  ${renderMobileTopbar(title)}
+  return `${renderMobileTopbar(title)}
   <div class="between wrap" style="margin-bottom:20px;margin-top:6px">
     <div><h1>${esc(title)}</h1>${sub?`<p class="small muted" style="margin-top:3px">${esc(sub)}</p>`:''}</div>
     <div class="row gap-8">${actions}</div>
@@ -375,30 +349,29 @@ function renderMobileTopbar(title){
   return `<div class="mobile-topbar">
     <button class="hamburger" data-action="open-drawer">☰</button>
     <div class="logo"><span class="logo-mark">L</span><span>${esc(title||'Admin')}</span></div>
-    <button class="hamburger" data-action="logout">⎋</button>
+    <button class="hamburger" data-action="logout">×</button>
   </div>`;
 }
 
-/* ---------------- OVERVIEW ---------------- */
+/* ====== OVERVIEW ====== */
 function viewOverview(){
-  return `
-  ${renderPage('Dashboard','Tổng quan toàn hệ thống.')}
+  return `${renderPage('Dashboard','Tổng quan toàn hệ thống.')}
   <div class="grid c4" style="margin-bottom:16px">
     <div class="stat"><span class="stat-label">Người dùng</span><div class="stat-value" id="ov-users">—</div></div>
-    <div class="stat"><span class="stat-label">Seller chờ duyệt</span><div class="stat-value" id="ov-sellers">—</div></div>
-    <div class="stat"><span class="stat-label">Rút tiền chờ</span><div class="stat-value" id="ov-wd">—</div></div>
+    <div class="stat"><span class="stat-label">Seller chờ</span><div class="stat-value" id="ov-sellers">—</div></div>
+    <div class="stat"><span class="stat-label">Rút tiền chờ</span><div class="stat-value" id="ov-wd" style="color:var(--warn)">—</div></div>
     <div class="stat"><span class="stat-label">Key LQ còn</span><div class="stat-value" id="ov-keys">—</div></div>
   </div>
-  <div class="grid c4">
+  <div class="grid c4" style="margin-bottom:16px">
     <div class="stat"><span class="stat-label">Creator chờ</span><div class="stat-value" id="ov-cr">—</div></div>
-    <div class="stat"><span class="stat-label">Gian lận ghi nhận</span><div class="stat-value" id="ov-fraud">—</div></div>
-    <div class="stat"><span class="stat-label">Shortlink</span><div class="stat-value" id="ov-links">—</div></div>
+    <div class="stat"><span class="stat-label">Gian lận</span><div class="stat-value" id="ov-fraud">—</div></div>
+    <div class="stat"><span class="stat-label">Nhiệm vụ bật</span><div class="stat-value" id="ov-tasks-active">—</div></div>
     <div class="stat"><span class="stat-label">Task hoàn thành</span><div class="stat-value" id="ov-tasks">—</div></div>
   </div>
-  <div class="grid c4" style="margin-top:16px">
-    <div class="stat"><span class="stat-label">Nhiệm vụ đang bật</span><div class="stat-value" id="ov-tasks-active">—</div></div>
-    <div class="stat"><span class="stat-label">Network API</span><div class="stat-value" id="ov-apis">—</div></div>
-    <div class="stat"><span class="stat-label">Tổng thưởng task</span><div class="stat-value" id="ov-task-reward" style="font-size:1.15rem">—</div></div>
+  <div class="grid c4">
+    <div class="stat"><span class="stat-label">Network APIs</span><div class="stat-value" id="ov-apis">—</div></div>
+    <div class="stat"><span class="stat-label">Tổng thưởng task</span><div class="stat-value" id="ov-task-reward" style="font-size:1.1rem;color:var(--ok)">—</div></div>
+    <div class="stat"><span class="stat-label">Shortlink</span><div class="stat-value" id="ov-links">—</div></div>
     <div class="stat"><span class="stat-label">Rate thay đổi</span><div class="stat-value" id="ov-rates">—</div></div>
   </div>`;
 }
@@ -415,55 +388,46 @@ async function loadOverview(){
   set('ov-cr', await count('creatorSubmissions',[where('status','==','pending')]));
   set('ov-fraud', await count('fraudEvents'));
   set('ov-links', await count('shortlinks'));
+  set('ov-rates', await count('rateHistory'));
   set('ov-tasks', await count('taskCompletions'));
   set('ov-tasks-active', await count('tasks',[where('enabled','==',true)]));
   set('ov-apis', await count('networkApis'));
-  set('ov-rates', await count('rateHistory'));
   try{
     const snap = await getDocs(query(collection(db,'taskCompletions'), limit(1000)));
-    let total=0;
-    snap.docs.forEach(d=>{ total += Number(d.data().reward||0); });
+    let total=0; snap.docs.forEach(d=>{ total += Number(d.data().reward||0); });
     set('ov-task-reward', fmtVND(total));
   }catch{ set('ov-task-reward','—'); }
 }
 
-/* ---------------- ECONOMICS ---------------- */
-function viewEconomics(){
-  return `
-  ${renderPage('Network Economics','Biên lợi nhuận theo network.')}
-  <div class="card" style="padding:0;overflow:hidden" id="eco-box">Đang tải…</div>`;
-}
+/* ====== ECONOMICS ====== */
+function viewEconomics(){ return `${renderPage('Network Economics','Biên lợi nhuận theo network.')}<div class="card" style="padding:0;overflow:hidden" id="eco-box">Đang tải…</div>`; }
 async function loadEconomics(){
   const box=$('#eco-box'); if(!box) return;
   try{
     const snap=await getDocs(collection(db,'networks'));
     const rows=snap.docs.map(d=>({id:d.id,...d.data()}));
     if(!rows.length){ box.innerHTML='<div class="empty"><h3>Chưa có network</h3></div>'; return; }
-    box.innerHTML=`
-      <div class="table-scroll"><table><thead><tr>
-        <th>Network</th><th>Rate</th><th>User payout</th><th>Platform gross</th><th>Fraud reserve 5%</th><th>Net margin/1000</th>
-      </tr></thead><tbody>
-      ${rows.map(n=>{
-        const g=Number(n.grossRate||0)*1000;
-        const u=g*((Number(n.userSharePercent||60))/100);
-        const p=g-u;
-        const f=g*0.05;
-        const net=p-f;
-        return `<tr>
-          <td style="font-weight:600">${esc(n.name)}</td>
-          <td class="mono">${fmtVND(n.grossRate)}</td>
-          <td class="mono">${fmtVND(u)}</td>
-          <td class="mono">${fmtVND(p)}</td>
-          <td class="mono muted">${fmtVND(f)}</td>
-          <td class="mono" style="font-weight:650;color:${net<0?'var(--danger)':'var(--ok)'}">${fmtVND(net)}</td>
-        </tr>`;}).join('')}
-      </tbody></table></div>`;
+    box.innerHTML=`<div class="table-scroll"><table><thead><tr>
+      <th>Network</th><th>Rate</th><th>User payout</th><th>Platform gross</th><th>Fraud reserve 5%</th><th>Net margin/1000</th>
+    </tr></thead><tbody>
+    ${rows.map(n=>{
+      const g=Number(n.grossRate||0)*1000;
+      const u=g*((Number(n.userSharePercent||60))/100);
+      const p=g-u; const f=g*0.05; const net=p-f;
+      return `<tr>
+        <td><div class="row gap-10">${netAvatar(n.id,28)}<span style="font-weight:600">${esc(n.name)}</span></div></td>
+        <td class="mono">${fmtVND(n.grossRate)}</td>
+        <td class="mono">${fmtVND(u)}</td>
+        <td class="mono">${fmtVND(p)}</td>
+        <td class="mono muted">${fmtVND(f)}</td>
+        <td class="mono" style="font-weight:650;color:${net<0?'var(--danger)':'var(--ok)'}">${fmtVND(net)}</td>
+      </tr>`;
+    }).join('')}
+    </tbody></table></div>`;
   }catch{ box.innerHTML='<div class="empty"><h3>Không tải được</h3></div>'; }
 }
 
-/* ============================================================
-   TASKS ADMIN
-   ============================================================ */
+/* ====== TASKS ADMIN ====== */
 const NETWORK_PRESETS = {
   bbmkts:     { name:'BBMKTS',     urlTemplate:'https://bbmkts.com/ql?token=e87753740502940ab011fd76&longurl={URL}' },
   lentop:     { name:'LenTop',     urlTemplate:'https://lentop.one/st?api=VtWpbloYUY926b0POtWWmIrt&url={URL}&sub_link={RETURN}' },
@@ -473,34 +437,38 @@ const NETWORK_PRESETS = {
 };
 
 function viewTasksAdmin(){
-  return `
-  ${renderPage('Quản lý Nhiệm vụ','Cấu hình nhiệm vụ vượt link hiển thị cho user.')}
+  return `${renderPage('Quản lý Nhiệm vụ','Cấu hình nhiệm vụ vượt link hiển thị cho user.')}
   <div class="grid" style="grid-template-columns:.85fr 1.15fr;gap:14px">
     <div class="card">
       <div class="card-title" style="margin-bottom:14px" id="tk-form-title">Thêm nhiệm vụ</div>
       <form id="task-form">
         <input type="hidden" id="tk-id" />
-        <div class="field"><label>Tên nhiệm vụ *</label><input class="input" id="tk-name" placeholder="VD: Vượt Link4M #1" required /></div>
-        <div class="field"><label>Network *</label>
+        <div class="field">
+          <label>Tên nhiệm vụ *</label>
+          <input class="input" id="tk-name" placeholder="VD: Vượt Link4M #1" required />
+        </div>
+        <div class="field">
+          <label>Network *</label>
           <select class="select" id="tk-network">
             ${Object.entries(NETWORK_PRESETS).map(([id,p])=>`<option value="${id}">${p.name}</option>`).join('')}
           </select>
         </div>
-        <div class="field"><label>URL đích (user phải đến) *</label><input class="input" id="tk-url" placeholder="https://example.com/dich" required /></div>
+        <div class="field">
+          <label>URL đích (tuỳ chọn)</label>
+          <input class="input" id="tk-url" placeholder="https://example.com/dich" />
+          <span class="hint">Đây là URL mà user sẽ được chuyển đến <b>sau khi vượt link thành công</b>. Ví dụ: link tải file, video YouTube, bài viết... Nếu để trống, hệ thống sẽ dùng URL mặc định là trang nhiệm vụ <span class="mono">#/tasks</span>.</span>
+        </div>
         <div class="grid c2" style="gap:12px">
           <div class="field"><label>Thưởng (VND) *</label><input class="input" id="tk-reward" type="number" min="0" value="200" required /></div>
-          <div class="field"><label>Cooldown (giây)</label><input class="input" id="tk-cd" type="number" min="0" value="3600" /></div>
+          <div class="field"><label>Cooldown (giây)</label><input class="input" id="tk-cd" type="number" min="0" value="300" /></div>
         </div>
         <div class="grid c2" style="gap:12px">
           <div class="field"><label>Giới hạn/ngày</label><input class="input" id="tk-limit" type="number" min="0" value="10" /></div>
           <div class="field"><label>Thứ tự</label><input class="input" id="tk-order" type="number" min="0" value="1" /></div>
         </div>
-        <div class="field"><label>Mô tả</label><textarea class="textarea" id="tk-desc" rows="3"></textarea></div>
+        <div class="field"><label>Mô tả</label><textarea class="textarea" id="tk-desc" rows="3" placeholder="VD: Vượt link để nhận 200đ ngay"></textarea></div>
         <div class="field"><label>Trạng thái</label>
-          <select class="select" id="tk-enabled">
-            <option value="true">Bật</option>
-            <option value="false">Tắt</option>
-          </select>
+          <select class="select" id="tk-enabled"><option value="true">Bật</option><option value="false">Tắt</option></select>
         </div>
         <button class="btn accent block" type="submit" id="tk-submit">Lưu nhiệm vụ</button>
         <button type="button" class="btn ghost block sm" id="tk-reset" style="margin-top:8px">Reset form</button>
@@ -509,53 +477,46 @@ function viewTasksAdmin(){
     <div class="card" style="padding:0;overflow:hidden" id="tasks-admin-box">Đang tải…</div>
   </div>`;
 }
-
 async function loadTasksAdmin(){
-  const box = $('#tasks-admin-box'); if(!box) return;
+  const box=$('#tasks-admin-box'); if(!box) return;
   try{
-    const snap = await getDocs(query(collection(db,'tasks'), limit(200)));
-    const rows = snap.docs.map(d=>({id:d.id,...d.data()}))
-      .sort((a,b)=>(a.order||99)-(b.order||99));
-    if(!rows.length){
-      box.innerHTML = '<div class="empty"><h3>Chưa có nhiệm vụ</h3><p class="small muted">Thêm nhiệm vụ đầu tiên ở cột trái.</p></div>';
-      return;
-    }
-    box.innerHTML = `
-      <div style="padding:14px 16px;border-bottom:1px solid var(--border)">
-        <span class="card-title">Danh sách nhiệm vụ</span> <span class="badge">${rows.length}</span>
-      </div>
-      <div class="table-scroll">
-        <table><thead><tr>
-          <th>Tên</th><th>Network</th><th>Thưởng</th><th>CD</th><th>Limit</th><th>Bật</th><th>Thao tác</th>
-        </tr></thead><tbody>
-        ${rows.map(r=>`
-          <tr>
-            <td style="font-weight:600">${esc(r.name||'—')}</td>
-            <td><span class="badge">${esc(r.networkId||'—')}</span></td>
-            <td class="mono" style="color:var(--ok);font-weight:620">+${fmtVND(r.reward)}</td>
-            <td class="mono small">${Math.round((r.cooldown||0)/60)}p</td>
-            <td class="mono small">${r.dailyLimit||'∞'}</td>
-            <td><span class="badge ${r.enabled!==false?'ok':'danger'}">${r.enabled!==false?'Bật':'Tắt'}</span></td>
-            <td>
-              <div class="row gap-6">
-                <button class="btn xs soft" data-action="edit-task" data-id="${esc(r.id)}">Sửa</button>
-                <button class="btn xs soft" data-action="del-task" data-id="${esc(r.id)}" style="color:var(--danger)">Xoá</button>
-              </div>
-            </td>
-          </tr>`).join('')}
-        </tbody></table>
-      </div>`;
+    const snap=await getDocs(query(collection(db,'tasks'), limit(200)));
+    const rows=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||99)-(b.order||99));
+    if(!rows.length){ box.innerHTML='<div class="empty"><h3>Chưa có nhiệm vụ</h3><p class="small muted">Thêm nhiệm vụ đầu tiên ở cột trái.</p></div>'; return; }
+    box.innerHTML=`
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border)"><span class="card-title">Danh sách nhiệm vụ</span> <span class="badge">${rows.length}</span></div>
+      <div class="table-scroll"><table><thead><tr>
+        <th>Nhiệm vụ</th><th>Network</th><th>Thưởng</th><th>CD</th><th>Limit</th><th>Bật</th><th>Thao tác</th>
+      </tr></thead><tbody>
+      ${rows.map(r=>`
+        <tr>
+          <td>
+            <div style="font-weight:600">${esc(r.name||'—')}</div>
+            <div class="tiny muted-3">${esc(r.targetUrl ? 'Đích: '+r.targetUrl.slice(0,40)+'…' : 'Đích: trang nhiệm vụ')}</div>
+          </td>
+          <td><div class="row gap-8">${netAvatar(r.networkId,26)}<span class="small">${esc(r.networkId||'—')}</span></div></td>
+          <td class="mono" style="color:var(--ok);font-weight:620">+${fmtVND(r.reward)}</td>
+          <td class="mono small">${Math.round((r.cooldown||0)/60)}p</td>
+          <td class="mono small">${r.dailyLimit||'∞'}</td>
+          <td><span class="badge ${r.enabled!==false?'ok':'danger'}">${r.enabled!==false?'Bật':'Tắt'}</span></td>
+          <td>
+            <div class="row gap-6">
+              <button class="btn xs soft" data-action="edit-task" data-id="${esc(r.id)}">Sửa</button>
+              <button class="btn xs soft" data-action="del-task" data-id="${esc(r.id)}" style="color:var(--danger)">Xoá</button>
+            </div>
+          </td>
+        </tr>`).join('')}
+      </tbody></table></div>`;
   }catch(e){ console.error(e); box.innerHTML='<div class="empty"><h3>Không tải được</h3></div>'; }
 }
-
 async function saveTaskForm(){
   const id = $('#tk-id').value;
   const data = {
     name: $('#tk-name').value.trim(),
     networkId: $('#tk-network').value,
-    targetUrl: $('#tk-url').value.trim(),
+    targetUrl: $('#tk-url').value.trim() || '',
     reward: Number($('#tk-reward').value||0),
-    cooldown: Number($('#tk-cd').value||3600),
+    cooldown: Number($('#tk-cd').value||300),
     dailyLimit: Number($('#tk-limit').value||10),
     order: Number($('#tk-order').value||1),
     description: $('#tk-desc').value.trim(),
@@ -563,35 +524,23 @@ async function saveTaskForm(){
     updatedAt: serverTimestamp(),
   };
   if(!data.name){ toast('Nhập tên nhiệm vụ.','err'); return; }
-  if(!data.targetUrl){ toast('Nhập URL đích.','err'); return; }
   if(data.reward<=0){ toast('Thưởng phải > 0.','err'); return; }
+  if(data.targetUrl && !/^https?:\/\//.test(data.targetUrl)){ toast('URL đích phải bắt đầu bằng http:// hoặc https://','err'); return; }
   const btn = $('#tk-submit'); btn.disabled=true; btn.textContent='Đang lưu…';
   try{
-    if(id){
-      await updateDoc(doc(db,'tasks',id), data);
-    } else {
-      data.createdAt = serverTimestamp();
-      await addDoc(collection(db,'tasks'), data);
-    }
-    await addDoc(collection(db,'auditLogs'),{
-      adminId:ADMIN_ID, action: id?'ADMIN_UPDATED_TASK':'ADMIN_CREATED_TASK',
-      targetType:'task', targetId:id||'-', reason:data.name, timestamp:serverTimestamp()
-    });
-    toast('Đã lưu.','ok');
-    resetTaskForm();
-    loadTasksAdmin();
+    if(id){ await updateDoc(doc(db,'tasks',id), data); }
+    else { data.createdAt = serverTimestamp(); await addDoc(collection(db,'tasks'), data); }
+    await addDoc(collection(db,'auditLogs'),{ adminId:ADMIN_ID, action: id?'ADMIN_UPDATED_TASK':'ADMIN_CREATED_TASK', targetType:'task', targetId:id||'-', reason:data.name, timestamp:serverTimestamp() });
+    toast('Đã lưu.','ok'); resetTaskForm(); loadTasksAdmin();
   }catch(e){ toast('Lỗi: '+e.message,'err'); }
   finally{ btn.disabled=false; btn.textContent='Lưu nhiệm vụ'; }
 }
-
 function resetTaskForm(){
   ['tk-id','tk-name','tk-url','tk-desc'].forEach(id=>{ const el=$('#'+id); if(el) el.value=''; });
-  $('#tk-reward').value=200; $('#tk-cd').value=3600; $('#tk-limit').value=10;
+  $('#tk-reward').value=200; $('#tk-cd').value=300; $('#tk-limit').value=10;
   $('#tk-order').value=1; $('#tk-enabled').value='true';
   const t = $('#tk-form-title'); if(t) t.textContent='Thêm nhiệm vụ';
-  const b = $('#tk-submit'); if(b) b.textContent='Lưu nhiệm vụ';
 }
-
 async function editTaskAdmin(id){
   const snap = await getDoc(doc(db,'tasks',id));
   if(!snap.exists()) return;
@@ -601,7 +550,7 @@ async function editTaskAdmin(id){
   $('#tk-network').value = t.networkId||'link4m';
   $('#tk-url').value = t.targetUrl||'';
   $('#tk-reward').value = t.reward||0;
-  $('#tk-cd').value = t.cooldown||3600;
+  $('#tk-cd').value = t.cooldown||300;
   $('#tk-limit').value = t.dailyLimit||10;
   $('#tk-order').value = t.order||1;
   $('#tk-desc').value = t.description||'';
@@ -609,7 +558,6 @@ async function editTaskAdmin(id){
   const title = $('#tk-form-title'); if(title) title.textContent = 'Sửa nhiệm vụ';
   window.scrollTo({top:0, behavior:'smooth'});
 }
-
 async function deleteTaskAdmin(id){
   if(!await confirmModal({title:'Xoá nhiệm vụ?',message:'User sẽ không thấy nhiệm vụ này nữa.',confirmText:'Xoá',danger:true})) return;
   try{
@@ -619,15 +567,12 @@ async function deleteTaskAdmin(id){
   }catch{ toast('Không thể xoá.','err'); }
 }
 
-/* ============================================================
-   NETWORK APIS
-   ============================================================ */
+/* ====== NETWORK APIS ====== */
 function viewNetApis(){
-  return `
-  ${renderPage('Network APIs','Cấu hình URL template + API key của các network.')}
+  return `${renderPage('Network APIs','Cấu hình URL template + API key của các network.')}
   <div class="notice warn" style="margin-bottom:14px;align-items:center;flex-wrap:wrap;gap:8px">
-    <span>Dùng <span class="mono">{URL}</span> cho URL đích, <span class="mono">{RETURN}</span> cho sub_link (callback).</span>
-    <button class="btn xs accent" id="preset-fill" style="margin-left:auto">⚡ Điền preset 5 network</button>
+    <span>Dùng <span class="mono">{URL}</span> cho URL đích, <span class="mono">{RETURN}</span> cho sub_link (callback URL).</span>
+    <button class="btn xs accent" id="preset-fill" style="margin-left:auto">Điền preset 5 network</button>
   </div>
   <div class="grid" style="grid-template-columns:.85fr 1.15fr;gap:14px">
     <div class="card">
@@ -636,15 +581,12 @@ function viewNetApis(){
         <input type="hidden" id="api-id" />
         <div class="field"><label>ID (không dấu, viết thường) *</label><input class="input" id="api-key-id" placeholder="link4m" required /></div>
         <div class="field"><label>Tên hiển thị *</label><input class="input" id="api-name" placeholder="Link4M" required /></div>
-        <div class="field"><label>URL Template *</label>
+        <div class="field">
+          <label>URL Template *</label>
           <textarea class="textarea" id="api-template" rows="3" placeholder="https://link4m.co/st?api=KEY&url={URL}&sub_link={RETURN}" required></textarea>
+          <span class="hint">Dùng <span class="mono">{URL}</span> cho URL đích và <span class="mono">{RETURN}</span> cho callback URL của Linkora.</span>
         </div>
-        <div class="field"><label>Trạng thái</label>
-          <select class="select" id="api-enabled">
-            <option value="true">Bật</option>
-            <option value="false">Tắt</option>
-          </select>
-        </div>
+        <div class="field"><label>Trạng thái</label><select class="select" id="api-enabled"><option value="true">Bật</option><option value="false">Tắt</option></select></div>
         <button class="btn accent block" type="submit" id="api-submit">Lưu API</button>
         <button type="button" class="btn ghost block sm" id="api-reset" style="margin-top:8px">Reset form</button>
       </form>
@@ -652,40 +594,26 @@ function viewNetApis(){
     <div class="card" style="padding:0;overflow:hidden" id="apis-box">Đang tải…</div>
   </div>`;
 }
-
 async function loadNetApis(){
-  const box = $('#apis-box'); if(!box) return;
+  const box=$('#apis-box'); if(!box) return;
   try{
-    const snap = await getDocs(collection(db,'networkApis'));
-    const rows = snap.docs.map(d=>({id:d.id,...d.data()}));
-    if(!rows.length){
-      box.innerHTML = '<div class="empty"><h3>Chưa có API</h3><p class="small muted">Bấm "Điền preset 5 network" để bắt đầu.</p></div>';
-      return;
-    }
-    box.innerHTML = `
-      <div style="padding:14px 16px;border-bottom:1px solid var(--border)">
-        <span class="card-title">Network APIs</span> <span class="badge">${rows.length}</span>
-      </div>
-      <div class="table-scroll">
-        <table><thead><tr><th>ID</th><th>Tên</th><th>Template</th><th>Bật</th><th></th></tr></thead><tbody>
-        ${rows.map(r=>`
-          <tr>
-            <td class="mono small">${esc(r.id)}</td>
-            <td style="font-weight:600">${esc(r.name||'')}</td>
-            <td class="tiny mono" style="max-width:340px;word-break:break-all">${esc((r.urlTemplate||'').slice(0,90))}${(r.urlTemplate||'').length>90?'…':''}</td>
-            <td><span class="badge ${r.enabled!==false?'ok':'danger'}">${r.enabled!==false?'Bật':'Tắt'}</span></td>
-            <td>
-              <div class="row gap-6">
-                <button class="btn xs soft" data-action="edit-api" data-id="${esc(r.id)}">Sửa</button>
-                <button class="btn xs soft" data-action="del-api" data-id="${esc(r.id)}" style="color:var(--danger)">Xoá</button>
-              </div>
-            </td>
-          </tr>`).join('')}
-        </tbody></table>
-      </div>`;
+    const snap=await getDocs(collection(db,'networkApis'));
+    const rows=snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(!rows.length){ box.innerHTML='<div class="empty"><h3>Chưa có API</h3><p class="small muted">Bấm "Điền preset 5 network" để bắt đầu.</p></div>'; return; }
+    box.innerHTML=`
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border)"><span class="card-title">Network APIs</span> <span class="badge">${rows.length}</span></div>
+      <div class="table-scroll"><table><thead><tr><th>ID</th><th>Tên</th><th>Template</th><th>Bật</th><th></th></tr></thead><tbody>
+      ${rows.map(r=>`
+        <tr>
+          <td><div class="row gap-8">${netAvatar(r.id,26)}<span class="mono small">${esc(r.id)}</span></div></td>
+          <td style="font-weight:600">${esc(r.name||'')}</td>
+          <td class="tiny mono" style="max-width:340px;word-break:break-all">${esc((r.urlTemplate||'').slice(0,90))}${(r.urlTemplate||'').length>90?'…':''}</td>
+          <td><span class="badge ${r.enabled!==false?'ok':'danger'}">${r.enabled!==false?'Bật':'Tắt'}</span></td>
+          <td><div class="row gap-6"><button class="btn xs soft" data-action="edit-api" data-id="${esc(r.id)}">Sửa</button><button class="btn xs soft" data-action="del-api" data-id="${esc(r.id)}" style="color:var(--danger)">Xoá</button></div></td>
+        </tr>`).join('')}
+      </tbody></table></div>`;
   }catch(e){ console.error(e); box.innerHTML='<div class="empty"><h3>Không tải được</h3></div>'; }
 }
-
 async function saveApiForm(){
   const id = $('#api-id').value;
   const keyId = $('#api-key-id').value.trim().toLowerCase();
@@ -698,25 +626,17 @@ async function saveApiForm(){
   if(!id && !keyId){ toast('Nhập ID.','err'); return; }
   if(!data.name || !data.urlTemplate){ toast('Điền tên và template.','err'); return; }
   try{
-    if(id){
-      await updateDoc(doc(db,'networkApis',id), data);
-    } else {
-      data.createdAt = serverTimestamp();
-      await setDoc(doc(db,'networkApis',keyId), data);
-    }
-    toast('Đã lưu.','ok');
-    resetApiForm();
-    loadNetApis();
+    if(id){ await updateDoc(doc(db,'networkApis',id), data); }
+    else { data.createdAt = serverTimestamp(); await setDoc(doc(db,'networkApis',keyId), data); }
+    toast('Đã lưu.','ok'); resetApiForm(); loadNetApis();
   }catch(e){ toast('Lỗi: '+e.message,'err'); }
 }
-
 function resetApiForm(){
   $('#api-form').reset();
   $('#api-id').value='';
   $('#api-key-id').removeAttribute('disabled');
   const t = $('#api-form-title'); if(t) t.textContent='Thêm API';
 }
-
 async function editApiAdmin(id){
   const snap = await getDoc(doc(db,'networkApis',id));
   if(!snap.exists()) return;
@@ -730,68 +650,52 @@ async function editApiAdmin(id){
   const t = $('#api-form-title'); if(t) t.textContent='Sửa API: '+id;
   window.scrollTo({top:0, behavior:'smooth'});
 }
-
 async function deleteApiAdmin(id){
   if(!await confirmModal({title:'Xoá API?',message:'Nhiệm vụ dùng API này sẽ bị vô hiệu.',confirmText:'Xoá',danger:true})) return;
   try{ await deleteDoc(doc(db,'networkApis',id)); toast('Đã xoá.','ok'); loadNetApis(); }
   catch{ toast('Không thể xoá.','err'); }
 }
-
 async function fillPresetApis(){
   if(!await confirmModal({title:'Điền preset 5 network?',message:'Sẽ ghi đè API có cùng ID (bbmkts, lentop, link4m, linktop, traffictop).',confirmText:'Điền'})) return;
   try{
     for(const [id, p] of Object.entries(NETWORK_PRESETS)){
-      await setDoc(doc(db,'networkApis',id),{
-        name:p.name, urlTemplate:p.urlTemplate, enabled:true,
-        createdAt: serverTimestamp(),
-      },{merge:true});
+      await setDoc(doc(db,'networkApis',id),{ name:p.name, urlTemplate:p.urlTemplate, enabled:true, createdAt: serverTimestamp() },{merge:true});
     }
-    toast('Đã điền 5 network.','ok');
-    loadNetApis();
+    toast('Đã điền 5 network.','ok'); loadNetApis();
   }catch(e){ toast('Lỗi: '+e.message,'err'); }
 }
 
-/* ============================================================
-   TASK LOG
-   ============================================================ */
-function viewTaskLog(){
-  return `
-  ${renderPage('Lịch sử vượt link','Toàn bộ lượt user hoàn thành nhiệm vụ.')}
-  <div class="card" style="padding:0;overflow:hidden" id="tasklog-box">Đang tải…</div>`;
-}
+/* ====== TASK LOG ====== */
+function viewTaskLog(){ return `${renderPage('Lịch sử vượt link','Toàn bộ lượt user hoàn thành nhiệm vụ.')}<div class="card" style="padding:0;overflow:hidden" id="tasklog-box">Đang tải…</div>`; }
 async function loadTaskLog(){
   const box = $('#tasklog-box'); if(!box) return;
   try{
     const snap = await getDocs(query(collection(db,'taskCompletions'), limit(200)));
-    const rows = snap.docs.map(d=>({id:d.id,...d.data()}))
-      .sort((a,b)=>(b.completedAt?.seconds||0)-(a.completedAt?.seconds||0));
+    const rows = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.completedAt?.seconds||0)-(a.completedAt?.seconds||0));
     if(!rows.length){ box.innerHTML = '<div class="empty"><h3>Chưa có lượt nào</h3></div>'; return; }
     const total = rows.reduce((s,r)=>s+Number(r.reward||0),0);
-    box.innerHTML = `
+    box.innerHTML=`
       <div style="padding:14px 16px;border-bottom:1px solid var(--border)">
         <span class="card-title">Log</span> <span class="badge">${rows.length}</span>
         <span style="margin-left:12px;font-size:.82rem;color:var(--text-2)">Tổng chi: <b style="color:var(--ok)">${fmtVND(total)}</b></span>
       </div>
-      <div class="table-scroll">
-        <table><thead><tr><th>User</th><th>Nhiệm vụ</th><th>Reward</th><th>IP hash</th><th>Device</th><th>Thời gian</th></tr></thead>
-        <tbody>${rows.map(r=>`
-          <tr>
-            <td class="tiny muted">${esc(r.userEmail||String(r.userId||'').slice(0,8))}</td>
-            <td class="small" style="font-weight:600">${esc(r.taskName||r.taskId||'—')}</td>
-            <td class="mono" style="color:var(--ok);font-weight:620">+${fmtVND(r.reward)}</td>
-            <td class="mono tiny muted-3">${esc(String(r.ipHash||'').slice(0,12))}${r.ipHash?'…':''}</td>
-            <td class="mono tiny muted-3">${esc(String(r.deviceHash||'').slice(0,10))}${r.deviceHash?'…':''}</td>
-            <td class="tiny muted-3">${timeAgo(r.completedAt)}</td>
-          </tr>`).join('')}</tbody></table>
-      </div>`;
+      <div class="table-scroll"><table><thead><tr><th>User</th><th>Nhiệm vụ</th><th>Network</th><th>Reward</th><th>IP hash</th><th>Thời gian</th></tr></thead>
+      <tbody>${rows.map(r=>`
+        <tr>
+          <td class="tiny muted">${esc(r.userEmail||String(r.userId||'').slice(0,8))}</td>
+          <td class="small" style="font-weight:600">${esc(r.taskName||r.taskId||'—')}</td>
+          <td><div class="row gap-8">${netAvatar(r.networkId,24)}<span class="tiny">${esc(r.networkId||'—')}</span></div></td>
+          <td class="mono" style="color:var(--ok);font-weight:620">+${fmtVND(r.reward)}</td>
+          <td class="mono tiny muted-3">${esc(String(r.ipHash||'').slice(0,12))}${r.ipHash?'…':''}</td>
+          <td class="tiny muted-3">${timeAgo(r.completedAt)}</td>
+        </tr>`).join('')}</tbody></table></div>`;
   }catch(e){ console.error(e); box.innerHTML = '<div class="empty"><h3>Không tải được</h3></div>'; }
 }
 
-/* ---------------- NETWORKS ---------------- */
+/* ====== NETWORKS ====== */
 function viewNetworks(){
-  return `
-  ${renderPage('Networks','Cấu hình rate, giới hạn và trạng thái API.')}
-  <div class="notice warn" style="margin-bottom:14px">API key không lưu client. Secrets đặt ở Cloud Functions / Secret Manager.</div>
+  return `${renderPage('Networks','Cấu hình rate, giới hạn và trạng thái API.')}
+  <div class="notice warn" style="margin-bottom:14px">API key không lưu client. Secrets đặt ở Cloud Functions.</div>
   <div class="card" style="padding:0;overflow:hidden" id="nets-box">Đang tải…</div>`;
 }
 async function loadNetworks(){
@@ -805,7 +709,7 @@ async function loadNetworks(){
       </tr></thead><tbody>
       ${rows.map(n=>`
         <tr>
-          <td><div style="font-weight:600">${esc(n.name)}</div><div class="tiny muted-3">${esc(n.website||'')}</div></td>
+          <td><div class="row gap-10">${netAvatar(n.id,32)}<div><div style="font-weight:600">${esc(n.name)}</div><div class="tiny muted-3">${esc(n.website||'')}</div></div></div></td>
           <td class="muted small">${esc(n.taskType||'direct')}</td>
           <td class="mono" style="font-weight:600">${fmtVND(n.grossRate)}</td>
           <td class="mono">${n.userSharePercent??60}%</td>
@@ -863,81 +767,54 @@ async function editNetwork(id){
         updatedAt:serverTimestamp(),
       },{merge:true});
       if(Number(n.grossRate)!==newRate){
-        await addDoc(collection(db,'rateHistory'),{
-          networkId:id, oldRate:Number(n.grossRate||0), newRate,
-          changedBy:ADMIN_ID, changedAt:serverTimestamp(), reason,
-        });
+        await addDoc(collection(db,'rateHistory'),{ networkId:id, oldRate:Number(n.grossRate||0), newRate, changedBy:ADMIN_ID, changedAt:serverTimestamp(), reason });
       }
-      await addDoc(collection(db,'auditLogs'),{
-        adminId:ADMIN_ID, action:'ADMIN_UPDATED_NETWORK',
-        targetType:'network', targetId:id, reason, timestamp:serverTimestamp(),
-      });
+      await addDoc(collection(db,'auditLogs'),{ adminId:ADMIN_ID, action:'ADMIN_UPDATED_NETWORK', targetType:'network', targetId:id, reason, timestamp:serverTimestamp() });
       toast('Đã cập nhật.','ok'); close(); loadNetworks();
     }catch{ toast('Không thể cập nhật.','err'); }
   });
   $('#modal-root').appendChild(back);
 }
 
-/* ---------------- RATES ---------------- */
-function viewRates(){
-  return `
-  ${renderPage('Rate history','Lịch sử thay đổi rate — immutable.')}
-  <div class="card" style="padding:0;overflow:hidden" id="rates-box">Đang tải…</div>`;
-}
+/* ====== RATES ====== */
+function viewRates(){ return `${renderPage('Rate history','Lịch sử thay đổi rate — immutable.')}<div class="card" style="padding:0;overflow:hidden" id="rates-box">Đang tải…</div>`; }
 async function loadRates(){
   const box=$('#rates-box'); if(!box) return;
   try{
     const snap=await getDocs(query(collection(db,'rateHistory'), limit(120)));
     const rows=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.changedAt?.seconds||0)-(a.changedAt?.seconds||0));
     if(!rows.length){ box.innerHTML='<div class="empty"><h3>Chưa có thay đổi</h3></div>'; return; }
-    box.innerHTML=`
-      <div class="table-scroll"><table><thead><tr><th>Network</th><th>Rate cũ</th><th>Rate mới</th><th>Lý do</th><th>Thời gian</th></tr></thead>
-      <tbody>${rows.map(r=>`
-        <tr><td style="font-weight:600">${esc(r.networkId)}</td>
-        <td class="mono muted">${fmtVND(r.oldRate)}</td>
-        <td class="mono" style="font-weight:600">${fmtVND(r.newRate)}</td>
-        <td class="small muted">${esc(r.reason||'—')}</td>
-        <td class="tiny muted-3">${timeAgo(r.changedAt)}</td></tr>`).join('')}</tbody></table></div>`;
+    box.innerHTML=`<div class="table-scroll"><table><thead><tr><th>Network</th><th>Rate cũ</th><th>Rate mới</th><th>Lý do</th><th>Thời gian</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr><td><div class="row gap-8">${netAvatar(r.networkId,26)}<span class="small">${esc(r.networkId)}</span></div></td><td class="mono muted">${fmtVND(r.oldRate)}</td><td class="mono" style="font-weight:600">${fmtVND(r.newRate)}</td><td class="small muted">${esc(r.reason||'—')}</td><td class="tiny muted-3">${timeAgo(r.changedAt)}</td></tr>`).join('')}</tbody></table></div>`;
   }catch{ box.innerHTML='<div class="empty"><h3>Không tải được</h3></div>'; }
 }
 
-/* ---------------- SELLERS ---------------- */
-function viewSellers(){
-  return `
-  ${renderPage('Seller duyệt','Xét duyệt đăng ký Seller.')}
-  <div class="card" style="padding:0;overflow:hidden" id="sellers-box">Đang tải…</div>`;
-}
+/* ====== SELLERS ====== */
+function viewSellers(){ return `${renderPage('Seller duyệt','Xét duyệt đăng ký Seller.')}<div class="card" style="padding:0;overflow:hidden" id="sellers-box">Đang tải…</div>`; }
 async function loadSellers(){
   const box=$('#sellers-box'); if(!box) return;
   try{
     const snap=await getDocs(query(collection(db,'sellers'), limit(120)));
     const rows=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
     if(!rows.length){ box.innerHTML='<div class="empty"><h3>Chưa có Seller</h3></div>'; return; }
-    box.innerHTML=`
-      <div class="table-scroll"><table><thead><tr>
-        <th>Tên shop</th><th>Email</th><th>SĐT</th><th>Danh mục</th><th>Trạng thái</th><th>Ngày</th><th>Thao tác</th>
-      </tr></thead><tbody>
-      ${rows.map(r=>`
-        <tr>
-          <td style="font-weight:600">${esc(r.shopName||'—')}</td>
-          <td class="tiny muted">${esc(r.userEmail||'—')}</td>
-          <td class="small mono">${esc(r.phone||'—')}</td>
-          <td class="small">${esc(r.category||'—')}</td>
-          <td>${badge(r.status)}</td>
-          <td class="tiny muted-3">${timeAgo(r.createdAt)}</td>
-          <td>
-            ${r.status==='pending' ? `
-              <div class="row gap-6">
-                <button class="btn xs ok" data-action="approve-seller" data-id="${esc(r.id)}">Duyệt</button>
-                <button class="btn xs danger" data-action="reject-seller" data-id="${esc(r.id)}">Từ chối</button>
-              </div>` : `<span class="tiny muted-3">—</span>`}
-          </td>
-        </tr>`).join('')}
-      </tbody></table></div>`;
+    box.innerHTML=`<div class="table-scroll"><table><thead><tr>
+      <th>Tên shop</th><th>Email</th><th>SĐT</th><th>Danh mục</th><th>Trạng thái</th><th>Ngày</th><th>Thao tác</th>
+    </tr></thead><tbody>
+    ${rows.map(r=>`
+      <tr>
+        <td style="font-weight:600">${esc(r.shopName||'—')}</td>
+        <td class="tiny muted">${esc(r.userEmail||'—')}</td>
+        <td class="small mono">${esc(r.phone||'—')}</td>
+        <td class="small">${esc(r.category||'—')}</td>
+        <td>${badge(r.status)}</td>
+        <td class="tiny muted-3">${timeAgo(r.createdAt)}</td>
+        <td>${r.status==='pending'?`<div class="row gap-6"><button class="btn xs ok" data-action="approve-seller" data-id="${esc(r.id)}">Duyệt</button><button class="btn xs danger" data-action="reject-seller" data-id="${esc(r.id)}">Từ chối</button></div>`:`<span class="tiny muted-3">—</span>`}</td>
+      </tr>`).join('')}
+    </tbody></table></div>`;
   }catch{ box.innerHTML='<div class="empty"><h3>Không tải được</h3></div>'; }
 }
 function badge(s){
-  const m={pending:['warn','Chờ'],approved:['ok','Đã duyệt'],rejected:['danger','Từ chối'],available:['ok','Sẵn'],sold:['','Đã bán'],completed:['ok','Xong'],processing:['warn','Đang xử lý']};
+  const m={pending:['warn','Chờ'],approved:['ok','Đã duyệt'],rejected:['danger','Từ chối'],available:['ok','Sẵn'],sold:['','Đã bán'],completed:['ok','Xong'],processing:['warn','Đang xử lý'],paid:['ok','Đã trả']};
   const [c,l]=m[s]||['',s||'—']; return `<span class="badge ${c}">${l}</span>`;
 }
 async function approveSeller(id){
@@ -959,40 +836,28 @@ async function rejectSeller(id){
   }catch{ toast('Không thể từ chối.','err'); }
 }
 
-/* ============================================================
-   LQ KEYS + ẢNH MINH HOẠ
-   ============================================================ */
+/* ====== LQ KEYS ====== */
 const LQ_DURATIONS = [
-  { id:'1d',   label:'1 ngày' },
-  { id:'15d',  label:'15 ngày' },
-  { id:'30d',  label:'30 ngày' },
-  { id:'90d',  label:'90 ngày' },
-  { id:'forever', label:'Vĩnh viễn' },
+  { id:'1d',   label:'1 ngày',   short:'1D',  color:'#0891b2' },
+  { id:'15d',  label:'15 ngày',  short:'15D', color:'#2563eb' },
+  { id:'30d',  label:'30 ngày',  short:'30D', color:'#7c3aed' },
+  { id:'90d',  label:'90 ngày',  short:'90D', color:'#ea580c' },
+  { id:'forever', label:'Vĩnh viễn', short:'∞', color:'#059669' },
 ];
-
 function viewLQKeys(){
-  return `
-  ${renderPage('Key Liên Quân','Nhập kho key + ảnh minh hoạ cho từng loại.')}
+  return `${renderPage('Key Liên Quân','Nhập kho key + ảnh minh hoạ cho từng loại.')}
   <div class="grid" style="grid-template-columns:.9fr 1.1fr;gap:14px">
     <div class="card">
       <div class="card-title" style="margin-bottom:14px">Nhập key mới</div>
       <form id="lq-form">
-        <div class="field"><label>Loại key</label>
-          <select class="select" id="lq-duration">
-            ${LQ_DURATIONS.map(d=>`<option value="${d.id}">${d.label}</option>`).join('')}
-          </select>
-        </div>
+        <div class="field"><label>Loại key</label><select class="select" id="lq-duration">${LQ_DURATIONS.map(d=>`<option value="${d.id}">${d.label}</option>`).join('')}</select></div>
         <div class="field"><label>Giá bán (VND)</label><input class="input" id="lq-price" type="number" min="0" value="0" /></div>
-        <div class="field"><label>Danh sách key (mỗi dòng 1 key)</label>
-          <textarea class="textarea" id="lq-codes" placeholder="KEY-XXXX-0001&#10;KEY-XXXX-0002" rows="6"></textarea>
-        </div>
+        <div class="field"><label>Danh sách key (mỗi dòng 1 key)</label><textarea class="textarea" id="lq-codes" placeholder="KEY-XXXX-0001&#10;KEY-XXXX-0002" rows="6"></textarea></div>
         <button class="btn accent block" type="submit" id="lq-submit">Nhập kho</button>
       </form>
       <div class="divider" style="margin:20px 0"></div>
       <div class="card-title" style="margin-bottom:10px">Ảnh minh hoạ theo loại key</div>
-      <p class="tiny muted-3" style="margin-bottom:12px;line-height:1.6">
-        Ảnh upload lên Supabase Storage, URL lưu ở <span class="mono">settings/lqImages</span>.
-      </p>
+      <p class="tiny muted-3" style="margin-bottom:12px;line-height:1.6">Ảnh upload lên Supabase Storage, URL lưu ở <span class="mono">settings/lqImages</span>.</p>
       <div id="lq-images-grid" style="display:flex;flex-direction:column;gap:10px">
         ${LQ_DURATIONS.map(d=>`
           <div class="row gap-12" style="padding:10px;border:1px solid var(--border);border-radius:12px">
@@ -1015,19 +880,12 @@ async function loadLQKeys(){
   const box=$('#lq-box'); if(!box) return;
   try{
     let lqImages = {};
-    try{
-      const imgSnap = await getDoc(doc(db,'settings','lqImages'));
-      if(imgSnap.exists()) lqImages = imgSnap.data() || {};
-    }catch{}
+    try{ const imgSnap = await getDoc(doc(db,'settings','lqImages')); if(imgSnap.exists()) lqImages = imgSnap.data() || {}; }catch{}
     LQ_DURATIONS.forEach(d=>{
       const url = lqImages[d.id] || '';
       const cell = document.getElementById('lqimg-'+d.id);
-      const lbl  = document.getElementById('lqimg-label-'+d.id);
-      if(cell){
-        cell.innerHTML = url
-          ? `<img src="${esc(url)}" style="width:100%;height:100%;object-fit:cover" />`
-          : '—';
-      }
+      const lbl = document.getElementById('lqimg-label-'+d.id);
+      if(cell){ cell.innerHTML = url ? `<img src="${esc(url)}" style="width:100%;height:100%;object-fit:cover" />` : '—'; }
       if(lbl){ lbl.textContent = url ? 'Đã có ảnh' : 'Chưa có ảnh'; }
     });
     const snap=await getDocs(query(collection(db,'lq_keys'), limit(500)));
@@ -1035,21 +893,16 @@ async function loadLQKeys(){
     const grouped={};
     rows.forEach(r=>{ (grouped[r.duration]=grouped[r.duration]||[]).push(r); });
     let html=`<div style="padding:14px 16px;border-bottom:1px solid var(--border)"><span class="card-title">Kho key</span> <span class="badge">${rows.length}</span></div>`;
-    html+=`<div class="table-scroll"><table><thead><tr>
-      <th>Loại</th><th>Ảnh</th><th>Còn</th><th>Đã bán</th><th>Tổng</th>
-    </tr></thead><tbody>`;
+    html+=`<div class="table-scroll"><table><thead><tr><th>Loại</th><th>Ảnh</th><th>Còn</th><th>Đã bán</th><th>Tổng</th></tr></thead><tbody>`;
     LQ_DURATIONS.forEach(d=>{
       const list=grouped[d.id]||[];
       const avail=list.filter(k=>k.status==='available').length;
       const sold=list.filter(k=>k.status==='sold').length;
       const url = lqImages[d.id] || '';
+      const dur = LQ_DURATIONS.find(x=>x.id===d.id);
       html+=`<tr>
-        <td style="font-weight:600">${d.label}</td>
-        <td>
-          ${url
-            ? `<img src="${esc(url)}" style="width:44px;height:44px;border-radius:10px;object-fit:cover;border:1px solid var(--border)" />`
-            : `<div style="width:44px;height:44px;border-radius:10px;background:var(--bg-sunken);border:1px solid var(--border);display:grid;place-items:center;font-size:.7rem;color:var(--text-3)">—</div>`}
-        </td>
+        <td><div class="row gap-10"><div style="width:32px;height:32px;border-radius:9px;background:${dur.color};color:#fff;display:grid;place-items:center;font-weight:800;font-size:.72rem;flex:none">${dur.short}</div><span style="font-weight:600">${dur.label}</span></div></td>
+        <td>${url?`<img src="${esc(url)}" style="width:44px;height:44px;border-radius:10px;object-fit:cover;border:1px solid var(--border)" />`:`<div style="width:44px;height:44px;border-radius:10px;background:var(--bg-sunken);border:1px solid var(--border);display:grid;place-items:center;font-size:.7rem;color:var(--text-3)">—</div>`}</td>
         <td class="mono" style="color:var(--ok);font-weight:620">${avail}</td>
         <td class="mono muted">${sold}</td>
         <td class="mono">${list.length}</td>
@@ -1072,20 +925,12 @@ async function handleAddLQKeys(){
     for(const code of codes){
       const dup=await getDocs(query(collection(db,'lq_keys'), where('code','==',code), limit(1)));
       if(!dup.empty) continue;
-      await addDoc(collection(db,'lq_keys'),{
-        code, duration, price, status:'available',
-        createdAt:serverTimestamp(), createdBy:ADMIN_ID,
-      });
+      await addDoc(collection(db,'lq_keys'),{ code, duration, price, status:'available', createdAt:serverTimestamp(), createdBy:ADMIN_ID });
       ok++;
     }
-    await addDoc(collection(db,'auditLogs'),{
-      adminId:ADMIN_ID, action:'ADMIN_ADDED_LQ_KEYS',
-      targetType:'lq_keys', targetId:duration,
-      reason:`Thêm ${ok}/${codes.length} key`, timestamp:serverTimestamp(),
-    });
+    await addDoc(collection(db,'auditLogs'),{ adminId:ADMIN_ID, action:'ADMIN_ADDED_LQ_KEYS', targetType:'lq_keys', targetId:duration, reason:`Thêm ${ok}/${codes.length} key`, timestamp:serverTimestamp() });
     toast(`Đã nhập ${ok}/${codes.length} key.`,'ok');
-    $('#lq-codes').value='';
-    loadLQKeys();
+    $('#lq-codes').value=''; loadLQKeys();
   }catch(e){ toast('Không thể nhập.','err'); console.error(e); }
   finally{ btn.disabled=false; btn.textContent='Nhập kho'; }
 }
@@ -1093,13 +938,10 @@ function pickLQImage(duration){
   const d = LQ_DURATIONS.find(x=>x.id===duration);
   const label = d ? d.label : duration;
   const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'image/*';
-  input.style.display = 'none';
+  input.type = 'file'; input.accept = 'image/*'; input.style.display = 'none';
   document.body.appendChild(input);
   input.addEventListener('change', async ()=>{
-    const file = input.files?.[0];
-    document.body.removeChild(input);
+    const file = input.files?.[0]; document.body.removeChild(input);
     if(!file) return;
     try{
       toast('Đang upload ảnh…','info');
@@ -1108,17 +950,10 @@ function pickLQImage(duration){
       const snap = await getDoc(ref);
       const current = snap.exists() ? (snap.data()||{}) : {};
       const oldUrl = current[duration] || '';
-      if(oldUrl){
-        const oldPath = supaPathFromUrl(SUPABASE_BUCKET, oldUrl);
-        if(oldPath) supaDelete(SUPABASE_BUCKET, oldPath);
-      }
+      if(oldUrl){ const oldPath = supaPathFromUrl(SUPABASE_BUCKET, oldUrl); if(oldPath) supaDelete(SUPABASE_BUCKET, oldPath); }
       current[duration] = url;
       await setDoc(ref, current, { merge:true });
-      await addDoc(collection(db,'auditLogs'),{
-        adminId: ADMIN_ID, action: 'ADMIN_UPLOADED_LQ_IMAGE',
-        targetType: 'lq_images', targetId: duration,
-        reason: `Cập nhật ảnh cho ${label}`, timestamp: serverTimestamp(),
-      });
+      await addDoc(collection(db,'auditLogs'),{ adminId: ADMIN_ID, action: 'ADMIN_UPLOADED_LQ_IMAGE', targetType: 'lq_images', targetId: duration, reason: `Cập nhật ảnh cho ${label}`, timestamp: serverTimestamp() });
       toast(`Đã cập nhật ảnh cho ${label}.`,'ok');
       loadLQKeys();
     }catch(e){ console.error(e); toast(e.message || 'Upload lỗi.','err'); }
@@ -1128,69 +963,43 @@ function pickLQImage(duration){
 async function removeLQImage(duration){
   const d = LQ_DURATIONS.find(x=>x.id===duration);
   const label = d ? d.label : duration;
-  const ok = await confirmModal({
-    title: 'Xoá ảnh?',
-    message: `Xoá ảnh minh hoạ cho loại "${label}"?`,
-    confirmText: 'Xoá', danger: true,
-  });
+  const ok = await confirmModal({title: 'Xoá ảnh?', message: `Xoá ảnh minh hoạ cho loại "${label}"?`, confirmText: 'Xoá', danger: true });
   if(!ok) return;
   try{
     const ref = doc(db,'settings','lqImages');
     const snap = await getDoc(ref);
     const current = snap.exists() ? (snap.data()||{}) : {};
     const oldUrl = current[duration] || '';
-    if(oldUrl){
-      const oldPath = supaPathFromUrl(SUPABASE_BUCKET, oldUrl);
-      if(oldPath) await supaDelete(SUPABASE_BUCKET, oldPath);
-    }
+    if(oldUrl){ const oldPath = supaPathFromUrl(SUPABASE_BUCKET, oldUrl); if(oldPath) await supaDelete(SUPABASE_BUCKET, oldPath); }
     delete current[duration];
     await setDoc(ref, current, { merge:true });
-    await addDoc(collection(db,'auditLogs'),{
-      adminId: ADMIN_ID, action: 'ADMIN_REMOVED_LQ_IMAGE',
-      targetType: 'lq_images', targetId: duration,
-      reason: `Xoá ảnh cho ${label}`, timestamp: serverTimestamp(),
-    });
-    toast('Đã xoá.','ok');
-    loadLQKeys();
+    await addDoc(collection(db,'auditLogs'),{ adminId: ADMIN_ID, action: 'ADMIN_REMOVED_LQ_IMAGE', targetType: 'lq_images', targetId: duration, reason: `Xoá ảnh cho ${label}`, timestamp: serverTimestamp() });
+    toast('Đã xoá.','ok'); loadLQKeys();
   }catch(e){ console.error(e); toast('Không thể xoá.','err'); }
 }
 
-/* ---------------- CREATOR ---------------- */
-function viewCreator(){
-  return `
-  ${renderPage('Creator submissions','Duyệt, từ chối, đánh dấu gian lận.')}
-  <div class="card" style="padding:0;overflow:hidden" id="cr-box">Đang tải…</div>`;
-}
+/* ====== CREATOR ====== */
+function viewCreator(){ return `${renderPage('Creator submissions','Duyệt, từ chối, đánh dấu gian lận.')}<div class="card" style="padding:0;overflow:hidden" id="cr-box">Đang tải…</div>`; }
 async function loadCreator(){
   const box=$('#cr-box'); if(!box) return;
   try{
     const snap=await getDocs(query(collection(db,'creatorSubmissions'), limit(100)));
     const rows=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.submittedAt?.seconds||0)-(a.submittedAt?.seconds||0));
     if(!rows.length){ box.innerHTML='<div class="empty"><h3>Chưa có submission</h3></div>'; return; }
-    box.innerHTML=`
-      <div class="table-scroll"><table><thead><tr>
-        <th>Nội dung</th><th>Người nộp</th><th>Platform</th><th>Views</th><th>Fraud</th><th>Trạng thái</th><th>Thao tác</th>
-      </tr></thead><tbody>
-      ${rows.map(r=>`
-        <tr>
-          <td>
-            <div style="font-weight:600;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.title||'—')}</div>
-            <a class="tiny" href="${esc(r.url)}" target="_blank" rel="noopener" style="color:var(--accent)">Mở nội dung</a>
-          </td>
-          <td class="tiny muted" style="max-width:160px;overflow:hidden;text-overflow:ellipsis">${esc(r.userEmail||r.userId)}</td>
-          <td><span class="badge">${esc(r.platform)}</span></td>
-          <td class="mono">${fmtNum(r.currentViews)}</td>
-          <td><span class="badge ${r.fraudScore>60?'danger':r.fraudScore>30?'warn':'ok'}" title="${esc((r.fraudReasons||[]).join(' · '))}">${r.fraudScore||0}</span></td>
-          <td>${badge(r.status)}</td>
-          <td>
-            ${(r.status==='pending'||r.status==='reviewing') ? `
-              <div class="row gap-6">
-                <button class="btn xs ok" data-action="approve-sub" data-id="${esc(r.id)}">Duyệt</button>
-                <button class="btn xs danger" data-action="reject-sub" data-id="${esc(r.id)}">Từ chối</button>
-              </div>` : `<span class="tiny muted-3">—</span>`}
-          </td>
-        </tr>`).join('')}
-      </tbody></table></div>`;
+    box.innerHTML=`<div class="table-scroll"><table><thead><tr>
+      <th>Nội dung</th><th>Người nộp</th><th>Platform</th><th>Views</th><th>Fraud</th><th>Trạng thái</th><th>Thao tác</th>
+    </tr></thead><tbody>
+    ${rows.map(r=>`
+      <tr>
+        <td><div style="font-weight:600;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.title||'—')}</div><a class="tiny" href="${esc(r.url)}" target="_blank" rel="noopener" style="color:var(--accent)">Mở nội dung</a></td>
+        <td class="tiny muted" style="max-width:160px;overflow:hidden;text-overflow:ellipsis">${esc(r.userEmail||r.userId)}</td>
+        <td><span class="badge">${esc(r.platform)}</span></td>
+        <td class="mono">${fmtNum(r.currentViews)}</td>
+        <td><span class="badge ${r.fraudScore>60?'danger':r.fraudScore>30?'warn':'ok'}" title="${esc((r.fraudReasons||[]).join(' · '))}">${r.fraudScore||0}</span></td>
+        <td>${badge(r.status)}</td>
+        <td>${(r.status==='pending'||r.status==='reviewing')?`<div class="row gap-6"><button class="btn xs ok" data-action="approve-sub" data-id="${esc(r.id)}">Duyệt</button><button class="btn xs danger" data-action="reject-sub" data-id="${esc(r.id)}">Từ chối</button></div>`:`<span class="tiny muted-3">—</span>`}</td>
+      </tr>`).join('')}
+    </tbody></table></div>`;
   }catch{ box.innerHTML='<div class="empty"><h3>Không tải được</h3></div>'; }
 }
 async function approveSub(id){
@@ -1212,11 +1021,13 @@ async function rejectSub(id){
   }catch{ toast('Không thể từ chối.','err'); }
 }
 
-/* ---------------- WITHDRAWALS ---------------- */
+/* ====== WITHDRAWALS ====== */
 function viewWithdrawals(){
-  return `
-  ${renderPage('Rút tiền','Duyệt / từ chối yêu cầu rút tiền.')}
-  <div class="notice warn" style="margin-bottom:14px">Việc cộng/trừ số dư cần làm qua Cloud Function transaction để tránh race.</div>
+  return `${renderPage('Yêu cầu rút tiền','Xem đầy đủ thông tin ngân hàng và chuyển tiền thật cho user.')}
+  <div class="notice warn" style="margin-bottom:14px">
+    <span style="flex:none">!</span>
+    <span>Đây là <b>rút tiền thật</b> về ngân hàng của user. Admin cần copy thông tin và chuyển khoản thủ công. Sau khi chuyển xong, bấm "Đã chuyển".</span>
+  </div>
   <div class="card" style="padding:0;overflow:hidden" id="wd-box">Đang tải…</div>`;
 }
 async function loadWithdrawals(){
@@ -1225,42 +1036,94 @@ async function loadWithdrawals(){
     const snap=await getDocs(query(collection(db,'withdrawals'), limit(100)));
     const rows=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
     if(!rows.length){ box.innerHTML='<div class="empty"><h3>Chưa có yêu cầu</h3></div>'; return; }
-    box.innerHTML=`
-      <div class="table-scroll"><table><thead><tr>
-        <th>Người dùng</th><th>Số tiền</th><th>Phương thức</th><th>Chi tiết</th><th>Trạng thái</th><th>Ngày</th><th>Thao tác</th>
-      </tr></thead><tbody>
-      ${rows.map(r=>{
-        const d=r.details||{};
-        const masked=d.accountNumber ? '••••'+String(d.accountNumber).slice(-4) : (d.telco||d.note||'—');
-        return `<tr>
-          <td class="tiny muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis">${esc(r.userEmail||r.userId)}</td>
-          <td class="mono" style="font-weight:620">${fmtVND(r.amount)}</td>
-          <td class="small">${esc(r.method)}</td>
-          <td class="tiny muted">${esc(masked)}</td>
-          <td>${badge(r.status)}</td>
-          <td class="tiny muted-3">${timeAgo(r.createdAt)}</td>
-          <td>
-            ${(r.status==='pending'||r.status==='reviewing') ? `
-              <div class="row gap-6">
-                <button class="btn xs ok" data-action="approve-wd" data-id="${esc(r.id)}">Duyệt</button>
-                <button class="btn xs danger" data-action="reject-wd" data-id="${esc(r.id)}">Từ chối</button>
-              </div>` : '<span class="tiny muted-3">—</span>'}
-          </td>
-        </tr>`;}).join('')}
-      </tbody></table></div>`;
-  }catch{ box.innerHTML='<div class="empty"><h3>Không tải được</h3></div>'; }
+    box.innerHTML=`<div class="table-scroll"><table><thead><tr>
+      <th>User</th><th>Số tiền</th><th>Ngân hàng / STK / Chủ TK</th><th>Trạng thái</th><th>Ngày</th><th>Thao tác</th>
+    </tr></thead><tbody>
+    ${rows.map(r=>{
+      const d = r.details || {};
+      const bankName = d.bankName || '—';
+      const accNum = d.accountNumber || '—';
+      const accName = d.accountName || '—';
+      return `<tr>
+        <td class="tiny muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis">${esc(r.userEmail||r.userId)}</td>
+        <td class="mono" style="font-weight:620;white-space:nowrap">${fmtVND(r.amount)}</td>
+        <td>
+          <div style="font-weight:600;font-size:.85rem">${esc(bankName)}</div>
+          <div class="mono" style="font-size:.82rem;color:var(--accent);font-weight:600;user-select:all">${esc(accNum)}</div>
+          <div class="tiny" style="color:var(--text-2);text-transform:uppercase;letter-spacing:.02em">${esc(accName)}</div>
+          <button class="btn xs soft" data-action="copy-bank" data-id="${esc(r.id)}" style="margin-top:5px">Copy thông tin</button>
+        </td>
+        <td>${badge(r.status)}</td>
+        <td class="tiny muted-3">${timeAgo(r.createdAt)}</td>
+        <td>
+          ${(r.status==='pending'||r.status==='reviewing')?`
+            <div class="row gap-6" style="flex-wrap:wrap">
+              <button class="btn xs ok" data-action="mark-paid" data-id="${esc(r.id)}">Đã chuyển</button>
+              <button class="btn xs danger" data-action="reject-wd" data-id="${esc(r.id)}">Từ chối</button>
+            </div>`:
+            r.status==='completed'?`<span class="tiny" style="color:var(--ok);font-weight:620">✓ Hoàn tất</span>`:
+            r.status==='paid'?`<span class="tiny" style="color:var(--ok);font-weight:620">✓ Đã trả</span>`:
+            `<span class="tiny muted-3">—</span>`}
+        </td>
+      </tr>`;
+    }).join('')}
+    </tbody></table></div>`;
+  }catch(e){ console.error(e); box.innerHTML='<div class="empty"><h3>Không tải được</h3></div>'; }
 }
-async function approveWD(id){
-  const ok=await confirmModal({title:'Duyệt rút tiền?',message:'Chuyển sang approved.',confirmText:'Duyệt'});
+async function copyBankInfo(id){
+  try{
+    const snap = await getDoc(doc(db,'withdrawals',id));
+    if(!snap.exists()) return;
+    const r = snap.data();
+    const d = r.details || {};
+    const text = `${d.bankName||''}\nSTK: ${d.accountNumber||''}\nChủ TK: ${d.accountName||''}\nSố tiền: ${fmtVND(r.amount)}\nEmail user: ${r.userEmail||''}`;
+    await navigator.clipboard.writeText(text);
+    toast('Đã copy thông tin ngân hàng.','ok');
+  }catch{ toast('Không thể copy.','err'); }
+}
+async function markPaid(id){
+  const snap = await getDoc(doc(db,'withdrawals',id));
+  if(!snap.exists()) return;
+  const r = snap.data();
+  const ok = await confirmModal({
+    title:'Xác nhận đã chuyển khoản?',
+    message:`Bạn đã chuyển ${fmtVND(r.amount)} cho tài khoản:\n${r.details?.bankName||''} · ${r.details?.accountNumber||''}\n\nHệ thống sẽ trừ tiền khỏi số dư user và đánh dấu hoàn tất.`,
+    confirmText:'Đã chuyển khoản'
+  });
   if(!ok) return;
   try{
-    await updateDoc(doc(db,'withdrawals',id),{status:'approved',approvedAt:serverTimestamp(),approvedBy:ADMIN_ID});
-    await addDoc(collection(db,'auditLogs'),{adminId:ADMIN_ID,action:'ADMIN_APPROVED_WITHDRAWAL',targetType:'withdrawal',targetId:id,reason:'Manual approval',timestamp:serverTimestamp()});
-    toast('Đã duyệt.','ok'); loadWithdrawals();
-  }catch{ toast('Không thể duyệt.','err'); }
+    const userId = r.userId;
+    const amount = Number(r.amount||0);
+    const wRef = doc(db,'wallets',userId);
+    const wSnap = await getDoc(wRef);
+    if(!wSnap.exists()){ toast('Không tìm thấy ví user.','err'); return; }
+    const w = wSnap.data();
+    if(Number(w.balance||0) < amount){ toast('Số dư user không đủ để trừ.','err'); return; }
+    await updateDoc(wRef,{
+      balance: Number(w.balance||0) - amount,
+      withdrawnAmount: Number(w.withdrawnAmount||0) + amount,
+      updatedAt: serverTimestamp(),
+    });
+    await addDoc(collection(db,'transactions'),{
+      userId, type: 'withdrawal', amount: -amount,
+      source: 'bank_transfer', note: `Rút tiền về ${r.details?.bankName||''} · ${r.details?.accountNumber||''}`,
+      status: 'completed', createdAt: serverTimestamp(),
+    });
+    await updateDoc(doc(db,'withdrawals',id),{
+      status: 'completed', paidAt: serverTimestamp(), paidBy: ADMIN_ID,
+    });
+    await addDoc(collection(db,'auditLogs'),{
+      adminId: ADMIN_ID, action:'ADMIN_MARKED_WITHDRAWAL_PAID',
+      targetType:'withdrawal', targetId:id,
+      reason: `Đã chuyển ${fmtVND(amount)} cho ${r.userEmail||userId}`,
+      timestamp: serverTimestamp(),
+    });
+    toast('Đã đánh dấu và trừ số dư user.','ok');
+    loadWithdrawals();
+  }catch(e){ console.error(e); toast('Không thể xác nhận.','err'); }
 }
 async function rejectWD(id){
-  const ok=await confirmModal({title:'Từ chối?',message:'Số dư cần hoàn qua Cloud Function.',confirmText:'Từ chối',danger:true});
+  const ok=await confirmModal({title:'Từ chối yêu cầu?',message:'User sẽ thấy trạng thái từ chối. Số dư KHÔNG bị trừ.',confirmText:'Từ chối',danger:true});
   if(!ok) return;
   try{
     await updateDoc(doc(db,'withdrawals',id),{status:'rejected',rejectedAt:serverTimestamp(),rejectedBy:ADMIN_ID});
@@ -1269,75 +1132,45 @@ async function rejectWD(id){
   }catch{ toast('Không thể từ chối.','err'); }
 }
 
-/* ---------------- FRAUD ---------------- */
-function viewFraud(){
-  return `
-  ${renderPage('Gian lận','Sự kiện và điểm số nghi ngờ.')}
-  <div class="card" style="padding:0;overflow:hidden" id="fr-box">Đang tải…</div>`;
-}
+/* ====== FRAUD ====== */
+function viewFraud(){ return `${renderPage('Gian lận','Sự kiện và điểm số nghi ngờ.')}<div class="card" style="padding:0;overflow:hidden" id="fr-box">Đang tải…</div>`; }
 async function loadFraud(){
   const box=$('#fr-box'); if(!box) return;
   try{
     const snap=await getDocs(query(collection(db,'fraudEvents'), limit(100)));
     const rows=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
     if(!rows.length){ box.innerHTML='<div class="empty"><h3>Chưa có sự kiện</h3></div>'; return; }
-    box.innerHTML=`
-      <div class="table-scroll"><table><thead><tr><th>Loại</th><th>User</th><th>Điểm</th><th>Lý do</th><th>Ngày</th></tr></thead>
-      <tbody>${rows.map(r=>`
-        <tr><td class="small" style="font-weight:600">${esc(r.type||'—')}</td>
-        <td class="tiny muted">${esc(r.userEmail||r.userId||'—')}</td>
-        <td><span class="badge ${r.score>60?'danger':r.score>30?'warn':'ok'}">${r.score||0}</span></td>
-        <td class="small muted">${esc((r.reasons||[]).join(' · ')||'—')}</td>
-        <td class="tiny muted-3">${timeAgo(r.createdAt)}</td></tr>`).join('')}</tbody></table></div>`;
+    box.innerHTML=`<div class="table-scroll"><table><thead><tr><th>Loại</th><th>User</th><th>Điểm</th><th>Lý do</th><th>Ngày</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr><td class="small" style="font-weight:600">${esc(r.type||'—')}</td><td class="tiny muted">${esc(r.userEmail||r.userId||'—')}</td><td><span class="badge ${r.score>60?'danger':r.score>30?'warn':'ok'}">${r.score||0}</span></td><td class="small muted">${esc((r.reasons||[]).join(' · ')||'—')}</td><td class="tiny muted-3">${timeAgo(r.createdAt)}</td></tr>`).join('')}</tbody></table></div>`;
   }catch{ box.innerHTML='<div class="empty"><h3>Không tải được</h3></div>'; }
 }
 
-/* ---------------- USERS ---------------- */
-function viewUsers(){
-  return `
-  ${renderPage('Người dùng','Danh sách và vai trò.')}
-  <div class="card" style="padding:0;overflow:hidden" id="us-box">Đang tải…</div>`;
-}
+/* ====== USERS ====== */
+function viewUsers(){ return `${renderPage('Người dùng','Danh sách và vai trò.')}<div class="card" style="padding:0;overflow:hidden" id="us-box">Đang tải…</div>`; }
 async function loadUsers(){
   const box=$('#us-box'); if(!box) return;
   try{
     const snap=await getDocs(query(collection(db,'users'), limit(200)));
     const rows=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-    box.innerHTML=`
-      <div class="table-scroll"><table><thead><tr><th>Tên</th><th>Email</th><th>Vai trò</th><th>Trạng thái</th><th>Ngày</th></tr></thead>
-      <tbody>${rows.map(r=>`
-        <tr><td style="font-weight:600">${esc(r.displayName||'—')}</td>
-        <td class="tiny muted">${esc(r.email||'—')}</td>
-        <td><span class="badge ${['superadmin','admin'].includes(r.role)?'accent':''}">${esc(r.role||'user')}</span></td>
-        <td>${badge(r.status==='active'?'completed':'pending')}</td>
-        <td class="tiny muted-3">${timeAgo(r.createdAt)}</td></tr>`).join('')}</tbody></table></div>`;
+    box.innerHTML=`<div class="table-scroll"><table><thead><tr><th>Tên</th><th>Email</th><th>Vai trò</th><th>Trạng thái</th><th>Ngày</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr><td style="font-weight:600">${esc(r.displayName||'—')}</td><td class="tiny muted">${esc(r.email||'—')}</td><td><span class="badge ${['superadmin','admin'].includes(r.role)?'accent':''}">${esc(r.role||'user')}</span></td><td>${badge(r.status==='active'?'completed':'pending')}</td><td class="tiny muted-3">${timeAgo(r.createdAt)}</td></tr>`).join('')}</tbody></table></div>`;
   }catch{ box.innerHTML='<div class="empty"><h3>Không tải được</h3></div>'; }
 }
 
-/* ---------------- AUDIT ---------------- */
-function viewAudit(){
-  return `
-  ${renderPage('Audit log','Mọi thao tác admin đều ghi vết.')}
-  <div class="card" style="padding:0;overflow:hidden" id="au-box">Đang tải…</div>`;
-}
+/* ====== AUDIT ====== */
+function viewAudit(){ return `${renderPage('Audit log','Mọi thao tác admin đều ghi vết.')}<div class="card" style="padding:0;overflow:hidden" id="au-box">Đang tải…</div>`; }
 async function loadAudit(){
   const box=$('#au-box'); if(!box) return;
   try{
     const snap=await getDocs(query(collection(db,'auditLogs'), limit(120)));
     const rows=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.timestamp?.seconds||0)-(a.timestamp?.seconds||0));
     if(!rows.length){ box.innerHTML='<div class="empty"><h3>Chưa có bản ghi</h3></div>'; return; }
-    box.innerHTML=`
-      <div class="table-scroll"><table><thead><tr><th>Action</th><th>Đối tượng</th><th>Lý do</th><th>Admin</th><th>Thời gian</th></tr></thead>
-      <tbody>${rows.map(r=>`
-        <tr><td class="small" style="font-weight:600">${esc(r.action)}</td>
-        <td class="tiny muted">${esc(r.targetType)} · ${esc(String(r.targetId||'').slice(0,10))}</td>
-        <td class="small muted">${esc(r.reason||'—')}</td>
-        <td class="tiny muted-3">${esc(String(r.adminId||'').slice(0,16))}</td>
-        <td class="tiny muted-3">${timeAgo(r.timestamp)}</td></tr>`).join('')}</tbody></table></div>`;
+    box.innerHTML=`<div class="table-scroll"><table><thead><tr><th>Action</th><th>Đối tượng</th><th>Lý do</th><th>Admin</th><th>Thời gian</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr><td class="small" style="font-weight:600">${esc(r.action)}</td><td class="tiny muted">${esc(r.targetType)} · ${esc(String(r.targetId||'').slice(0,10))}</td><td class="small muted">${esc(r.reason||'—')}</td><td class="tiny muted-3">${esc(String(r.adminId||'').slice(0,16))}</td><td class="tiny muted-3">${timeAgo(r.timestamp)}</td></tr>`).join('')}</tbody></table></div>`;
   }catch{ box.innerHTML='<div class="empty"><h3>Không tải được</h3></div>'; }
 }
 
-/* ---------------- ROUTER ---------------- */
+/* ====== ROUTER ====== */
 const VIEWS = {
   overview: [viewOverview, loadOverview],
   economics: [viewEconomics, loadEconomics],
@@ -1354,7 +1187,6 @@ const VIEWS = {
   users: [viewUsers, loadUsers],
   audit: [viewAudit, loadAudit],
 };
-
 function render(){
   const el=$('#app');
   if(!S.ready){ el.innerHTML='<div style="min-height:100dvh;display:grid;place-items:center"><div class="muted">Đang tải…</div></div>'; return; }
@@ -1362,27 +1194,19 @@ function render(){
   const route=parseHash();
   S.route=route;
   const view=VIEWS[route]||VIEWS.overview;
-  el.innerHTML=`
-    <div class="shell">
-      ${renderSidebar(route)}
-      ${renderDrawer(route)}
-      <main class="main">${view[0]()}</main>
-    </div>`;
+  el.innerHTML=`<div class="shell">${renderSidebar(route)}${renderDrawer(route)}<main class="main">${view[0]()}</main></div>`;
   view[1]?.();
 }
 window.addEventListener('hashchange',()=>{ closeDrawer(); render(); });
 
-/* ---------------- GLOBAL EVENTS ---------------- */
 document.addEventListener('click', async (e)=>{
   const t=e.target;
   if(t.closest('#drawer-back')){ closeDrawer(); return; }
-  const go=t.closest('[data-goto]');
-  if(go){ nav(go.dataset.goto); return; }
+  const go=t.closest('[data-goto]'); if(go){ nav(go.dataset.goto); return; }
   if(t.id==='preset-fill'){ fillPresetApis(); return; }
   if(t.id==='tk-reset'){ resetTaskForm(); return; }
   if(t.id==='api-reset'){ resetApiForm(); return; }
-  const a=t.closest('[data-action]');
-  if(!a) return;
+  const a=t.closest('[data-action]'); if(!a) return;
   const act=a.dataset.action;
   if(act==='logout'){ handleAdminLogout(); return; }
   if(act==='open-drawer'){ openDrawer(); return; }
@@ -1391,7 +1215,8 @@ document.addEventListener('click', async (e)=>{
   if(act==='reject-seller'){ rejectSeller(a.dataset.id); return; }
   if(act==='approve-sub'){ approveSub(a.dataset.id); return; }
   if(act==='reject-sub'){ rejectSub(a.dataset.id); return; }
-  if(act==='approve-wd'){ approveWD(a.dataset.id); return; }
+  if(act==='copy-bank'){ copyBankInfo(a.dataset.id); return; }
+  if(act==='mark-paid'){ markPaid(a.dataset.id); return; }
   if(act==='reject-wd'){ rejectWD(a.dataset.id); return; }
   if(act==='upload-lq-img'){ pickLQImage(a.dataset.duration); return; }
   if(act==='remove-lq-img'){ removeLQImage(a.dataset.duration); return; }
@@ -1408,12 +1233,7 @@ document.addEventListener('submit',(e)=>{
   else if(e.target.id==='api-form') saveApiForm();
 });
 
-/* ---------------- BOOT ---------------- */
-(function boot(){
-  S.authed = loadSession();
-  S.ready  = true;
-  render();
-})();
+(function boot(){ S.authed = loadSession(); S.ready = true; render(); })();
 </script>
 </body>
 </html>
