@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Linkora — Quản lý Sản phẩm Seller</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* CSS System Core */
+    :root {
+      --bg: #0f172a; --panel: #1e293b; --border: #334155; --text: #f8fafc; --muted: #94a3b8;
+      --accent: #6366f1; --accent-hover: #4f46e5; --ok: #10b981; --err: #ef4444; --warn: #f59e0b;
+      --radius: 12px;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc; --panel: #ffffff; --border: #e2e8f0; --text: #0f172a; --muted: #64748b;
+      --accent: #4f46e5; --accent-hover: #4338ca; --ok: #059669; --err: #dc2626; --warn: #d97706;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 20px; line-height: 1.5; }
+    .wrap-page { max-width: 1100px; margin: 0 auto; }
+    header.between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .logo { font-size: 1.25rem; font-weight: 800; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .logo-mark { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; }
+    .row { display: flex; align-items: center; }
+    .gap-12 { gap: 12px; }
+    .between { display: flex; justify-content: space-between; align-items: center; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+    .card.pad-lg { padding: 28px; }
+    .page-head { margin-bottom: 20px; }
+    .page-head h1 { font-size: 1.5rem; font-weight: 700; }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; font-size: 0.9rem; text-decoration: none; transition: 0.2s; }
+    .btn.accent { background: var(--accent); color: #fff; }
+    .btn.accent:hover { background: var(--accent-hover); }
+    .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn.ghost:hover { background: var(--border); }
+    .btn.sm { padding: 6px 12px; font-size: 0.8rem; }
+    .btn.err { background: var(--err); color: #fff; }
+    .btn.block { width: 100%; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+    .badge.ok { background: rgba(16, 185, 129, 0.15); color: var(--ok); }
+    .badge.err { background: rgba(239, 68, 68, 0.15); color: var(--err); }
+
+    .grid { display: grid; gap: 20px; }
+    .grid.c2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+    .input, textarea, select { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; margin-top: 6px; font-size: 0.9rem; }
+    .input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+    .field { margin-bottom: 14px; }
+    .field label { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 16px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+    th { padding: 12px; background: var(--bg); border-bottom: 2px solid var(--border); color: var(--muted); font-weight: 600; }
+    td { padding: 14px 12px; border-bottom: 1px solid var(--border); }
+
+    /* Toast */
+    #toast-root { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { background: var(--panel); border: 1px solid var(--border); padding: 12px 18px; border-radius: 8px; color: var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; transform: translateY(20px); opacity: 0; transition: 0.3s; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.ok { border-left: 4px solid var(--ok); }
+    .toast.err { border-left: 4px solid var(--err); }
+  </style>
+</head>
+<body>
+  <div class="wrap-page">
+    <header class="between">
+      <a class="logo" href="dashboard.html"><span class="logo-mark">L</span><span>Linkora</span></a>
+      <div class="row gap-12">
+        <a href="seller.html" class="btn ghost sm">Seller Dashboard</a>
+        <a href="seller-sales.html" class="btn ghost sm">Quản lý Đơn hàng</a>
+      </div>
+    </header>
+
+    <main>
+      <div class="page-head">
+        <h1>Quản lý Sản phẩm Gian hàng</h1>
+        <p class="muted">Thêm sản phẩm mới, cập nhật giá bán và quản lý kho Key/Dịch vụ số.</p>
+      </div>
+
+      <div class="grid c2">
+        <!-- Form Đăng Sản Phẩm Mới -->
+        <div class="card pad-lg">
+          <h3>Đăng sản phẩm mới</h3>
+          <form id="add-product-form" style="margin-top: 16px;">
+            <div class="field">
+              <label>Tên sản phẩm / Dịch vụ *</label>
+              <input class="input" id="p-name" placeholder="Ví dụ: Key Liên Quân VIP 1 Ngày" required />
+            </div>
+
+            <div class="field">
+              <label>Danh mục</label>
+              <select id="p-category">
+                <option value="key-game">Key / Acc Game</option>
+                <option value="software">Phần mềm / Tools</option>
+                <option value="service">Dịch vụ số</option>
+                <option value="other">Khác</option>
+              </select>
+            </div>
+
+            <div class="grid c2">
+              <div class="field">
+                <label>Giá bán (VND) *</label>
+                <input class="input" type="number" id="p-price" placeholder="10000" min="1000" required />
+              </div>
+              <div class="field">
+                <label>Số lượng kho</label>
+                <input class="input" type="number" id="p-stock" placeholder="99" min="0" value="10" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Mô tả chi tiết sản phẩm</label>
+              <textarea id="p-desc" rows="3" placeholder="Hướng dẫn sử dụng, bảo hành..."></textarea>
+            </div>
+
+            <button class="btn accent block" type="submit" id="btn-submit-p">Đăng Bán Sản Phẩm</button>
+          </form>
+        </div>
+
+        <!-- Bảng Sản Phẩm Đã Đăng -->
+        <div class="card pad-lg">
+          <h3>Danh sách sản phẩm</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Tên sản phẩm</th>
+                  <th>Giá</th>
+                  <th>Kho</th>
+                  <th>Trạng thái</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="seller-products-list">
+                <tr>
+                  <td colspan="5" class="muted" style="text-align: center;">Đang tải sản phẩm...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast-root"></div>
+
+  <script type="module">
+    import { S, initAuth, fmtVND, esc, $,$$, toast, db, handleAsyncForm } from './shared.js';
+    import { collection, query, where, getDocs, addDoc, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    initAuth((user) => {
+      if (!user) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+      loadProducts();
+    });
+
+    const form = $('#add-product-form');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = $('#p-name').value.trim();
+      const category = $('#p-category').value;
+      const price = Number($('#p-price').value) || 0;
+      const stock = Number($('#p-stock').value) || 0;
+      const desc = $('#p-desc').value.trim();
+      const btnSubmit = $('#btn-submit-p');
+
+      await handleAsyncForm(btnSubmit, async () => {
+        try {
+          await addDoc(collection(db, 'products'), {
+            sellerId: S.user.uid,
+            name: name,
+            category: category,
+            price: price,
+            stock: stock,
+            description: desc,
+            status: 'active',
+            createdAt: serverTimestamp()
+          });
+
+          toast('Đăng sản phẩm thành công!', 'ok');
+          form.reset();
+          loadProducts();
+        } catch (err) {
+          console.error(err);
+          toast('Lỗi khi thêm sản phẩm', 'err');
+        }
+      });
+    });
+
+    async function loadProducts() {
+      const tbody = $('#seller-products-list');
+      try {
+        const qP = query(
+          collection(db, 'products'),
+          where('sellerId', '==', S.user.uid)
+        );
+
+        const snap = await getDocs(qP);
+
+        if (snap.empty) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="5" class="muted" style="text-align: center; padding: 16px;">
+                Chưa có sản phẩm nào.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = snap.docs.map(docSnap => {
+          const item = docSnap.data();
+          const isActive = item.status === 'active';
+
+          return `
+            <tr>
+              <td><strong>${esc(item.name)}</strong></td>
+              <td style="color:var(--ok); font-weight:600;">${fmtVND(item.price)}</td>
+              <td>${item.stock}</td>
+              <td>
+                <span class="badge ${isActive ? 'ok' : 'err'}">${isActive ? 'Bán' : 'Ẩn'}</span>
+              </td>
+              <td>
+                <div class="row gap-12">
+                  <button class="btn ghost sm btn-toggle-p" data-id="${docSnap.id}" data-status="${item.status}">
+                    ${isActive ? 'Ẩn' : 'Hiện'}
+                  </button>
+                  <button class="btn err sm btn-del-p" data-id="${docSnap.id}">Xóa</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        bindProductEvents();
+
+      } catch (err) {
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan="5" class="muted" style="text-align: center;">Không thể tải dữ liệu.</td></tr>`;
+      }
+    }
+
+    function bindProductEvents() {
+      // Bật / Ẩn sản phẩm
+      $$('.btn-toggle-p').forEach(btn => {         btn.onclick = async (e) => {           const id = e.currentTarget.getAttribute('data-id');           const currentStatus = e.currentTarget.getAttribute('data-status');           const newStatus = currentStatus === 'active' ? 'disabled' : 'active';            try {             await updateDoc(doc(db, 'products', id), { status: newStatus });             toast('Đã đổi trạng thái sản phẩm', 'ok');             loadProducts();           } catch (err) {             toast('Lỗi khi đổi trạng thái', 'err');           }         };       });        // Xóa sản phẩm       $$
+('.btn-del-p').forEach(btn => {
+        btn.onclick = async (e) => {
+          const id = e.currentTarget.getAttribute('data-id');
+          if (!confirm('Bạn có chắc muốn xóa sản phẩm này?')) return;
+
+          try {
+            await deleteDoc(doc(db, 'products', id));
+            toast('Đã xóa sản phẩm!', 'ok');
+            loadProducts();
+          } catch (err) {
+            toast('Lỗi khi xóa sản phẩm', 'err');
+          }
+        };
+      });
+    }
+  </script>
+</body>
+</html>
