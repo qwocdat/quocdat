@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Linkora — Quản lý Danh sách Link</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* CSS System Core */
+    :root {
+      --bg: #0f172a; --panel: #1e293b; --border: #334155; --text: #f8fafc; --muted: #94a3b8;
+      --accent: #6366f1; --accent-hover: #4f46e5; --ok: #10b981; --err: #ef4444; --warn: #f59e0b;
+      --radius: 12px;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc; --panel: #ffffff; --border: #e2e8f0; --text: #0f172a; --muted: #64748b;
+      --accent: #4f46e5; --accent-hover: #4338ca; --ok: #059669; --err: #dc2626; --warn: #d97706;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 20px; line-height: 1.5; }
+    .wrap-page { max-width: 1100px; margin: 0 auto; }
+    header.between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .logo { font-size: 1.25rem; font-weight: 800; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .logo-mark { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; }
+    .row { display: flex; align-items: center; }
+    .gap-12 { gap: 12px; }
+    .between { display: flex; justify-content: space-between; align-items: center; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+    .page-head { margin-bottom: 20px; }
+    .page-head h1 { font-size: 1.5rem; font-weight: 700; }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; font-size: 0.9rem; text-decoration: none; transition: 0.2s; }
+    .btn.accent { background: var(--accent); color: #fff; }
+    .btn.accent:hover { background: var(--accent-hover); }
+    .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn.ghost:hover { background: var(--border); }
+    .btn.sm { padding: 6px 12px; font-size: 0.8rem; }
+    .btn.err { background: var(--err); color: #fff; }
+    .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+    .badge.ok { background: rgba(16, 185, 129, 0.15); color: var(--ok); }
+    .badge.err { background: rgba(239, 68, 68, 0.15); color: var(--err); }
+    .input { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; font-size: 0.9rem; }
+    .input:focus { border-color: var(--accent); }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 16px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+    th { padding: 12px; background: var(--bg); border-bottom: 2px solid var(--border); color: var(--muted); font-weight: 600; }
+    td { padding: 14px 12px; border-bottom: 1px solid var(--border); }
+
+    /* Toast */
+    #toast-root { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { background: var(--panel); border: 1px solid var(--border); padding: 12px 18px; border-radius: 8px; color: var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; transform: translateY(20px); opacity: 0; transition: 0.3s; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.ok { border-left: 4px solid var(--ok); }
+    .toast.err { border-left: 4px solid var(--err); }
+  </style>
+</head>
+<body>
+  <div class="wrap-page">
+    <header class="between">
+      <a class="logo" href="dashboard.html"><span class="logo-mark">L</span><span>Linkora</span></a>
+      <div class="row gap-12">
+        <a href="dashboard.html" class="btn ghost sm">Dashboard</a>
+        <a href="create.html" class="btn accent sm">+ Tạo Link Mới</a>
+      </div>
+    </header>
+
+    <main>
+      <div class="page-head between">
+        <div>
+          <h1>Quản lý Danh sách Link</h1>
+          <p class="muted">Theo dõi và tùy chỉnh các liên kết ngắn bạn đã tạo.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <!-- Thanh tìm kiếm -->
+        <div style="margin-bottom: 16px;">
+          <input class="input" id="search-link-input" placeholder="Tìm kiếm theo tiêu đề, slug hoặc URL gốc..." />
+        </div>
+
+        <!-- Bảng danh sách Link -->
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Tiêu đề / Slug</th>
+                <th>URL Gốc</th>
+                <th>Clicks</th>
+                <th>Doanh thu</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="links-table-body">
+              <tr>
+                <td colspan="6" class="muted" style="text-align: center;">Đang tải danh sách link...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast-root"></div>
+
+  <script type="module">
+    import { S, initAuth, fmtVND, esc, $,$$, toast, db, debounce } from './shared.js';
+    import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    let allLinks = [];
+
+    initAuth((user) => {
+      if (!user) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+      loadUserLinks();
+      
+      // Áp dụng Debounce cho ô tìm kiếm
+      $('#search-link-input').addEventListener('input', debounce((e) => {
+        filterAndRenderLinks(e.target.value.trim());
+      }, 300));
+    });
+
+    async function loadUserLinks() {
+      try {
+        const qLinks = query(
+          collection(db, 'links'),
+          where('userId', '==', S.user.uid)
+        );
+        const snap = await getDocs(qLinks);
+        
+        allLinks = snap.docs.map(docSnap => ({
+          id: docSnap.id,
+          ...docSnap.data()
+        }));
+
+        filterAndRenderLinks('');
+      } catch (err) {
+        console.error(err);
+        toast('Lỗi khi tải danh sách link', 'err');
+      }
+    }
+
+    function filterAndRenderLinks(keyword) {
+      const tbody = $('#links-table-body');
+      const kw = keyword.toLowerCase();
+
+      const filtered = allLinks.filter(item => {
+        if (!kw) return true;
+        return (item.title || '').toLowerCase().includes(kw) ||
+               (item.slug || '').toLowerCase().includes(kw) ||
+               (item.originalUrl || '').toLowerCase().includes(kw);
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="muted" style="text-align: center; padding: 24px;">
+              Không tìm thấy liên kết nào.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(item => {
+        const shortUrl = `${window.location.origin}/s/${item.slug}`;
+        const isActive = item.status === 'active';
+
+        return `
+          <tr>
+            <td>
+              <strong style="display:block;">${esc(item.title || 'Không có tiêu đề')}</strong>
+              <small class="muted">${esc(item.slug)}</small>
+            </td>
+            <td>
+              <a href="${esc(item.originalUrl)}" target="_blank" class="muted" style="max-width:200px; display:inline-block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                ${esc(item.originalUrl)}
+              </a>
+            </td>
+            <td><strong>${(item.clicks || 0).toLocaleString('vi-VN')}</strong></td>
+            <td style="color:var(--ok); font-weight:600;">${fmtVND(item.earnings || 0)}</td>
+            <td>
+              <span class="badge ${isActive ? 'ok' : 'err'}">${isActive ? 'Hoạt động' : 'Tạm dừng'}</span>
+            </td>
+            <td>
+              <div class="row gap-12">
+                <button class="btn ghost sm btn-copy" data-url="${shortUrl}">Sao chép</button>
+                <button class="btn ghost sm btn-toggle" data-id="${item.id}" data-status="${item.status}">
+                  ${isActive ? 'Tắt' : 'Bật'}
+                </button>
+                <button class="btn err sm btn-delete" data-id="${item.id}">Xóa</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      bindActionEvents();
+    }
+
+    function bindActionEvents() {
+      // Nút Sao chép
+      $$('.btn-copy').forEach(btn => {
+        btn.onclick = (e) => {
+          const url = e.currentTarget.getAttribute('data-url');
+          navigator.clipboard.writeText(url);
+          toast('Đã sao chép đường dẫn!', 'ok');
+        };
+      });
+
+      // Nút Bật/Tắt trạng thái
+      $$('.btn-toggle').forEach(btn => {         btn.onclick = async (e) => {           const id = e.currentTarget.getAttribute('data-id');           const currentStatus = e.currentTarget.getAttribute('data-status');           const newStatus = currentStatus === 'active' ? 'disabled' : 'active';            try {             await updateDoc(doc(db, 'links', id), { status: newStatus });             toast('Đã cập nhật trạng thái link', 'ok');             loadUserLinks();           } catch (err) {             toast('Lỗi khi đổi trạng thái link', 'err');           }         };       });        // Nút Xóa link       $$
+('.btn-delete').forEach(btn => {
+        btn.onclick = async (e) => {
+          const id = e.currentTarget.getAttribute('data-id');
+          if (!confirm('Bạn có chắc chắn muốn xóa liên kết này?')) return;
+
+          try {
+            await deleteDoc(doc(db, 'links', id));
+            toast('Đã xóa liên kết thành công', 'ok');
+            loadUserLinks();
+          } catch (err) {
+            toast('Lỗi khi xóa link', 'err');
+          }
+        };
+      });
+    }
+  </script>
+</body>
+</html>
