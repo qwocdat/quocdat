@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Linkora — Cài Đặt Tài Khoản</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* CSS System Core */
+    :root {
+      --bg: #0f172a; --panel: #1e293b; --border: #334155; --text: #f8fafc; --muted: #94a3b8;
+      --accent: #6366f1; --accent-hover: #4f46e5; --ok: #10b981; --err: #ef4444; --warn: #f59e0b;
+      --radius: 12px;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc; --panel: #ffffff; --border: #e2e8f0; --text: #0f172a; --muted: #64748b;
+      --accent: #4f46e5; --accent-hover: #4338ca; --ok: #059669; --err: #dc2626; --warn: #d97706;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 20px; line-height: 1.5; }
+    .wrap-page { max-width: 800px; margin: 0 auto; }
+    header.between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .logo { font-size: 1.25rem; font-weight: 800; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .logo-mark { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; }
+    .row { display: flex; align-items: center; }
+    .gap-12 { gap: 12px; }
+    .between { display: flex; justify-content: space-between; align-items: center; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+    .card.pad-lg { padding: 28px; }
+    .page-head { margin-bottom: 20px; }
+    .page-head h1 { font-size: 1.5rem; font-weight: 700; }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; font-size: 0.9rem; text-decoration: none; transition: 0.2s; }
+    .btn.accent { background: var(--accent); color: #fff; }
+    .btn.accent:hover { background: var(--accent-hover); }
+    .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn.ghost:hover { background: var(--border); }
+    .btn.err { background: var(--err); color: #fff; }
+    .btn.sm { padding: 6px 12px; font-size: 0.8rem; }
+    .btn.block { width: 100%; }
+    .input { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; margin-top: 6px; font-size: 0.9rem; }
+    .input:focus { border-color: var(--accent); }
+    .field { margin-bottom: 16px; }
+    .field label { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
+
+    .grid { display: grid; gap: 16px; }
+    .grid.c2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+
+    /* Toast */
+    #toast-root { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { background: var(--panel); border: 1px solid var(--border); padding: 12px 18px; border-radius: 8px; color: var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; transform: translateY(20px); opacity: 0; transition: 0.3s; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.ok { border-left: 4px solid var(--ok); }
+    .toast.err { border-left: 4px solid var(--err); }
+  </style>
+</head>
+<body>
+  <div class="wrap-page">
+    <header class="between">
+      <a class="logo" href="dashboard.html"><span class="logo-mark">L</span><span>Linkora</span></a>
+      <div class="row gap-12">
+        <a href="dashboard.html" class="btn ghost sm">Dashboard</a>
+        <button class="btn err sm" id="btn-logout">Đăng xuất</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="page-head">
+        <h1>Cài Đặt Tài Khoản</h1>
+        <p class="muted">Quản lý thông tin cá nhân, bảo mật tài khoản và giao diện hệ thống.</p>
+      </div>
+
+      <!-- Khối 1: Thông tin cá nhân -->
+      <div class="card pad-lg">
+        <h3>Thông tin cá nhân</h3>
+        <form id="profile-form" style="margin-top: 16px;">
+          <div class="grid c2">
+            <div class="field">
+              <label>Tên hiển thị *</label>
+              <input class="input" id="set-display-name" required placeholder="Nhập tên của bạn..." />
+            </div>
+            <div class="field">
+              <label>Địa chỉ Email (Cố định)</label>
+              <input class="input" id="set-email" readonly style="opacity: 0.7;" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Số điện thoại liên hệ</label>
+            <input class="input" type="tel" id="set-phone" placeholder="0987654321" />
+          </div>
+
+          <button class="btn accent" type="submit" id="btn-save-profile">Lưu Thay Đổi</button>
+        </form>
+      </div>
+
+      <!-- Khối 2: Đổi mật khẩu -->
+      <div class="card pad-lg">
+        <h3>Đổi mật khẩu</h3>
+        <form id="password-form" style="margin-top: 16px;">
+          <div class="field">
+            <label>Mật khẩu mới *</label>
+            <input class="input" type="password" id="set-new-pass" minlength="6" required placeholder="Tối thiểu 6 ký tự" />
+          </div>
+
+          <div class="field">
+            <label>Xác nhận mật khẩu mới *</label>
+            <input class="input" type="password" id="set-confirm-pass" minlength="6" required placeholder="Nhập lại mật khẩu mới" />
+          </div>
+
+          <button class="btn accent" type="submit" id="btn-save-pass">Cập Nhật Mật Khẩu</button>
+        </form>
+      </div>
+
+      <!-- Khối 3: Giao diện -->
+      <div class="card pad-lg between">
+        <div>
+          <h3>Giao diện hệ thống</h3>
+          <p class="muted" style="font-size: 0.85rem;">Chuyển đổi giữa Chế độ Sáng (Light) và Tối (Dark)</p>
+        </div>
+        <button class="btn ghost sm" id="btn-toggle-theme">Đổi Giao Diện</button>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast-root"></div>
+
+  <script type="module">
+    import { S, initAuth, esc, $, toast, db, auth, handleAsyncForm } from './shared.js';
+    import { doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { updatePassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    initAuth((user) => {
+      if (!user) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+
+      $('#set-email').value = user.email || '';
+      $('#set-display-name').value = S.profile?.displayName || user.displayName || '';
+      $('#set-phone').value = S.profile?.phone || '';
+
+      bindEvents();
+    });
+
+    function bindEvents() {
+      // Đăng xuất
+      $('#btn-logout').onclick = async () => {
+        if (!confirm('Bạn có chắc chắn muốn đăng xuất?')) return;
+        await signOut(auth);
+        window.location.href = 'dashboard.html';
+      };
+
+      // Cập nhật thông tin
+      $('#profile-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const displayName = $('#set-display-name').value.trim();
+        const phone = $('#set-phone').value.trim();
+        const btn = $('#btn-save-profile');
+
+        await handleAsyncForm(btn, async () => {
+          try {
+            await updateDoc(doc(db, 'users', S.user.uid), {
+              displayName: displayName,
+              phone: phone
+            });
+            toast('Cập nhật thông tin thành công!', 'ok');
+          } catch (err) {
+            console.error(err);
+            toast('Lỗi khi cập nhật thông tin!', 'err');
+          }
+        });
+      };
+
+      // Đổi mật khẩu
+      $('#password-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const newPass = $('#set-new-pass').value;
+        const confirmPass = $('#set-confirm-pass').value;
+        const btn = $('#btn-save-pass');
+
+        if (newPass !== confirmPass) {
+          toast('Mật khẩu xác nhận không khớp!', 'err');
+          return;
+        }
+
+        await handleAsyncForm(btn, async () => {
+          try {
+            await updatePassword(auth.currentUser, newPass);
+            toast('Đổi mật khẩu thành công!', 'ok');
+            $('#password-form').reset();
+          } catch (err) {
+            console.error(err);
+            toast('Vui lòng đăng nhập lại trước khi đổi mật khẩu!', 'err');
+          }
+        });
+      };
+
+      // Chuyển theme
+      $('#btn-toggle-theme').onclick = () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', nextTheme);
+        localStorage.setItem('lk_theme', nextTheme);
+        toast(`Đã chuyển sang giao diện ${nextTheme === 'dark' ? 'Tối' : 'Sáng'}`, 'ok');
+      };
+    }
+  </script>
+</body>
+</html>
