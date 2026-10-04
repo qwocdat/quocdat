@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Linkora — Đăng ký Seller</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* CSS System Core */
+    :root {
+      --bg: #0f172a; --panel: #1e293b; --border: #334155; --text: #f8fafc; --muted: #94a3b8;
+      --accent: #6366f1; --accent-hover: #4f46e5; --ok: #10b981; --err: #ef4444; --warn: #f59e0b;
+      --radius: 12px;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc; --panel: #ffffff; --border: #e2e8f0; --text: #0f172a; --muted: #64748b;
+      --accent: #4f46e5; --accent-hover: #4338ca; --ok: #059669; --err: #dc2626; --warn: #d97706;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 20px; line-height: 1.5; }
+    .wrap-page { max-width: 600px; margin: 0 auto; }
+    header.between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .logo { font-size: 1.25rem; font-weight: 800; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .logo-mark { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; }
+    .row { display: flex; align-items: center; }
+    .gap-12 { gap: 12px; }
+    .between { display: flex; justify-content: space-between; align-items: center; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+    .card.pad-lg { padding: 28px; }
+    .page-head { margin-bottom: 20px; text-align: center; }
+    .page-head h1 { font-size: 1.5rem; font-weight: 700; }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; font-size: 0.9rem; text-decoration: none; transition: 0.2s; }
+    .btn.accent { background: var(--accent); color: #fff; }
+    .btn.accent:hover { background: var(--accent-hover); }
+    .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn.ghost:hover { background: var(--border); }
+    .btn.sm { padding: 6px 12px; font-size: 0.8rem; }
+    .btn.block { width: 100%; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    
+    .input, textarea { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; margin-top: 6px; font-size: 0.9rem; }
+    .input:focus, textarea:focus { border-color: var(--accent); }
+    .field { margin-bottom: 16px; text-align: left; }
+    .field label { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
+
+    .status-box { padding: 16px; border-radius: 8px; text-align: center; margin-top: 12px; }
+    .status-box.warn { background: rgba(245, 158, 11, 0.15); border: 1px solid var(--warn); color: var(--warn); }
+    .status-box.ok { background: rgba(16, 185, 129, 0.15); border: 1px solid var(--ok); color: var(--ok); }
+
+    /* Toast */
+    #toast-root { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { background: var(--panel); border: 1px solid var(--border); padding: 12px 18px; border-radius: 8px; color: var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; transform: translateY(20px); opacity: 0; transition: 0.3s; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.ok { border-left: 4px solid var(--ok); }
+    .toast.err { border-left: 4px solid var(--err); }
+  </style>
+</head>
+<body>
+  <div class="wrap-page">
+    <header class="between">
+      <a class="logo" href="dashboard.html"><span class="logo-mark">L</span><span>Linkora</span></a>
+      <div class="row gap-12">
+        <a href="dashboard.html" class="btn ghost sm">Dashboard</a>
+      </div>
+    </header>
+
+    <main>
+      <div class="page-head">
+        <h1>Đăng ký trở thành Seller</h1>
+        <p class="muted">Bắt đầu kinh doanh sản phẩm, dịch vụ và Key Game trên Linkora Marketplace.</p>
+      </div>
+
+      <div class="card pad-lg" id="seller-register-box">
+        <p class="muted" style="text-align: center;">Đang kiểm tra trạng thái tài khoản...</p>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast-root"></div>
+
+  <script type="module">
+    import { S, initAuth, esc, $, toast, db, handleAsyncForm } from './shared.js';
+    import { doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    initAuth((user) => {
+      if (!user) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+      checkSellerStatus();
+    });
+
+    async function checkSellerStatus() {
+      const box = $('#seller-register-box');
+      try {
+        const sSnap = await getDoc(doc(db, 'sellers', S.user.uid));
+
+        if (sSnap.exists()) {
+          const sellerData = sSnap.data();
+          if (sellerData.status === 'pending') {
+            box.innerHTML = `
+              <div class="status-box warn">
+                <h3 style="margin-bottom:6px;">Đơn đăng ký đang chờ duyệt!</h3>
+                <p style="font-size:0.9rem;">Yêu cầu của Gian hàng <strong>"${esc(sellerData.shopName)}"</strong> đã được ghi nhận. Ban quản trị sẽ phê duyệt trong thời gian sớm nhất.</p>
+              </div>
+            `;
+            return;
+          } else if (sellerData.status === 'approved' || sellerData.status === 'active') {
+            box.innerHTML = `
+              <div class="status-box ok">
+                <h3 style="margin-bottom:6px;">Bạn đã là Seller!</h3>
+                <p style="font-size:0.9rem; margin-bottom:14px;">Tài khoản gian hàng <strong>"${esc(sellerData.shopName)}"</strong> đã hoạt động.</p>
+                <a href="seller.html" class="btn accent sm">Truy cập Seller Dashboard</a>
+              </div>
+            `;
+            return;
+          }
+        }
+
+        // Nếu chưa đăng ký Seller thì hiện Form
+        renderForm(box);
+
+      } catch (err) {
+        console.error(err);
+        toast('Lỗi kiểm tra thông tin Seller', 'err');
+      }
+    }
+
+    function renderForm(box) {
+      box.innerHTML = `
+        <form id="sr-form">
+          <div class="field">
+            <label>Tên Shop / Gian hàng *</label>
+            <input class="input" id="sr-shop-name" placeholder="Ví dụ: Gian Hàng Key Liên Quân 24/7" required />
+          </div>
+
+          <div class="field">
+            <label>Số điện thoại Zalo / Điện thoại liên hệ *</label>
+            <input class="input" type="tel" id="sr-phone" placeholder="0987654321" required />
+          </div>
+
+          <div class="field">
+            <label>Mô tả ngắn về sản phẩm / dịch vụ bạn sẽ bán</label>
+            <textarea id="sr-desc" rows="3" placeholder="Ví dụ: Chuyên cung cấp các loại Key Game, Mã giảm giá, dịch vụ số..."></textarea>
+          </div>
+
+          <button class="btn accent block" type="submit" id="btn-submit-sr" style="margin-top: 12px;">
+            Gửi Đơn Đăng Ký Seller
+          </button>
+        </form>
+      `;
+
+      $('#sr-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const shopName = $('#sr-shop-name').value.trim();
+        const phone = $('#sr-phone').value.trim();
+        const desc = $('#sr-desc').value.trim();
+        const btnSubmit = $('#btn-submit-sr');
+
+        await handleAsyncForm(btnSubmit, async () => {
+          try {
+            await setDoc(doc(db, 'sellers', S.user.uid), {
+              userId: S.user.uid,
+              shopName: shopName,
+              phone: phone,
+              description: desc,
+              status: 'pending',
+              createdAt: serverTimestamp()
+            });
+
+            toast('Gửi đơn đăng ký Seller thành công!', 'ok');
+            checkSellerStatus();
+          } catch (err) {
+            console.error(err);
+            toast('Lỗi khi gửi đơn đăng ký!', 'err');
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>
