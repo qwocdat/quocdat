@@ -508,7 +508,7 @@ function viewTasksAdmin(){
         <div class="field">
           <label>Network *</label>
           <select class="select" id="tk-network">
-            ${Object.entries(NETWORK_PRESETS).map(([id,p])=>`<option value="${id}">${p.name}</option>`).join('')}
+            <option value="">Đang tải danh sách Network...</option>
           </select>
         </div>
         <div class="field">
@@ -536,7 +536,26 @@ function viewTasksAdmin(){
   </div>`;
 }
 
+async function loadNetworkOptions(selectedId = ''){
+  const select = $('#tk-network');
+  if(!select) return;
+  try{
+    const snap = await getDocs(collection(db, 'networkApis'));
+    let apis = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    
+    if(!apis.length){
+      apis = Object.entries(NETWORK_PRESETS).map(([id, p]) => ({ id, name: p.name, enabled: true }));
+    }
+    
+    select.innerHTML = apis.map(a => `<option value="${esc(a.id)}"${a.id === selectedId ? ' selected' : ''}>${esc(a.name || a.id)} (${esc(a.id)})</option>`).join('');
+  }catch(e){
+    console.error(e);
+    select.innerHTML = Object.entries(NETWORK_PRESETS).map(([id, p]) => `<option value="${id}"${id === selectedId ? ' selected' : ''}>${p.name}</option>`).join('');
+  }
+}
+
 async function loadTasksAdmin(){
+  await loadNetworkOptions();
   const box = $('#tasks-admin-box'); if(!box) return;
   try{
     const snap = await getDocs(query(collection(db,'tasks'), limit(200)));
@@ -614,6 +633,7 @@ function resetTaskForm(){
   $('#tk-reward').value=200; $('#tk-cd').value=300; $('#tk-limit').value=10;
   $('#tk-order').value=1; $('#tk-enabled').value='true';
   const t = $('#tk-form-title'); if(t) t.textContent='Thêm nhiệm vụ mới';
+  loadNetworkOptions();
 }
 
 async function editTaskAdmin(id){
@@ -622,7 +642,7 @@ async function editTaskAdmin(id){
   const t = snap.data();
   $('#tk-id').value = id;
   $('#tk-name').value = t.name||'';
-  $('#tk-network').value = t.networkId||'link4m';
+  await loadNetworkOptions(t.networkId||'link4m');
   $('#tk-url').value = t.targetUrl||'';
   $('#tk-reward').value = t.reward||0;
   $('#tk-cd').value = t.cooldown||300;
