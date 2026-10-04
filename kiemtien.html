@@ -1,208 +1,282 @@
 <!DOCTYPE html>
-<html lang="vi" data-theme="light">
+<html lang="vi" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Linkora — Kiếm Tiền Online & Tối Ưu Thu Nhập</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Nhiệm Vụ Trực Tuyến Minh Bạch · Linkora</title>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* CSS System Core & Mobile Fixes */
+    /* Monochrome Dark/Light Design System */
     :root {
-      --bg: #0f172a; --panel: #1e293b; --border: #334155; --text: #f8fafc; --muted: #94a3b8;
-      --accent: #6366f1; --accent-hover: #4f46e5; --ok: #10b981; --err: #ef4444; --warn: #f59e0b;
-      --radius: 12px;
+      --bg: #090a0f;
+      --bg-alt: #12141c;
+      --panel: #181a24;
+      --border: #262938;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #ffffff;
+      --accent-hover: #e2e8f0;
+      --ok: #10b981;
+      --radius: 16px;
     }
     [data-theme="light"] {
-      --bg: #f8fafc; --panel: #ffffff; --border: #e2e8f0; --text: #0f172a; --muted: #64748b;
-      --accent: #4f46e5; --accent-hover: #4338ca; --ok: #059669; --err: #dc2626; --warn: #d97706;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-    body { background: var(--bg); color: var(--text); padding: 16px; line-height: 1.5; -webkit-tap-highlight-color: transparent; }
-    .wrap-page { max-width: 1050px; margin: 0 auto; }
-    
-    /* Header Responsive */
-    header.between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 12px; flex-wrap: wrap; }
-    .logo { font-size: 1.25rem; font-weight: 800; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 8px; }
-    .logo-mark { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; }
-    .row { display: flex; align-items: center; }
-    .gap-12 { gap: 12px; }
-    .between { display: flex; justify-content: space-between; align-items: center; }
-
-    /* Hero Section */
-    .hero { background: linear-gradient(135deg, var(--panel), var(--bg)); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px 20px; text-align: center; margin-bottom: 24px; }
-    .hero h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 12px; line-height: 1.2; }
-    .hero p { font-size: 0.95rem; color: var(--muted); max-width: 600px; margin: 0 auto 20px; }
-    
-    /* UI Elements */
-    .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
-    .card.pad-lg { padding: 24px; }
-    .muted { color: var(--muted); font-size: 0.85rem; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; font-size: 0.88rem; text-decoration: none; transition: 0.2s; white-space: nowrap; }
-    .btn.accent { background: var(--accent); color: #fff; }
-    .btn.accent:hover { background: var(--accent-hover); }
-    .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
-    .btn.ghost:hover { background: var(--border); }
-    .btn.sm { padding: 6px 12px; font-size: 0.8rem; }
-    .btn.block { width: 100%; }
-
-    /* Grid Layouts Responsive */
-    .grid { display: grid; gap: 16px; }
-    .grid.c4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
-    .grid.c2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
-
-    .stat { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
-    .stat-label { font-size: 0.8rem; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
-    .stat-value { font-size: 1.35rem; font-weight: 800; color: var(--text); }
-
-    /* Feature Cards */
-    .feature-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
-    .feature-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(99, 102, 241, 0.12); color: var(--accent); font-size: 1.2rem; display: grid; place-items: center; margin-bottom: 12px; }
-
-    /* Mobile Friendly Table */
-    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 12px; border-radius: 8px; border: 1px solid var(--border); }
-    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; min-width: 500px; }
-    th { padding: 10px 12px; background: var(--bg); border-bottom: 2px solid var(--border); color: var(--muted); font-weight: 600; white-space: nowrap; }
-    td { padding: 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
-
-    /* Mobile Overrides */
-    @media (max-width: 640px) {
-      body { padding: 12px; }
-      .hero { padding: 24px 16px; }
-      .hero h1 { font-size: 1.4rem; }
-      .card.pad-lg { padding: 16px; }
-      .grid.c4 { grid-template-columns: repeat(2, 1fr); }
-      header.between { margin-bottom: 16px; }
+      --bg: #f8fafc;
+      --bg-alt: #f1f5f9;
+      --panel: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #0f172a;
+      --accent-hover: #1e293b;
+      --ok: #059669;
     }
 
-    /* Toast */
-    #toast-root { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
-    .toast { background: var(--panel); border: 1px solid var(--border); padding: 12px 18px; border-radius: 8px; color: var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; transform: translateY(20px); opacity: 0; transition: 0.3s; }
-    .toast.show { transform: translateY(0); opacity: 1; }
-    .toast.err { border-left: 4px solid var(--err); }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Be Vietnam Pro', sans-serif; }
+    body { background: var(--bg); color: var(--text); line-height: 1.6; -webkit-tap-highlight-color: transparent; }
+    .container { max-width: 1050px; margin: 0 auto; padding: 0 16px; }
+
+    /* Header */
+    .site-header { padding: 16px 0; border-bottom: 1px solid var(--border); background: var(--bg); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
+    .nav-wrap { display: flex; justify-content: space-between; align-items: center; }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font-weight: 800; font-size: 1.2rem; }
+    .brand-logo { width: 32px; height: 32px; background: var(--accent); color: var(--bg); border-radius: 8px; display: grid; place-items: center; font-size: 1.1rem; }
+    .brand span em { color: var(--muted); font-style: normal; }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; font-size: 0.95rem; text-decoration: none; transition: 0.2s; }
+    .btn-accent { background: var(--accent); color: var(--bg); }
+    .btn-accent:hover { background: var(--accent-hover); }
+    .btn-ghost { background: var(--panel); color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--muted); }
+    .btn-sm { padding: 8px 14px; font-size: 0.85rem; border-radius: 8px; }
+    .btn-block { width: 100%; }
+
+    /* Hero Section - Monochrome Glow Inspired */
+    .hero { padding: 48px 0 32px; text-align: center; background: radial-gradient(circle at top, rgba(255,255,255,0.05) 0%, transparent 70%); }
+    .eyebrow { display: inline-block; padding: 4px 12px; border-radius: 20px; background: var(--panel); border: 1px solid var(--border); font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; color: var(--muted); margin-bottom: 16px; text-transform: uppercase; }
+    .hero h1 { font-size: 2.2rem; font-weight: 800; line-height: 1.25; margin-bottom: 16px; letter-spacing: -0.5px; }
+    .hero h1 span { color: var(--muted); }
+    .hero p { font-size: 0.95rem; color: var(--muted); max-width: 580px; margin: 0 auto 24px; }
+    .hero-actions { display: flex; flex-direction: column; gap: 12px; max-width: 400px; margin: 0 auto 24px; }
+    .trust-row { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; font-size: 0.8rem; color: var(--muted); }
+    .trust-row span { display: flex; align-items: center; gap: 4px; }
+
+    /* Mock Card Dashboard (Ảnh cảm hứng - Tông Đen Trắng) */
+    .mock-card { background: var(--panel); border: 1px solid var(--border); border-radius: 20px; padding: 20px; max-width: 420px; margin: 32px auto 0; text-align: left; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+    .mock-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--border); color: var(--text); display: grid; place-items: center; font-weight: 700; }
+    .live-dot { font-size: 0.75rem; color: var(--ok); display: flex; align-items: center; gap: 6px; font-weight: 600; }
+    .live-dot i { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); display: inline-block; }
+    .mock-balance-box { background: var(--bg); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+    .mock-balance-box small { font-size: 0.7rem; font-weight: 700; color: var(--muted); letter-spacing: 0.5px; }
+    .mock-balance-box h3 { font-size: 1.6rem; font-weight: 800; margin: 4px 0; }
+    .mock-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; margin-bottom: 16px; }
+    .mock-stats div { background: var(--bg); padding: 10px; border-radius: 10px; border: 1px solid var(--border); }
+    .mock-stats b { display: block; font-size: 1.1rem; }
+    .mock-stats small { font-size: 0.7rem; color: var(--muted); }
+
+    /* Ticker Running Payments */
+    .ticker { background: var(--bg-alt); border-y: 1px solid var(--border); padding: 10px 0; overflow: hidden; margin: 32px 0; font-size: 0.85rem; }
+    .ticker-track { display: flex; gap: 24px; white-space: nowrap; animation: scroll 25s linear infinite; }
+    @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+    /* General Sections */
+    .section { padding: 40px 0; }
+    .section-title { text-align: center; margin-bottom: 32px; }
+    .section-title h2 { font-size: 1.6rem; font-weight: 800; }
+
+    /* Responsive Grid Steps & Benefits */
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .feature-box { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+    .feature-box span.num { font-size: 0.8rem; font-weight: 800; color: var(--muted); display: block; margin-bottom: 8px; }
+
+    /* Real Links & Tasks Table Responsive Mobile */
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 16px; border-radius: 12px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 480px; }
+    th { background: var(--bg-alt); padding: 12px; text-align: left; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--border); }
+    td { padding: 12px; border-bottom: 1px solid var(--border); }
+
+    /* FAQ Details */
+    .faq-item { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; padding: 16px; }
+    .faq-item summary { font-weight: 700; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+    .faq-item p { margin-top: 10px; font-size: 0.9rem; color: var(--muted); }
+
+    /* Footer */
+    footer { border-top: 1px solid var(--border); padding: 32px 0 16px; background: var(--bg-alt); font-size: 0.85rem; color: var(--muted); }
+    
+    @media (min-width: 640px) {
+      .hero-actions { flex-direction: row; }
+      .hero h1 { font-size: 2.8rem; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap-page">
-    <header class="between">
-      <a class="logo" href="dashboard.html"><span class="logo-mark">L</span><span>Linkora</span></a>
-      <div class="row gap-12">
-        <a href="dashboard.html" class="btn ghost sm">Dashboard</a>
-        <a href="wallet.html" class="btn accent sm" id="user-wallet-btn">Ví: 0đ</a>
+
+  <!-- Site Header -->
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="dashboard.html">
+        <div class="brand-logo">L</div>
+        <span>Linkora<em>.site</em></span>
+      </a>
+      <div style="display: flex; gap: 8px;">
+        <a href="dashboard.html" class="btn btn-ghost btn-sm">Dashboard</a>
+        <a href="wallet.html" class="btn btn-accent btn-sm" id="nav-wallet-bal">Ví: 0đ</a>
       </div>
-    </header>
+    </div>
+  </header>
 
-    <main>
-      <!-- Hero Banner -->
-      <section class="hero">
-        <h1>Trung Tâm Kiếm Tiền Linkora</h1>
-        <p>Khám phá đa dạng các phương thức tạo thu nhập thụ động bền vững từ rút gọn link, làm nhiệm vụ đến bán sản phẩm số.</p>
-        <div class="row gap-12" style="justify-content: center; flex-wrap: wrap;">
-          <a href="create.html" class="btn accent">+ Rút Gọn Link Ngay</a>
-          <a href="tasks.html" class="btn ghost">Làm Nhiệm Vụ</a>
-        </div>
-      </section>
-
-      <!-- Báo Cáo Doanh Thu Thật (Realtime Metrics) -->
-      <section class="card pad-lg">
-        <div class="between" style="margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-          <div>
-            <h2 style="font-size: 1.15rem; font-weight: 700;">Báo Cáo Hiệu Suất Thực Tế</h2>
-            <p class="muted">Thống kê tổng hợp số liệu thật từ các hoạt động của bạn trên Linkora</p>
-          </div>
-          <a href="statistics.html" class="btn ghost sm">Xem Chi Tiết Báo Cáo &rarr;</a>
+  <main>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <span class="eyebrow">Nền Tảng Nhiệm Vụ Số · Không Cọc</span>
+        <h1>Thời gian rảnh,<br><span>thêm thu nhập.</span></h1>
+        <p>Chọn nhiệm vụ phù hợp, gửi kết quả và theo dõi thu nhập trong một nơi duy nhất. Quy trình rõ ràng, dễ dùng trên mọi thiết bị.</p>
+        
+        <div class="hero-actions">
+          <a class="btn btn-accent" href="tasks.html">Làm Nhiệm Vụ Ngay &rarr;</a>
+          <a class="btn btn-ghost" href="create.html">Rút Gọn Link</a>
         </div>
 
-        <div class="grid c4" style="margin-bottom: 16px;">
-          <div class="stat">
-            <div class="stat-label">Lượt Click Thật</div>
-            <div class="stat-value" id="real-clicks">0</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label">Thu Nhập Link</div>
-            <div class="stat-value" id="real-link-earnings" style="color:var(--ok);">0đ</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label">Thưởng Nhiệm Vụ</div>
-            <div class="stat-value" id="real-task-earnings" style="color:var(--accent);">0đ</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label">Hoa Hồng Giới Thiệu</div>
-            <div class="stat-value" id="real-ref-earnings" style="color:var(--warn);">0đ</div>
-          </div>
+        <div class="trust-row">
+          <span>✓ Không phí đăng ký</span>
+          <span>✓ Duyệt minh bạch</span>
+          <span>✓ Bảo mật dữ liệu</span>
         </div>
 
-        <!-- Bảng Thống Kê Link Đang Hoạt Động Thật -->
-        <h3 style="font-size: 0.95rem; margin-top: 20px; margin-bottom: 8px;">Top Shortlink Mang Lại Thu Nhập</h3>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Tiêu đề / Slug</th>
-                <th>Lượt Clicks</th>
-                <th>Doanh Thu Thực</th>
-                <th>Thao Tác</th>
-              </tr>
-            </thead>
-            <tbody id="real-links-table">
-              <tr>
-                <td colspan="4" class="muted" style="text-align: center; padding: 16px;">Đang tải dữ liệu thực tế từ hệ thống...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- Các Hình Thức Kiếm Tiền (Landing Hub) -->
-      <section style="margin-top: 28px;">
-        <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 16px;">Các Phương Thức Tăng Thu Nhập</h2>
-        <div class="grid c2">
-          
-          <div class="feature-card">
-            <div>
-              <div class="feature-icon">🔗</div>
-              <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 6px;">1. Rút Gọn Link Chia Sẻ</h3>
-              <p class="muted" style="margin-bottom: 16px;">Rút gọn liên kết tải về, bài viết hoặc video để nhận tiền cho mỗi lượt truy cập vượt qua trang xác thực thành công.</p>
+        <!-- Mock Dashboard Card (Chuyển sang Đen/Trắng) -->
+        <div class="mock-card">
+          <div class="mock-head">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="avatar" id="user-avatar-initial">U</div>
+              <div>
+                <small style="color:var(--muted); font-size: 0.75rem;">Tài khoản</small>
+                <div style="font-weight: 700; font-size: 0.9rem;" id="user-display-name">Người dùng</div>
+              </div>
             </div>
-            <a href="create.html" class="btn accent sm block">Tạo Shortlink Mới</a>
+            <span class="live-dot"><i></i> Trực tuyến</span>
           </div>
 
-          <div class="feature-card">
-            <div>
-              <div class="feature-icon">🎯</div>
-              <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 6px;">2. Làm Nhiệm Vụ Kiếm Tiền</h3>
-              <p class="muted" style="margin-bottom: 16px;">Hoàn thành các yêu cầu tìm kiếm từ khóa, truy cập website đối tác để nhận tiền thưởng tức thì vào ví.</p>
-            </div>
-            <a href="tasks.html" class="btn accent sm block">Xem Danh Sách Nhiệm Vụ</a>
+          <div class="mock-balance-box">
+            <small>SỐ DƯ KHẢ DỤNG THỰC TẾ</small>
+            <h3 id="mock-real-balance">0đ</h3>
+            <span style="font-size:0.75rem; color:var(--ok);">✓ Cập nhật Realtime</span>
           </div>
 
-          <div class="feature-card">
-            <div>
-              <div class="feature-icon">🛒</div>
-              <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 6px;">3. Bán Key Game & Sản Phẩm Số</h3>
-              <p class="muted" style="margin-bottom: 16px;">Mở gian hàng kinh doanh Key Liên Quân, phần mềm, tài khoản số trên Marketplace với hệ thống giao tự động 24/7.</p>
-            </div>
-            <a href="seller.html" class="btn accent sm block">Quản Lý Gian Hàng Seller</a>
+          <div class="mock-stats">
+            <div><b id="mock-real-clicks">0</b><small>Lượt Click</small></div>
+            <div><b id="mock-real-tasks">0</b><small>Hoàn Thành</small></div>
+            <div><b id="mock-real-ref">0đ</b><small>Hoa Hồng</small></div>
           </div>
-
-          <div class="feature-card">
-            <div>
-              <div class="feature-icon">🤝</div>
-              <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 6px;">4. Tiếp Thị Affiliate (Mời Bạn Bè)</h3>
-              <p class="muted" style="margin-bottom: 16px;">Mời người dùng mới tham gia Linkora và nhận trọn đời 10% hoa hồng thụ động từ doanh thu làm nhiệm vụ của họ.</p>
-            </div>
-            <a href="referrals.html" class="btn accent sm block">Lấy Link Giới Thiệu</a>
-          </div>
-
         </div>
-      </section>
-    </main>
-  </div>
+      </div>
+    </section>
+
+    <!-- Payment Ticker Running -->
+    <section class="ticker">
+      <div class="ticker-track">
+        <span>ngu******* đã rút <strong>20.000đ</strong> thành công</span>
+        <span>iam***** đã rút <strong>50.000đ</strong> thành công</span>
+        <span>bin******* đã rút <strong>10.000đ</strong> thành công</span>
+        <span>Hoa******* đã rút <strong>100.000đ</strong> thành công</span>
+        <span>ngu******* đã rút <strong>20.000đ</strong> thành công</span>
+        <span>iam***** đã rút <strong>50.000đ</strong> thành công</span>
+      </div>
+    </section>
+
+    <!-- Real Data Report Section (Dữ liệu Thật) -->
+    <section class="container section">
+      <div class="section-title">
+        <span class="eyebrow">DỮ LIỆU THỰC TẾ</span>
+        <h2>Top Shortlink Thu Nhập Cao Nhat</h2>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Tên Shortlink / Slug</th>
+              <th>Lượt Click</th>
+              <th>Doanh Thu Thật</th>
+              <th>Thao Tác</th>
+            </tr>
+          </thead>
+          <tbody id="real-links-tbody">
+            <tr>
+              <td colspan="4" style="text-align: center; color: var(--muted); padding: 16px;">
+                Đang nạp dữ liệu thống kê từ hệ thống...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="container section">
+      <div class="section-title">
+        <span class="eyebrow">QUY TRÌNH ĐƠN GIẢN</span>
+        <h2>Bắt đầu chỉ với 3 bước</h2>
+      </div>
+
+      <div class="grid-3">
+        <div class="feature-box">
+          <span class="num">01</span>
+          <h3 style="margin-bottom: 6px;">Tạo tài khoản</h3>
+          <p class="muted">Đăng ký miễn phí bằng email. Không yêu cầu nạp tiền hoặc mua gói.</p>
+        </div>
+        <div class="feature-box">
+          <span class="num">02</span>
+          <h3 style="margin-bottom: 6px;">Chọn nhiệm vụ</h3>
+          <p class="muted">Đọc yêu cầu, mức thưởng và thời gian dự kiến trước khi bắt đầu.</p>
+        </div>
+        <div class="feature-box">
+          <span class="num">03</span>
+          <h3 style="margin-bottom: 6px;">Gửi và nhận thưởng</h3>
+          <p class="muted">Nộp minh chứng, theo dõi duyệt và rút tiền khi đạt ngưỡng 5.000đ.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="container section">
+      <div class="section-title">
+        <span class="eyebrow">HỎI ĐÁP</span>
+        <h2>Bạn có thể muốn biết</h2>
+      </div>
+
+      <div style="max-width: 680px; margin: 0 auto;">
+        <details class="faq-item" open>
+          <summary>Tham gia có mất phí không? <span>+</span></summary>
+          <p>Không. Linkora không thu phí đăng ký và không yêu cầu người làm nhiệm vụ nạp tiền.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Tiền thưởng được ghi nhận thế nào? <span>+</span></summary>
+          <p>Sau khi kết quả hợp lệ được duyệt, tiền thưởng được cộng trực tiếp vào ví hệ thống cùng bản ghi giao dịch.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Bao lâu tôi có thể rút tiền? <span>+</span></summary>
+          <p>Bạn có thể tạo yêu cầu rút tiền khi số dư đạt tối thiểu 5.000đ về Ngân hàng VN, Thẻ cào hoặc Ví MoMo/ZaloPay.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container" style="text-align: center;">
+      <p><strong>Linkora.site</strong> — Nền tảng kết nối nhiệm vụ số & rút gọn link minh bạch.</p>
+      <p style="margin-top: 8px; font-size: 0.75rem;">© 2026 Linkora · Thu nhập phụ thuộc vào nhiệm vụ và lượt click thực tế.</p>
+    </div>
+  </footer>
 
   <div id="toast-root"></div>
 
+  <!-- Shared JS Module Integration -->
   <script type="module">
-    import { S, initAuth, fmtVND, esc, $, toast, db } from './shared.js';
-    import { collection, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { S, initAuth, fmtVND, esc, $, db } from './shared.js';
+    import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     initAuth((user) => {
       if (!user) {
@@ -210,16 +284,22 @@
         return;
       }
 
-      // Hiển thị số dư ví
-      $('#user-wallet-btn').textContent = `Ví: ${fmtVND(S.wallet?.balance || 0)}`;
+      // Cập nhật thông tin User trên Card Đen/Trắng
+      const displayName = S.profile?.displayName || user.email || 'Người dùng';
+      $('#user-display-name').textContent = displayName;
+      $('#user-avatar-initial').textContent = displayName.charAt(0).toUpperCase();
 
-      // Nạp dữ liệu báo cáo thật
-      loadRealPerformanceData();
+      const balance = S.wallet?.balance || 0;
+      $('#nav-wallet-bal').textContent = `Ví: ${fmtVND(balance)}`;
+      $('#mock-real-balance').textContent = fmtVND(balance);
+      $('#mock-real-ref').textContent = fmtVND(S.profile?.referralEarnings || 0);
+
+      loadRealMetricsData();
     });
 
-    async function loadRealPerformanceData() {
+    async function loadRealMetricsData() {
       try {
-        // 1. Tải danh sách Links thật của User
+        // Tải links thực tế từ Firestore
         const qLinks = query(
           collection(db, 'links'),
           where('userId', '==', S.user.uid)
@@ -227,19 +307,15 @@
         const linkSnap = await getDocs(qLinks);
 
         let totalClicks = 0;
-        let totalLinkEarnings = 0;
-        const realLinksList = [];
+        const realLinks = [];
 
         linkSnap.forEach(d => {
           const item = d.data();
           const clicks = Number(item.clicks || 0);
           const earnings = Number(item.earnings || 0);
-          
-          totalClicks += clicks;
-          totalLinkEarnings += earnings;
 
-          realLinksList.push({
-            id: d.id,
+          totalClicks += clicks;
+          realLinks.push({
             slug: item.slug,
             title: item.title,
             clicks: clicks,
@@ -247,67 +323,55 @@
           });
         });
 
-        // 2. Tải thưởng Nhiệm vụ đã hoàn thành
+        // Tải số lượng nhiệm vụ hoàn thành
         const qTasks = query(
           collection(db, 'user_tasks'),
           where('userId', '==', S.user.uid),
           where('status', '==', 'completed')
         );
         const taskSnap = await getDocs(qTasks);
-        
-        let totalTaskEarnings = 0;
-        taskSnap.forEach(t => {
-          totalTaskEarnings += Number(t.data().reward || 0);
-        });
 
-        // 3. Render các thông số thật
-        $('#real-clicks').textContent = totalClicks.toLocaleString('vi-VN');
-        $('#real-link-earnings').textContent = fmtVND(totalLinkEarnings);
-        $('#real-task-earnings').textContent = fmtVND(totalTaskEarnings);
-        $('#real-ref-earnings').textContent = fmtVND(S.profile?.referralEarnings || 0);
+        // Hiển thị chỉ số thật lên Mock Card
+        $('#mock-real-clicks').textContent = totalClicks.toLocaleString('vi-VN');
+        $('#mock-real-tasks').textContent = taskSnap.size;
 
-        // 4. Render bảng danh sách Link thật
-        renderRealLinksTable(realLinksList);
+        // Render Bảng Link Thật
+        renderLinksTable(realLinks);
 
       } catch (err) {
-        console.error("Lỗi khi nạp báo cáo thật:", err);
-        toast('Lỗi khi tải dữ liệu báo cáo thực tế', 'err');
+        console.error("Lỗi nạp dữ liệu thật:", err);
       }
     }
 
-    function renderRealLinksTable(links) {
-      const tbody = $('#real-links-table');
+    function renderLinksTable(links) {
+      const tbody = $('#real-links-tbody');
 
       if (links.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="4" class="muted" style="text-align: center; padding: 20px;">
-              Bạn chưa tạo shortlink nào. <a href="create.html" style="color:var(--accent);">Tạo link ngay</a> để bắt đầu kiếm tiền.
+            <td colspan="4" style="text-align: center; color: var(--muted); padding: 16px;">
+              Bạn chưa có shortlink nào. <a href="create.html" style="color:var(--text); font-weight:700;">Tạo ngay</a>
             </td>
           </tr>
         `;
         return;
       }
 
-      // Sắp xếp theo doanh thu cao nhất
       links.sort((a, b) => b.earnings - a.earnings);
 
-      tbody.innerHTML = links.slice(0, 5).map(item => {
-        const shortUrl = `${window.location.origin}/s/${item.slug}`;
-        return `
-          <tr>
-            <td>
-              <strong>${esc(item.title || item.slug)}</strong>
-              <small class="muted" style="display:block;">/s/${esc(item.slug)}</small>
-            </td>
-            <td><strong>${item.clicks.toLocaleString('vi-VN')}</strong></td>
-            <td style="color:var(--ok); font-weight:700;">${fmtVND(item.earnings)}</td>
-            <td>
-              <a href="links.html" class="btn ghost sm">Quản lý</a>
-            </td>
-          </tr>
-        `;
-      }).join('');
+      tbody.innerHTML = links.slice(0, 5).map(item => `
+        <tr>
+          <td>
+            <strong>${esc(item.title || item.slug)}</strong>
+            <small style="display:block; color:var(--muted);">/s/${esc(item.slug)}</small>
+          </td>
+          <td><strong>${item.clicks.toLocaleString('vi-VN')}</strong></td>
+          <td style="color:var(--ok); font-weight:700;">${fmtVND(item.earnings)}</td>
+          <td>
+            <a href="links.html" class="btn btn-ghost btn-sm">Quản lý</a>
+          </td>
+        </tr>
+      `).join('');
     }
   </script>
 </body>
