@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Linkora — Nhiệm vụ vượt link</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* CSS System Core */
+    :root {
+      --bg: #0f172a; --panel: #1e293b; --border: #334155; --text: #f8fafc; --muted: #94a3b8;
+      --accent: #6366f1; --accent-hover: #4f46e5; --ok: #10b981; --err: #ef4444; --warn: #f59e0b;
+      --radius: 12px;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc; --panel: #ffffff; --border: #e2e8f0; --text: #0f172a; --muted: #64748b;
+      --accent: #4f46e5; --accent-hover: #4338ca; --ok: #059669; --err: #dc2626; --warn: #d97706;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 20px; line-height: 1.5; }
+    .wrap-page { max-width: 1100px; margin: 0 auto; }
+    header.between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .logo { font-size: 1.25rem; font-weight: 800; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .logo-mark { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; }
+    .row { display: flex; align-items: center; }
+    .gap-12 { gap: 12px; }
+    .between { display: flex; justify-content: space-between; align-items: center; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+    .card.pad-lg { padding: 28px; }
+    .page-head { margin-bottom: 20px; }
+    .page-head h1 { font-size: 1.5rem; font-weight: 700; }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; font-size: 0.9rem; text-decoration: none; transition: 0.2s; }
+    .btn.accent { background: var(--accent); color: #fff; }
+    .btn.accent:hover { background: var(--accent-hover); }
+    .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn.ghost:hover { background: var(--border); }
+    .btn.sm { padding: 6px 12px; font-size: 0.8rem; }
+    .btn.block { width: 100%; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .grid { display: grid; gap: 16px; }
+    .grid.c2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+    .badge.ok { background: rgba(16, 185, 129, 0.15); color: var(--ok); }
+    .badge.warn { background: rgba(245, 158, 11, 0.15); color: var(--warn); }
+    .input { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; margin-top: 6px; }
+    .input:focus { border-color: var(--accent); }
+    .field { margin-bottom: 14px; }
+    .field label { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
+    
+    /* Toast */
+    #toast-root { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { background: var(--panel); border: 1px solid var(--border); padding: 12px 18px; border-radius: 8px; color: var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; transform: translateY(20px); opacity: 0; transition: 0.3s; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.ok { border-left: 4px solid var(--ok); }
+    .toast.err { border-left: 4px solid var(--err); }
+    .toast.info { border-left: 4px solid var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap-page">
+    <header class="between">
+      <a class="logo" href="dashboard.html"><span class="logo-mark">L</span><span>Linkora</span></a>
+      <div class="row gap-12">
+        <a href="my-tasks.html" class="btn ghost sm">Lịch sử nhiệm vụ</a>
+        <a href="wallet.html" class="btn ghost sm" id="wallet-bal">Ví: 0đ</a>
+      </div>
+    </header>
+
+    <main>
+      <div class="page-head">
+        <h1>Nhiệm vụ vượt link</h1>
+        <p class="muted">Hoàn thành nhiệm vụ vượt link ngắn để nhận phần thưởng vào ví ngay lập tức.</p>
+      </div>
+
+      <div id="active-task-container"></div>
+
+      <h2 style="font-size: 1.1rem; margin: 24px 0 12px;">Danh sách nhiệm vụ có sẵn</h2>
+      <div id="task-list" class="grid c2">
+        <div class="card"><p class="muted">Đang tải danh sách nhiệm vụ...</p></div>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast-root"></div>
+
+  <script type="module">
+    import { S, initAuth, fmtVND, esc, $, toast, db, handleAsyncForm } from './shared.js';
+    import { 
+      collection, query, where, getDocs, doc, setDoc, updateDoc, 
+      onSnapshot, serverTimestamp, runTransaction, increment 
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    initAuth((user) => {
+      if (!user) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+      $('#wallet-bal').textContent = `Ví: ${fmtVND(S.wallet?.balance || 0)}`;
+      loadTasks();
+    });
+
+    async function loadTasks() {
+      const taskListEl = $('#task-list');
+      const activeTaskEl = $('#active-task-container');
+
+      try {
+        // 1. Kiểm tra xem người dùng có nhiệm vụ đang làm hay không
+        const activeQ = query(
+          collection(db, 'user_tasks'), 
+          where('userId', '==', S.user.uid), 
+          where('status', '==', 'pending')
+        );
+        const activeSnap = await getDocs(activeQ);
+
+        if (!activeSnap.empty) {
+          const activeDoc = activeSnap.docs[0];
+          const activeData = activeDoc.data();
+          renderActiveTask(activeTaskEl, activeDoc.id, activeData);
+        } else {
+          activeTaskEl.innerHTML = '';
+        }
+
+        // 2. Lấy danh sách nhiệm vụ khả dụng (Campaigns)
+        const campQ = query(collection(db, 'campaigns'), where('status', '==', 'active'));
+        const campSnap = await getDocs(campQ);
+
+        if (campSnap.empty) {
+          taskListEl.innerHTML = `<div class="card"><p class="muted">Hiện tại chưa có nhiệm vụ nào mới. Hãy quay lại sau nhé!</p></div>`;
+          return;
+        }
+
+        taskListEl.innerHTML = campSnap.docs.map(docSnap => {
+          const c = docSnap.data();
+          const cId = docSnap.id;
+          return `
+            <div class="card between">
+              <div>
+                <h3 style="font-size:1rem; margin-bottom:4px;">${esc(c.title || 'Nhiệm vụ vượt link')}</h3>
+                <div class="muted">Thưởng: <strong style="color:var(--ok);">${fmtVND(c.reward || 0)}</strong></div>
+              </div>
+              <button class="btn accent sm btn-accept" data-id="${cId}" data-reward="${c.reward || 0}">
+                Nhận nhiệm vụ
+              </button>
+            </div>
+          `;
+        }).join('');
+
+        // Thêm sự kiện nhận nhiệm vụ
+        taskListEl.querySelectorAll('.btn-accept').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const campId = e.currentTarget.getAttribute('data-id');
+            const reward = Number(e.currentTarget.getAttribute('data-reward'));
+            acceptTask(e.currentTarget, campId, reward);
+          });
+        });
+
+      } catch (err) {
+        console.error(err);
+        toast('Lỗi khi tải danh sách nhiệm vụ', 'err');
+      }
+    }
+
+    // Hiển thị nhiệm vụ đang thực hiện
+    function renderActiveTask(container, taskId, taskData) {
+      container.innerHTML = `
+        <div class="card pad-lg" style="border-color: var(--accent);">
+          <div class="between" style="margin-bottom: 12px;">
+            <span class="badge warn">Đang thực hiện</span>
+            <span style="font-weight:700; color:var(--ok);">${fmtVND(taskData.reward || 0)}</span>
+          </div>
+          <h3>${esc(taskData.title || 'Nhiệm vụ đang dở')}</h3>
+          <p class="muted" style="margin: 8px 0 16px;">
+            Vui lòng nhấn nút bên dưới để truy cập link nhiệm vụ. Sau khi hoàn tất và lấy được mã xác nhận, hãy nhập vào ô bên dưới.
+          </p>
+          <div class="row gap-12" style="margin-bottom:16px;">
+            <a href="${esc(taskData.link)}" target="_blank" class="btn accent sm">Mở Link Nhiệm Vụ</a>
+            <button class="btn ghost sm" id="btn-cancel-task">Hủy bỏ</button>
+          </div>
+          <div class="field">
+            <label>Mã xác nhận (Code):</label>
+            <input class="input" id="task-code-input" placeholder="Nhập mã xác nhận..." />
+          </div>
+          <button class="btn accent block" id="btn-submit-code">Xác nhận hoàn thành</button>
+        </div>
+      `;
+
+      $('#btn-cancel-task')?.addEventListener('click', () => cancelTask(taskId));
+      $('#btn-submit-code')?.addEventListener('click', (e) => submitTaskCode(e.currentTarget, taskId, taskData));
+    }
+
+    // Nhận nhiệm vụ mới
+    async function acceptTask(buttonEl, campaignId, reward) {
+      await handleAsyncForm(buttonEl, async () => {
+        try {
+          const newTaskRef = doc(collection(db, 'user_tasks'));
+          await setDoc(newTaskRef, {
+            userId: S.user.uid,
+            campaignId: campaignId,
+            reward: reward,
+            status: 'pending',
+            createdAt: serverTimestamp()
+          });
+          toast('Nhận nhiệm vụ thành công!', 'ok');
+          loadTasks();
+        } catch (err) {
+          toast('Không thể nhận nhiệm vụ lúc này', 'err');
+        }
+      });
+    }
+
+    // Xác nhận nhập Code hoàn thành
+    async function submitTaskCode(buttonEl, taskId, taskData) {
+      const code = $('#task-code-input').value.trim();
+      if (!code) {
+        toast('Vui lòng nhập mã xác nhận!', 'warn');
+        return;
+      }
+
+      await handleAsyncForm(buttonEl, async () => {
+        try {
+          // Transaction để đảm bảo cộng tiền an toàn
+          await runTransaction(db, async (transaction) => {
+            const taskRef = doc(db, 'user_tasks', taskId);
+            const walletRef = doc(db, 'wallets', S.user.uid);
+
+            transaction.update(taskRef, {
+              status: 'completed',
+              completedCode: code,
+              completedAt: serverTimestamp()
+            });
+
+            transaction.update(walletRef, {
+              balance: increment(taskData.reward || 0)
+            });
+          });
+
+          toast(`Hoàn thành! Bạn nhận được ${fmtVND(taskData.reward)}`, 'ok');
+          loadTasks();
+        } catch (err) {
+          console.error(err);
+          toast('Lỗi khi xác nhận mã!', 'err');
+        }
+      });
+    }
+
+    // Hủy nhiệm vụ
+    async function cancelTask(taskId) {
+      if (!confirm('Bạn có chắc muốn hủy nhiệm vụ này?')) return;
+      try {
+        await updateDoc(doc(db, 'user_tasks', taskId), { status: 'cancelled' });
+        toast('Đã hủy nhiệm vụ', 'info');
+        loadTasks();
+      } catch (err) {
+        toast('Lỗi khi hủy nhiệm vụ', 'err');
+      }
+    }
+  </script>
+</body>
+</html>
