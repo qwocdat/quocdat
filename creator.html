@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Linkora — Creator Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* CSS System Core */
+    :root {
+      --bg: #0f172a; --panel: #1e293b; --border: #334155; --text: #f8fafc; --muted: #94a3b8;
+      --accent: #6366f1; --accent-hover: #4f46e5; --ok: #10b981; --err: #ef4444; --warn: #f59e0b;
+      --radius: 12px;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc; --panel: #ffffff; --border: #e2e8f0; --text: #0f172a; --muted: #64748b;
+      --accent: #4f46e5; --accent-hover: #4338ca; --ok: #059669; --err: #dc2626; --warn: #d97706;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 20px; line-height: 1.5; }
+    .wrap-page { max-width: 1000px; margin: 0 auto; }
+    header.between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .logo { font-size: 1.25rem; font-weight: 800; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .logo-mark { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; }
+    .row { display: flex; align-items: center; }
+    .gap-12 { gap: 12px; }
+    .between { display: flex; justify-content: space-between; align-items: center; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+    .card.pad-lg { padding: 28px; }
+    .page-head { margin-bottom: 20px; }
+    .page-head h1 { font-size: 1.5rem; font-weight: 700; }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; font-size: 0.9rem; text-decoration: none; transition: 0.2s; }
+    .btn.accent { background: var(--accent); color: #fff; }
+    .btn.accent:hover { background: var(--accent-hover); }
+    .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn.ghost:hover { background: var(--border); }
+    .btn.sm { padding: 6px 12px; font-size: 0.8rem; }
+    .btn.block { width: 100%; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+    .badge.ok { background: rgba(16, 185, 129, 0.15); color: var(--ok); }
+    .badge.warn { background: rgba(245, 158, 11, 0.15); color: var(--warn); }
+    .badge.err { background: rgba(239, 68, 68, 0.15); color: var(--err); }
+    
+    .grid { display: grid; gap: 20px; }
+    .grid.c2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+    .input, textarea { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; margin-top: 6px; font-size: 0.9rem; }
+    .input:focus, textarea:focus { border-color: var(--accent); }
+    .field { margin-bottom: 14px; }
+    .field label { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 16px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+    th { padding: 12px; background: var(--bg); border-bottom: 2px solid var(--border); color: var(--muted); font-weight: 600; }
+    td { padding: 14px 12px; border-bottom: 1px solid var(--border); }
+
+    /* Toast */
+    #toast-root { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { background: var(--panel); border: 1px solid var(--border); padding: 12px 18px; border-radius: 8px; color: var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; transform: translateY(20px); opacity: 0; transition: 0.3s; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.ok { border-left: 4px solid var(--ok); }
+    .toast.err { border-left: 4px solid var(--err); }
+  </style>
+</head>
+<body>
+  <div class="wrap-page">
+    <header class="between">
+      <a class="logo" href="dashboard.html"><span class="logo-mark">L</span><span>Linkora</span></a>
+      <div class="row gap-12">
+        <a href="dashboard.html" class="btn ghost sm">Dashboard</a>
+        <a href="tasks.html" class="btn ghost sm">Làm nhiệm vụ</a>
+      </div>
+    </header>
+
+    <main>
+      <div class="page-head">
+        <h1>Creator Center</h1>
+        <p class="muted">Gửi đề xuất chiến dịch nội dung hoặc quản lý các chiến dịch sáng tạo của bạn.</p>
+      </div>
+
+      <div class="grid c2">
+        <!-- Form Đăng ký / Nộp chiến dịch -->
+        <div class="card pad-lg">
+          <h3>Nộp đề xuất chiến dịch mới</h3>
+          <form id="creator-campaign-form" style="margin-top: 16px;">
+            <div class="field">
+              <label>Tên chiến dịch / Sản phẩm *</label>
+              <input class="input" id="c-title" placeholder="Nhập tên chiến dịch..." required />
+            </div>
+
+            <div class="field">
+              <label>Liên kết đính kèm / Nguồn nộp *</label>
+              <input class="input" type="url" id="c-link" placeholder="https://..." required />
+            </div>
+
+            <div class="field">
+              <label>Ngân sách đề xuất (VND)</label>
+              <input class="input" type="number" id="c-budget" placeholder="Ví dụ: 100000" min="10000" />
+            </div>
+
+            <div class="field">
+              <label>Mô tả chi tiết yêu cầu</label>
+              <textarea id="c-desc" rows="4" placeholder="Mô tả công việc hoặc yêu cầu cho chiến dịch này..."></textarea>
+            </div>
+
+            <button class="btn accent block" type="submit" id="btn-submit-creator">Gửi Đề Xuất Chiến Dịch</button>
+          </form>
+        </div>
+
+        <!-- Danh sách chiến dịch đã nộp -->
+        <div class="card pad-lg">
+          <h3>Lịch sử chiến dịch của bạn</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Tên chiến dịch</th>
+                  <th>Ngân sách</th>
+                  <th>Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody id="creator-campaigns-list">
+                <tr>
+                  <td colspan="3" class="muted" style="text-align: center;">Đang tải danh sách...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast-root"></div>
+
+  <script type="module">
+    import { S, initAuth, fmtVND, esc, $, toast, db, handleAsyncForm } from './shared.js';
+    import { collection, query, where, getDocs, addDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    initAuth((user) => {
+      if (!user) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+      loadCreatorCampaigns();
+    });
+
+    const form = $('#creator-campaign-form');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const title = $('#c-title').value.trim();
+      const link = $('#c-link').value.trim();
+      const budget = Number($('#c-budget').value) || 0;
+      const desc = $('#c-desc').value.trim();
+
+      const btnSubmit = $('#btn-submit-creator');
+
+      await handleAsyncForm(btnSubmit, async () => {
+        try {
+          await addDoc(collection(db, 'creator_campaigns'), {
+            userId: S.user.uid,
+            title: title,
+            link: link,
+            budget: budget,
+            description: desc,
+            status: 'pending',
+            createdAt: serverTimestamp()
+          });
+
+          toast('Đã nộp chiến dịch thành công! Vui lòng chờ phê duyệt.', 'ok');
+          form.reset();
+          loadCreatorCampaigns();
+        } catch (err) {
+          console.error(err);
+          toast('Lỗi khi nộp chiến dịch', 'err');
+        }
+      });
+    });
+
+    async function loadCreatorCampaigns() {
+      const tbody = $('#creator-campaigns-list');
+      try {
+        const qC = query(
+          collection(db, 'creator_campaigns'),
+          where('userId', '==', S.user.uid)
+        );
+
+        const snap = await getDocs(qC);
+
+        if (snap.empty) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="3" class="muted" style="text-align: center; padding: 16px;">
+                Chưa có chiến dịch nào được nộp.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = snap.docs.map(docSnap => {
+          const item = docSnap.data();
+          let statusBadge = '<span class="badge warn">Chờ duyệt</span>';
+          if (item.status === 'approved') statusBadge = '<span class="badge ok">Đã duyệt</span>';
+          if (item.status === 'rejected') statusBadge = '<span class="badge err">Từ chối</span>';
+
+          return `
+            <tr>
+              <td>
+                <strong>${esc(item.title)}</strong>
+                <a href="${esc(item.link)}" target="_blank" class="muted" style="display:block; font-size:0.8rem;">Xem link</a>
+              </td>
+              <td>${fmtVND(item.budget || 0)}</td>
+              <td>${statusBadge}</td>
+            </tr>
+          `;
+        }).join('');
+
+      } catch (err) {
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan="3" class="muted" style="text-align: center;">Không thể tải dữ liệu.</td></tr>`;
+      }
+    }
+  </script>
+</body>
+</html>
