@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Linkora — Mời Bạn Bè & Hoa Hồng</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* CSS System Core */
+    :root {
+      --bg: #0f172a; --panel: #1e293b; --border: #334155; --text: #f8fafc; --muted: #94a3b8;
+      --accent: #6366f1; --accent-hover: #4f46e5; --ok: #10b981; --err: #ef4444; --warn: #f59e0b;
+      --radius: 12px;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc; --panel: #ffffff; --border: #e2e8f0; --text: #0f172a; --muted: #64748b;
+      --accent: #4f46e5; --accent-hover: #4338ca; --ok: #059669; --err: #dc2626; --warn: #d97706;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 20px; line-height: 1.5; }
+    .wrap-page { max-width: 1050px; margin: 0 auto; }
+    header.between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .logo { font-size: 1.25rem; font-weight: 800; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .logo-mark { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; }
+    .row { display: flex; align-items: center; }
+    .gap-12 { gap: 12px; }
+    .between { display: flex; justify-content: space-between; align-items: center; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+    .card.pad-lg { padding: 28px; }
+    .page-head { margin-bottom: 20px; }
+    .page-head h1 { font-size: 1.5rem; font-weight: 700; }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; font-size: 0.9rem; text-decoration: none; transition: 0.2s; }
+    .btn.accent { background: var(--accent); color: #fff; }
+    .btn.accent:hover { background: var(--accent-hover); }
+    .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn.ghost:hover { background: var(--border); }
+    .btn.sm { padding: 6px 12px; font-size: 0.8rem; }
+    .input { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; font-size: 0.9rem; }
+    
+    .grid { display: grid; gap: 16px; }
+    .grid.c3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .grid.c2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+
+    .stat { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+    .stat-label { font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--text); }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 16px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+    th { padding: 12px; background: var(--bg); border-bottom: 2px solid var(--border); color: var(--muted); font-weight: 600; }
+    td { padding: 14px 12px; border-bottom: 1px solid var(--border); }
+
+    /* Toast */
+    #toast-root { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { background: var(--panel); border: 1px solid var(--border); padding: 12px 18px; border-radius: 8px; color: var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; transform: translateY(20px); opacity: 0; transition: 0.3s; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.ok { border-left: 4px solid var(--ok); }
+    .toast.err { border-left: 4px solid var(--err); }
+  </style>
+</head>
+<body>
+  <div class="wrap-page">
+    <header class="between">
+      <a class="logo" href="dashboard.html"><span class="logo-mark">L</span><span>Linkora</span></a>
+      <div class="row gap-12">
+        <a href="dashboard.html" class="btn ghost sm">Dashboard</a>
+        <a href="wallet.html" class="btn ghost sm">Ví tiền</a>
+      </div>
+    </header>
+
+    <main>
+      <div class="page-head">
+        <h1>Chương Trình Mời Bạn Bè</h1>
+        <p class="muted">Chia sẻ liên kết giới thiệu để nhận hoa hồng thụ động khi bạn bè làm nhiệm vụ hoặc tạo shortlink.</p>
+      </div>
+
+      <!-- Khối thống kê giới thiệu -->
+      <div class="grid c3" style="margin-bottom: 20px;">
+        <div class="stat">
+          <div class="stat-label">Tổng thành viên giới thiệu</div>
+          <div class="stat-value" id="ref-total-users">0 người</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Tổng hoa hồng nhận được</div>
+          <div class="stat-value" id="ref-total-earnings" style="color:var(--ok);">0đ</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Tỷ lệ hoa hồng</div>
+          <div class="stat-value" style="color:var(--accent);">10%</div>
+        </div>
+      </div>
+
+      <div class="grid c2">
+        <!-- Khối liên kết giới thiệu -->
+        <div class="card pad-lg">
+          <h3>Liên kết giới thiệu của bạn</h3>
+          <p class="muted" style="margin: 6px 0 16px;">Sao chép liên kết này và gửi cho bạn bè để bắt đầu nhận hoa hồng.</p>
+          
+          <div class="field">
+            <label>Mã giới thiệu (Referral Code)</label>
+            <input class="input" id="ref-code-val" readonly style="font-weight:700;" value="Đang tải..." />
+          </div>
+
+          <div class="field">
+            <label>Link mời trực tiếp</label>
+            <div class="row gap-12">
+              <input class="input" id="ref-link-val" readonly style="margin-top:0;" value="Đang tải..." />
+              <button class="btn accent sm" id="btn-copy-ref" style="white-space:nowrap;">Sao chép</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bảng danh sách người đã giới thiệu -->
+        <div class="card pad-lg">
+          <h3>Danh sách bạn bè đã mời</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Thành viên</th>
+                  <th>Ngày tham gia</th>
+                </tr>
+              </thead>
+              <tbody id="ref-users-list">
+                <tr>
+                  <td colspan="2" class="muted" style="text-align: center;">Đang tải danh sách...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast-root"></div>
+
+  <script type="module">
+    import { S, initAuth, fmtVND, esc, $, toast, db } from './shared.js';
+    import { collection, query, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    initAuth((user) => {
+      if (!user) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+
+      // Đảm bảo refCode luôn an toàn
+      const refCode = user.uid ? user.uid.substring(0, 8) : 'LINKORA';
+      const refLink = `${window.location.origin}/register.html?ref=${refCode}`;
+
+      $('#ref-code-val').value = refCode;
+      $('#ref-link-val').value = refLink;
+      
+      // An toàn khi truy cập S.profile
+      const earnings = S.profile && S.profile.referralEarnings ? S.profile.referralEarnings : 0;
+      $('#ref-total-earnings').textContent = fmtVND(earnings);
+
+      // Sự kiện sao chép link
+      const btnCopy = $('#btn-copy-ref');
+      if (btnCopy) {
+        btnCopy.onclick = () => {
+          navigator.clipboard.writeText(refLink);
+          toast('Đã sao chép link giới thiệu!', 'ok');
+        };
+      }
+
+      loadReferralUsers(refCode);
+    });
+
+    async function loadReferralUsers(refCode) {
+      const tbody = $('#ref-users-list');
+      if (!tbody) return;
+
+      try {
+        // Truy vấn đơn giản tránh lỗi Firestore Index
+        const qRef = query(
+          collection(db, 'users'),
+          where('referredBy', '==', refCode),
+          limit(50)
+        );
+
+        const snap = await getDocs(qRef);
+
+        $('#ref-total-users').textContent = `${snap.size} người`;
+
+        if (snap.empty) {
+          tbody.innerHTML = `<tr><td colspan="2" class="muted" style="text-align: center; padding: 20px;">Bạn chưa mời được thành viên nào.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = snap.docs.map(docSnap => {
+          const item = docSnap.data() || {};
+          let dateStr = '—';
+          if (item.createdAt && typeof item.createdAt.toDate === 'function') {
+            dateStr = item.createdAt.toDate().toLocaleDateString('vi-VN');
+          }
+          const email = item.email || 'Thành viên';
+          const maskEmail = email.includes('@') ? email.replace(/(.{2})(.*)(?=@)/, '$1***') : email;
+
+          return `
+            <tr>
+              <td><strong>${esc(item.displayName || maskEmail)}</strong></td>
+              <td class="muted">${dateStr}</td>
+            </tr>
+          `;
+        }).join('');
+
+      } catch (err) {
+        console.error("Lỗi tải danh sách giới thiệu:", err);
+        tbody.innerHTML = `<tr><td colspan="2" class="muted" style="text-align: center;">Chưa có dữ liệu thành viên giới thiệu.</td></tr>`;
+      }
+    }
+  </script>
+</body>
+</html>
