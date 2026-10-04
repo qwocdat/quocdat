@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Linkora — Seller Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* CSS System Core */
+    :root {
+      --bg: #0f172a; --panel: #1e293b; --border: #334155; --text: #f8fafc; --muted: #94a3b8;
+      --accent: #6366f1; --accent-hover: #4f46e5; --ok: #10b981; --err: #ef4444; --warn: #f59e0b;
+      --radius: 12px;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc; --panel: #ffffff; --border: #e2e8f0; --text: #0f172a; --muted: #64748b;
+      --accent: #4f46e5; --accent-hover: #4338ca; --ok: #059669; --err: #dc2626; --warn: #d97706;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 20px; line-height: 1.5; }
+    .wrap-page { max-width: 1100px; margin: 0 auto; }
+    header.between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .logo { font-size: 1.25rem; font-weight: 800; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .logo-mark { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; }
+    .row { display: flex; align-items: center; }
+    .gap-12 { gap: 12px; }
+    .between { display: flex; justify-content: space-between; align-items: center; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+    .card.pad-lg { padding: 28px; }
+    .page-head { margin-bottom: 20px; }
+    .page-head h1 { font-size: 1.5rem; font-weight: 700; }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; font-size: 0.9rem; text-decoration: none; transition: 0.2s; }
+    .btn.accent { background: var(--accent); color: #fff; }
+    .btn.accent:hover { background: var(--accent-hover); }
+    .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn.ghost:hover { background: var(--border); }
+    .btn.sm { padding: 6px 12px; font-size: 0.8rem; }
+    
+    .grid { display: grid; gap: 16px; }
+    .grid.c4 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .grid.c2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+    
+    .stat { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+    .stat-label { font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--text); }
+
+    .quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-top: 16px; }
+    .action-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; text-align: center; text-decoration: none; color: var(--text); font-weight: 600; font-size: 0.85rem; transition: 0.2s; }
+    .action-card:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 16px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+    th { padding: 12px; background: var(--bg); border-bottom: 2px solid var(--border); color: var(--muted); font-weight: 600; }
+    td { padding: 14px 12px; border-bottom: 1px solid var(--border); }
+
+    /* Toast */
+    #toast-root { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { background: var(--panel); border: 1px solid var(--border); padding: 12px 18px; border-radius: 8px; color: var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; transform: translateY(20px); opacity: 0; transition: 0.3s; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.err { border-left: 4px solid var(--err); }
+  </style>
+</head>
+<body>
+  <div class="wrap-page">
+    <header class="between">
+      <a class="logo" href="dashboard.html"><span class="logo-mark">L</span><span>Linkora</span></a>
+      <div class="row gap-12">
+        <a href="dashboard.html" class="btn ghost sm">Trang cá nhân</a>
+        <a href="seller-products.html" class="btn accent sm">+ Đăng sản phẩm</a>
+      </div>
+    </header>
+
+    <main id="seller-main-view">
+      <div class="card center"><p class="muted">Đang xác thực thông tin Gian hàng...</p></div>
+    </main>
+  </div>
+
+  <div id="toast-root"></div>
+
+  <script type="module">
+    import { S, initAuth, fmtVND, esc, $, toast, db } from './shared.js';
+    import { collection, query, where, getDocs, orderBy, limit, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    initAuth((user) => {
+      if (!user) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+      loadSellerDashboard();
+    });
+
+    async function loadSellerDashboard() {
+      const main = $('#seller-main-view');
+      try {
+        const sSnap = await getDoc(doc(db, 'sellers', S.user.uid));
+
+        if (!sSnap.exists() || sSnap.data().status !== 'approved' && sSnap.data().status !== 'active') {
+          main.innerHTML = `
+            <div class="card pad-lg center" style="text-align:center;">
+              <h2 style="margin-bottom:8px;">Bạn chưa có quyền truy cập Seller Center</h2>
+              <p class="muted" style="margin-bottom:16px;">Vui lòng đăng ký thông tin gian hàng và chờ ban quản trị phê duyệt.</p>
+              <a href="seller-register.html" class="btn accent sm">Đăng ký Gian hàng ngay</a>
+            </div>
+          `;
+          return;
+        }
+
+        const seller = sSnap.data();
+
+        // Render bố cục chính
+        main.innerHTML = `
+          <div class="page-head between">
+            <div>
+              <h1>Seller Center — ${esc(seller.shopName)}</h1>
+              <p class="muted">Quản lý gian hàng, bán hàng và theo dõi chỉ số tài chính.</p>
+            </div>
+          </div>
+
+          <!-- Các thẻ chỉ số -->
+          <div class="grid c4" style="margin-bottom: 24px;">
+            <div class="stat">
+              <div class="stat-label">Tổng doanh thu</div>
+              <div class="stat-value" id="s-total-rev" style="color:var(--ok);">0đ</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Tổng đơn hàng</div>
+              <div class="stat-value" id="s-total-orders">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Sản phẩm đang bán</div>
+              <div class="stat-value" id="s-total-products">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Lợi nhuận ròng</div>
+              <div class="stat-value" id="s-total-profit" style="color:var(--accent);">0đ</div>
+            </div>
+          </div>
+
+          <!-- Menu lối tắt & Đơn hàng mới -->
+          <div class="grid c2">
+            <div class="card pad-lg">
+              <h3>Quản lý Gian hàng</h3>
+              <p class="muted" style="margin-bottom: 12px;">Các tính năng dành riêng cho Gian hàng</p>
+              <div class="quick-actions">
+                <a href="seller-products.html" class="action-card">Sản phẩm</a>
+                <a href="seller-sales.html" class="action-card">Đơn bán hàng</a>
+                <a href="seller-stats.html" class="action-card">Thống kê</a>
+                <a href="seller-finance.html" class="action-card">Thu chi</a>
+              </div>
+            </div>
+
+            <div class="card pad-lg">
+              <h3>Đơn hàng mới nhất</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Sản phẩm</th>
+                      <th>Giá trị</th>
+                      <th>Thời gian</th>
+                    </tr>
+                  </thead>
+                  <tbody id="s-recent-orders">
+                    <tr>
+                      <td colspan="3" class="muted" style="text-align: center;">Đang tải đơn hàng...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `;
+
+        fetchSellerMetrics();
+
+      } catch (err) {
+        console.error(err);
+        toast('Lỗi khi tải giao diện Seller', 'err');
+      }
+    }
+
+    async function fetchSellerMetrics() {
+      try {
+        // Tải danh sách sản phẩm của Seller
+        const pQ = query(collection(db, 'products'), where('sellerId', '==', S.user.uid));
+        const pSnap = await getDocs(pQ);
+        $('#s-total-products').textContent = pSnap.size;
+
+        // Tải danh sách đơn hàng của Seller
+        const oQ = query(
+          collection(db, 'orders'),
+          where('sellerId', '==', S.user.uid),
+          orderBy('createdAt', 'desc'),
+          limit(5)
+        );
+        const oSnap = await getDocs(oQ);
+
+        let totalRev = 0;
+        let totalOrders = 0;
+
+        if (oSnap.empty) {
+          $('#s-recent-orders').innerHTML = `<tr><td colspan="3" class="muted" style="text-align: center;">Chưa có đơn hàng nào.</td></tr>`;
+        } else {
+          $('#s-recent-orders').innerHTML = oSnap.docs.map(docSnap => {
+            const item = docSnap.data();
+            totalRev += Number(item.amount || 0);
+            totalOrders++;
+
+            const dateStr = item.createdAt?.toDate ? item.createdAt.toDate().toLocaleDateString('vi-VN') : '—';
+
+            return `
+              <tr>
+                <td><strong>${esc(item.productName || 'Sản phẩm')}</strong></td>
+                <td style="color:var(--ok); font-weight:600;">${fmtVND(item.amount || 0)}</td>
+                <td class="muted">${dateStr}</td>
+              </tr>
+            `;
+          }).join('');
+        }
+
+        $('#s-total-rev').textContent = fmtVND(totalRev);
+        $('#s-total-orders').textContent = totalOrders;
+        $('#s-total-profit').textContent = fmtVND(totalRev * 0.95); // Giả định chiết khấu
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>
