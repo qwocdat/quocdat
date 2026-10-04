@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Linkora — Key Liên Quân Của Tôi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* CSS System Core */
+    :root {
+      --bg: #0f172a; --panel: #1e293b; --border: #334155; --text: #f8fafc; --muted: #94a3b8;
+      --accent: #6366f1; --accent-hover: #4f46e5; --ok: #10b981; --err: #ef4444; --warn: #f59e0b;
+      --radius: 12px;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc; --panel: #ffffff; --border: #e2e8f0; --text: #0f172a; --muted: #64748b;
+      --accent: #4f46e5; --accent-hover: #4338ca; --ok: #059669; --err: #dc2626; --warn: #d97706;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 20px; line-height: 1.5; }
+    .wrap-page { max-width: 1000px; margin: 0 auto; }
+    header.between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .logo { font-size: 1.25rem; font-weight: 800; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .logo-mark { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; }
+    .row { display: flex; align-items: center; }
+    .gap-12 { gap: 12px; }
+    .between { display: flex; justify-content: space-between; align-items: center; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+    .page-head { margin-bottom: 20px; }
+    .page-head h1 { font-size: 1.5rem; font-weight: 700; }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; font-size: 0.9rem; text-decoration: none; transition: 0.2s; }
+    .btn.accent { background: var(--accent); color: #fff; }
+    .btn.accent:hover { background: var(--accent-hover); }
+    .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn.ghost:hover { background: var(--border); }
+    .btn.sm { padding: 6px 12px; font-size: 0.8rem; }
+    
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 16px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+    th { padding: 12px; background: var(--bg); border-bottom: 2px solid var(--border); color: var(--muted); font-weight: 600; }
+    td { padding: 14px 12px; border-bottom: 1px solid var(--border); }
+
+    /* Toast */
+    #toast-root { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { background: var(--panel); border: 1px solid var(--border); padding: 12px 18px; border-radius: 8px; color: var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; transform: translateY(20px); opacity: 0; transition: 0.3s; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.ok { border-left: 4px solid var(--ok); }
+    .toast.err { border-left: 4px solid var(--err); }
+  </style>
+</head>
+<body>
+  <div class="wrap-page">
+    <header class="between">
+      <a class="logo" href="dashboard.html"><span class="logo-mark">L</span><span>Linkora</span></a>
+      <div class="row gap-12">
+        <a href="lq-market.html" class="btn accent sm">+ Mua Key Mới</a>
+        <a href="wallet.html" class="btn ghost sm" id="wallet-bal">Ví: 0đ</a>
+      </div>
+    </header>
+
+    <main>
+      <div class="page-head">
+        <h1>Key Liên Quân Của Tôi</h1>
+        <p class="muted">Quản lý và sao chép các mã Key bạn đã thanh toán mua thành công.</p>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Loại gói / Tên Key</th>
+                <th>Mã Key kích hoạt</th>
+                <th>Giá mua</th>
+                <th>Thời gian mua</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="my-keys-list">
+              <tr>
+                <td colspan="5" class="muted" style="text-align: center;">Đang tải danh sách Key của bạn...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast-root"></div>
+
+  <script type="module">
+    import { S, initAuth, fmtVND, esc, $,$$, toast, db } from './shared.js';
+    import { collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    initAuth((user) => {
+      if (!user) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+      $('#wallet-bal').textContent = `Ví: ${fmtVND(S.wallet?.balance || 0)}`;
+      loadMyKeys();
+    });
+
+    async function loadMyKeys() {
+      const tbody = $('#my-keys-list');
+      try {
+        const qKey = query(
+          collection(db, 'user_lq_keys'),
+          where('userId', '==', S.user.uid),
+          orderBy('createdAt', 'desc')
+        );
+
+        const snap = await getDocs(qKey);
+
+        if (snap.empty) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="5" class="muted" style="text-align: center; padding: 24px;">
+                Bạn chưa sở hữu mã Key nào. <a href="lq-market.html" style="color:var(--accent);">Đến Chợ Key ngay</a>.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = snap.docs.map(docSnap => {
+          const item = docSnap.data();
+          const dateStr = item.createdAt?.toDate ? item.createdAt.toDate().toLocaleString('vi-VN') : '—';
+
+          return `
+            <tr>
+              <td><strong>${esc(item.title || 'Key Liên Quân')}</strong></td>
+              <td><code style="background:var(--bg); padding:4px 8px; border-radius:4px; font-weight:700;">${esc(item.keyCode)}</code></td>
+              <td style="color:var(--ok); font-weight:600;">${fmtVND(item.price || 0)}</td>
+              <td class="muted">${dateStr}</td>
+              <td>
+                <button class="btn ghost sm btn-copy-key" data-key="${esc(item.keyCode)}">Sao chép Key</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        // Sự kiện sao chép mã Key
+        $$('.btn-copy-key').forEach(btn => {
+          btn.onclick = (e) => {
+            const keyCode = e.currentTarget.getAttribute('data-key');
+            navigator.clipboard.writeText(keyCode);
+            toast('Đã sao chép mã Key vào bộ nhớ tạm!', 'ok');
+          };
+        });
+
+      } catch (err) {
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan="5" class="muted" style="text-align: center;">Không thể tải danh sách Key.</td></tr>`;
+      }
+    }
+  </script>
+</body>
+</html>
