@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Linkora — Lịch Sử Giao Dịch</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* CSS System Core */
+    :root {
+      --bg: #0f172a; --panel: #1e293b; --border: #334155; --text: #f8fafc; --muted: #94a3b8;
+      --accent: #6366f1; --accent-hover: #4f46e5; --ok: #10b981; --err: #ef4444; --warn: #f59e0b;
+      --radius: 12px;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc; --panel: #ffffff; --border: #e2e8f0; --text: #0f172a; --muted: #64748b;
+      --accent: #4f46e5; --accent-hover: #4338ca; --ok: #059669; --err: #dc2626; --warn: #d97706;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 20px; line-height: 1.5; }
+    .wrap-page { max-width: 1050px; margin: 0 auto; }
+    header.between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .logo { font-size: 1.25rem; font-weight: 800; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .logo-mark { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; }
+    .row { display: flex; align-items: center; }
+    .gap-12 { gap: 12px; }
+    .between { display: flex; justify-content: space-between; align-items: center; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+    .page-head { margin-bottom: 20px; }
+    .page-head h1 { font-size: 1.5rem; font-weight: 700; }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; font-size: 0.9rem; text-decoration: none; transition: 0.2s; }
+    .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn.ghost:hover { background: var(--border); }
+    .btn.sm { padding: 6px 12px; font-size: 0.8rem; }
+    .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+    .badge.ok { background: rgba(16, 185, 129, 0.15); color: var(--ok); }
+    .badge.err { background: rgba(239, 68, 68, 0.15); color: var(--err); }
+    .input { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; font-size: 0.9rem; }
+    .input:focus { border-color: var(--accent); }
+
+    .filter-tabs { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    .tab-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; font-size: 0.85rem; font-weight: 500; }
+    .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 16px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+    th { padding: 12px; background: var(--bg); border-bottom: 2px solid var(--border); color: var(--muted); font-weight: 600; }
+    td { padding: 14px 12px; border-bottom: 1px solid var(--border); }
+
+    /* Toast */
+    #toast-root { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { background: var(--panel); border: 1px solid var(--border); padding: 12px 18px; border-radius: 8px; color: var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; transform: translateY(20px); opacity: 0; transition: 0.3s; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.err { border-left: 4px solid var(--err); }
+  </style>
+</head>
+<body>
+  <div class="wrap-page">
+    <header class="between">
+      <a class="logo" href="dashboard.html"><span class="logo-mark">L</span><span>Linkora</span></a>
+      <div class="row gap-12">
+        <a href="wallet.html" class="btn ghost sm">Quản lý Ví</a>
+        <a href="withdraw.html" class="btn ghost sm">Rút tiền</a>
+      </div>
+    </header>
+
+    <main>
+      <div class="page-head">
+        <h1>Lịch Sử Giao Dịch Chi Tiết</h1>
+        <p class="muted">Toàn bộ nhật ký cộng/trừ tiền trong ví tài khoản của bạn.</p>
+      </div>
+
+      <div class="card">
+        <!-- Bộ lọc & Tìm kiếm -->
+        <div class="between" style="gap: 16px; margin-bottom: 16px; flex-wrap: wrap;">
+          <div class="filter-tabs" style="margin-bottom: 0; border: none; padding: 0;">
+            <button class="tab-btn active" data-type="all">Tất cả</button>
+            <button class="tab-btn" data-type="plus">Cộng tiền (+)</button>
+            <button class="tab-btn" data-type="minus">Trừ tiền (-)</button>
+          </div>
+          <div style="flex: 1; min-width: 240px;">
+            <input class="input" id="search-tx-input" placeholder="Tìm theo nội dung giao dịch..." />
+          </div>
+        </div>
+
+        <!-- Bảng danh sách giao dịch -->
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Mã / Nội dung giao dịch</th>
+                <th>Số tiền</th>
+                <th>Biến động</th>
+                <th>Thời gian</th>
+              </tr>
+            </thead>
+            <tbody id="tx-table-body">
+              <tr>
+                <td colspan="4" class="muted" style="text-align: center;">Đang tải lịch sử giao dịch...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast-root"></div>
+
+  <script type="module">
+    import { S, initAuth, fmtVND, esc, $,$$, toast, db, debounce } from './shared.js';
+    import { collection, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    let allTransactions = [];
+    let currentTypeFilter = 'all';
+
+    initAuth((user) => {
+      if (!user) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+      bindEvents();
+      loadTransactions();
+    });
+
+    function bindEvents() {
+      // Tab chọn loại biến động
+      $$('.tab-btn').forEach(btn => {         btn.onclick = (e) => {           $$
+('.tab-btn').forEach(b => b.classList.remove('active'));
+          e.currentTarget.classList.add('active');
+          currentTypeFilter = e.currentTarget.getAttribute('data-type');
+          renderTransactions();
+        };
+      });
+
+      // Ô tìm kiếm áp dụng Debounce
+      $('#search-tx-input').addEventListener('input', debounce(() => {
+        renderTransactions();
+      }, 300));
+    }
+
+    async function loadTransactions() {
+      try {
+        const qTx = query(
+          collection(db, 'transactions'),
+          where('userId', '==', S.user.uid),
+          orderBy('createdAt', 'desc'),
+          limit(100)
+        );
+
+        const snap = await getDocs(qTx);
+        allTransactions = snap.docs.map(docSnap => ({
+          id: docSnap.id,
+          ...docSnap.data()
+        }));
+
+        renderTransactions();
+      } catch (err) {
+        console.error(err);
+        toast('Lỗi khi tải lịch sử giao dịch', 'err');
+      }
+    }
+
+    function renderTransactions() {
+      const tbody = $('#tx-table-body');
+      const kw = $('#search-tx-input').value.trim().toLowerCase();
+
+      const filtered = allTransactions.filter(item => {
+        const isPlus = item.type === 'plus' || item.amount > 0;
+        
+        // Lọc theo tab cộng/trừ
+        if (currentTypeFilter === 'plus' && !isPlus) return false;
+        if (currentTypeFilter === 'minus' && isPlus) return false;
+
+        // Lọc theo từ khóa
+        if (kw) {
+          const descMatch = (item.description || '').toLowerCase().includes(kw);
+          const idMatch = (item.id || '').toLowerCase().includes(kw);
+          return descMatch || idMatch;
+        }
+
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4" class="muted" style="text-align: center; padding: 24px;">
+              Không tìm thấy giao dịch nào.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(item => {
+        const isPlus = item.type === 'plus' || item.amount > 0;
+        const dateStr = item.createdAt?.toDate ? item.createdAt.toDate().toLocaleString('vi-VN') : '—';
+
+        return `
+          <tr>
+            <td>
+              <strong>${esc(item.description || 'Giao dịch ví')}</strong>
+              <small class="muted" style="display:block;">Mã GD: ${esc(item.id)}</small>
+            </td>
+            <td style="font-weight:700; color:${isPlus ? 'var(--ok)' : 'var(--err)'};">
+              ${isPlus ? '+' : ''}${fmtVND(item.amount || 0)}
+            </td>
+            <td>
+              <span class="badge ${isPlus ? 'ok' : 'err'}">${isPlus ? 'Thu nhập' : 'Chi tiêu'}</span>
+            </td>
+            <td class="muted">${dateStr}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+  </script>
+</body>
+</html>
