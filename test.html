@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QCaptcha Test</title>
+</head>
+<body>
+
+  <h2>QCaptcha Test</h2>
+
+  <div
+    class="h-captcha"
+    data-sitekey="facd4b6c-53e6-44a2-9b27-b01844a6bd75">
+  </div>
+
+  <script src="https://js.103-141-140-153.sslip.io/api.js?render=explicit&compat=hcaptcha"></script>
+
+  <script>
+    window.addEventListener("load", () => {
+      const el = document.querySelector(".h-captcha");
+
+      try {
+        hcaptcha.render(el, {
+          sitekey: "facd4b6c-53e6-44a2-9b27-b01844a6bd75",
+
+          callback: token => {
+            console.log("CAPTCHA TOKEN:", token);
+          },
+
+          "error-callback": err => {
+            console.error("CAPTCHA ERROR:", err);
+          },
+
+          "expired-callback": () => {
+            console.log("CAPTCHA EXPIRED");
+          }
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    });
+  </script>
+
+</body>
+</html>
