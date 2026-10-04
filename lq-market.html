@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Linkora — Chợ Key Liên Quân</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* CSS System Core */
+    :root {
+      --bg: #0f172a; --panel: #1e293b; --border: #334155; --text: #f8fafc; --muted: #94a3b8;
+      --accent: #6366f1; --accent-hover: #4f46e5; --ok: #10b981; --err: #ef4444; --warn: #f59e0b;
+      --radius: 12px;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc; --panel: #ffffff; --border: #e2e8f0; --text: #0f172a; --muted: #64748b;
+      --accent: #4f46e5; --accent-hover: #4338ca; --ok: #059669; --err: #dc2626; --warn: #d97706;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 20px; line-height: 1.5; }
+    .wrap-page { max-width: 1100px; margin: 0 auto; }
+    header.between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .logo { font-size: 1.25rem; font-weight: 800; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .logo-mark { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; }
+    .row { display: flex; align-items: center; }
+    .gap-12 { gap: 12px; }
+    .between { display: flex; justify-content: space-between; align-items: center; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+    .card.pad-lg { padding: 28px; }
+    .page-head { margin-bottom: 20px; }
+    .page-head h1 { font-size: 1.5rem; font-weight: 700; }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; font-size: 0.9rem; text-decoration: none; transition: 0.2s; }
+    .btn.accent { background: var(--accent); color: #fff; }
+    .btn.accent:hover { background: var(--accent-hover); }
+    .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn.ghost:hover { background: var(--border); }
+    .btn.sm { padding: 6px 12px; font-size: 0.8rem; }
+    .btn.block { width: 100%; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+    .badge.ok { background: rgba(16, 185, 129, 0.15); color: var(--ok); }
+    .badge.err { background: rgba(239, 68, 68, 0.15); color: var(--err); }
+    
+    .grid { display: grid; gap: 20px; }
+    .grid.c3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+
+    /* Toast */
+    #toast-root { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { background: var(--panel); border: 1px solid var(--border); padding: 12px 18px; border-radius: 8px; color: var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; transform: translateY(20px); opacity: 0; transition: 0.3s; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.ok { border-left: 4px solid var(--ok); }
+    .toast.err { border-left: 4px solid var(--err); }
+  </style>
+</head>
+<body>
+  <div class="wrap-page">
+    <header class="between">
+      <a class="logo" href="dashboard.html"><span class="logo-mark">L</span><span>Linkora</span></a>
+      <div class="row gap-12">
+        <a href="lq-my.html" class="btn ghost sm">Key của tôi</a>
+        <a href="wallet.html" class="btn accent sm" id="wallet-bal">Ví: 0đ</a>
+      </div>
+    </header>
+
+    <main>
+      <div class="page-head">
+        <h1>Chợ Key Liên Quân</h1>
+        <p class="muted">Mua Key kích hoạt tự động với hệ thống bàn giao tức thì 24/7.</p>
+      </div>
+
+      <div id="lq-market-list" class="grid c3">
+        <div class="card"><p class="muted">Đang tải danh sách Key...</p></div>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast-root"></div>
+
+  <script type="module">
+    import { S, initAuth, fmtVND, esc, $,$$, toast, db, handleAsyncForm } from './shared.js';
+    import { collection, query, where, getDocs, doc, runTransaction, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    initAuth((user) => {
+      if (!user) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+      $('#wallet-bal').textContent = `Ví: ${fmtVND(S.wallet?.balance || 0)}`;
+      loadLQMarket();
+    });
+
+    async function loadLQMarket() {
+      const box = $('#lq-market-list');
+      try {
+        const qKey = query(collection(db, 'lq_market'), where('status', '==', 'active'));
+        const snap = await getDocs(qKey);
+
+        if (snap.empty) {
+          box.innerHTML = `<div class="card"><p class="muted">Hiện tại chợ Key chưa có mặt hàng nào. Hãy quay lại sau nhé!</p></div>`;
+          return;
+        }
+
+        box.innerHTML = snap.docs.map(docSnap => {
+          const item = docSnap.data();
+          const itemId = docSnap.id;
+          const price = Number(item.price || 0);
+          const stock = Number(item.stock || 0);
+
+          return `
+            <div class="card between" style="flex-direction:column; align-items:stretch; gap:16px;">
+              <div>
+                <div class="between" style="margin-bottom:8px;">
+                  <span class="badge ok">${esc(item.duration || 'VIP')}</span>
+                  <small class="muted">Kho: ${stock}</small>
+                </div>
+                <h3 style="font-size:1.1rem; margin-bottom:4px;">${esc(item.title || 'Key Liên Quân')}</h3>
+                <p class="muted" style="font-size:0.85rem;">${esc(item.description || 'Kích hoạt tự động ngay sau khi thanh toán.')}</p>
+              </div>
+
+              <div class="between" style="border-top:1px solid var(--border); padding-top:12px;">
+                <div>
+                  <small class="muted" style="display:block;">Giá bán</small>
+                  <strong style="font-size:1.2rem; color:var(--ok);">${fmtVND(price)}</strong>
+                </div>
+                <button class="btn accent sm btn-buy-key" data-id="${itemId}" data-price="${price}" ${stock <= 0 ? 'disabled' : ''}>
+                  ${stock > 0 ? 'Mua ngay' : 'Hết hàng'}
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        // Gán sự kiện mua Key
+        $$('.btn-buy-key').forEach(btn => {
+          btn.onclick = (e) => {
+            const id = e.currentTarget.getAttribute('data-id');
+            const price = Number(e.currentTarget.getAttribute('data-price'));
+            buyLQKey(e.currentTarget, id, price);
+          };
+        });
+
+      } catch (err) {
+        console.error(err);
+        toast('Lỗi khi tải chợ Key Liên Quân', 'err');
+      }
+    }
+
+    async function buyLQKey(buttonEl, itemId, price) {
+      if ((S.wallet?.balance || 0) < price) {
+        toast('Số dư ví không đủ để thanh toán!', 'err');
+        return;
+      }
+
+      if (!confirm(`Xác nhận mua gói Key này với giá ${fmtVND(price)}?`)) return;
+
+      await handleAsyncForm(buttonEl, async () => {
+        try {
+          await runTransaction(db, async (transaction) => {
+            const walletRef = doc(db, 'wallets', S.user.uid);
+            const marketRef = doc(db, 'lq_market', itemId);
+
+            const wSnap = await transaction.get(walletRef);
+            const mSnap = await transaction.get(marketRef);
+
+            if (!mSnap.exists() || (mSnap.data().stock || 0) <= 0) {
+              throw new Error("Sản phẩm đã hết hàng!");
+            }
+
+            const currentBal = wSnap.data()?.balance || 0;
+            if (currentBal < price) {
+              throw new Error("Số dư không đủ!");
+            }
+
+            // Trừ tiền ví
+            transaction.update(walletRef, { balance: currentBal - price });
+
+            // Trừ kho
+            transaction.update(marketRef, { stock: increment(-1) });
+
+            // Lưu Key vào kho người dùng
+            const myKeyRef = doc(collection(db, 'user_lq_keys'));
+            transaction.set(myKeyRef, {
+              userId: S.user.uid,
+              title: mSnap.data().title || 'Key Liên Quân',
+              keyCode: mSnap.data().availableKeys?.[0] || 'KEY-AUTOGEN-' + Math.random().toString(36).substring(2, 10).toUpperCase(),
+              price: price,
+              createdAt: serverTimestamp()
+            });
+          });
+
+          toast('Mua Key thành công! Vui lòng kiểm tra trong "Key của tôi".', 'ok');
+          loadLQMarket();
+        } catch (err) {
+          console.error(err);
+          toast(err.message || 'Lỗi khi thực hiện giao dịch!', 'err');
+        }
+      });
+    }
+  </script>
+</body>
+</html>
