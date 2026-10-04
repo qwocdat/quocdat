@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Linkora — Sổ Thu Chi Gian Hàng</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* CSS System Core */
+    :root {
+      --bg: #0f172a; --panel: #1e293b; --border: #334155; --text: #f8fafc; --muted: #94a3b8;
+      --accent: #6366f1; --accent-hover: #4f46e5; --ok: #10b981; --err: #ef4444; --warn: #f59e0b;
+      --radius: 12px;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc; --panel: #ffffff; --border: #e2e8f0; --text: #0f172a; --muted: #64748b;
+      --accent: #4f46e5; --accent-hover: #4338ca; --ok: #059669; --err: #dc2626; --warn: #d97706;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 20px; line-height: 1.5; }
+    .wrap-page { max-width: 1100px; margin: 0 auto; }
+    header.between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .logo { font-size: 1.25rem; font-weight: 800; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .logo-mark { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; }
+    .row { display: flex; align-items: center; }
+    .gap-12 { gap: 12px; }
+    .between { display: flex; justify-content: space-between; align-items: center; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+    .card.pad-lg { padding: 28px; }
+    .page-head { margin-bottom: 20px; }
+    .page-head h1 { font-size: 1.5rem; font-weight: 700; }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; font-size: 0.9rem; text-decoration: none; transition: 0.2s; }
+    .btn.accent { background: var(--accent); color: #fff; }
+    .btn.accent:hover { background: var(--accent-hover); }
+    .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn.ghost:hover { background: var(--border); }
+    .btn.sm { padding: 6px 12px; font-size: 0.8rem; }
+    .btn.err { background: var(--err); color: #fff; }
+    .btn.block { width: 100%; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+    .badge.ok { background: rgba(16, 185, 129, 0.15); color: var(--ok); }
+    .badge.err { background: rgba(239, 68, 68, 0.15); color: var(--err); }
+
+    .grid { display: grid; gap: 20px; }
+    .grid.c3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .grid.c2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+    
+    .stat { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+    .stat-label { font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    .stat-value { font-size: 1.4rem; font-weight: 800; color: var(--text); }
+
+    .input, select { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; margin-top: 6px; font-size: 0.9rem; }
+    .input:focus, select:focus { border-color: var(--accent); }
+    .field { margin-bottom: 14px; }
+    .field label { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-top: 16px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+    th { padding: 12px; background: var(--bg); border-bottom: 2px solid var(--border); color: var(--muted); font-weight: 600; }
+    td { padding: 14px 12px; border-bottom: 1px solid var(--border); }
+
+    /* Toast */
+    #toast-root { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { background: var(--panel); border: 1px solid var(--border); padding: 12px 18px; border-radius: 8px; color: var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; transform: translateY(20px); opacity: 0; transition: 0.3s; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.ok { border-left: 4px solid var(--ok); }
+    .toast.err { border-left: 4px solid var(--err); }
+  </style>
+</head>
+<body>
+  <div class="wrap-page">
+    <header class="between">
+      <a class="logo" href="dashboard.html"><span class="logo-mark">L</span><span>Linkora</span></a>
+      <div class="row gap-12">
+        <a href="seller.html" class="btn ghost sm">Seller Dashboard</a>
+        <a href="seller-stats.html" class="btn ghost sm">Thống kê Seller</a>
+      </div>
+    </header>
+
+    <main>
+      <div class="page-head">
+        <h1>Quản lý Thu Chi Gian Hàng</h1>
+        <p class="muted">Ghi chép các khoản chi phí vốn nhập hàng, khuyến mãi và doanh thu thực tế.</p>
+      </div>
+
+      <!-- Khối chỉ số tài chính -->
+      <div class="grid c3" style="margin-bottom: 20px;">
+        <div class="stat">
+          <div class="stat-label">Tổng thu ghi nhận</div>
+          <div class="stat-value" id="fin-total-in" style="color:var(--ok);">0đ</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Tổng chi phí / Nhập hàng</div>
+          <div class="stat-value" id="fin-total-out" style="color:var(--err);">0đ</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Dòng tiền tồn (Thu - Chi)</div>
+          <div class="stat-value" id="fin-net-balance" style="color:var(--accent);">0đ</div>
+        </div>
+      </div>
+
+      <div class="grid c2">
+        <!-- Form thêm giao dịch thu chi mới -->
+        <div class="card pad-lg">
+          <h3>Thêm giao dịch thu / chi mới</h3>
+          <form id="add-finance-form" style="margin-top: 16px;">
+            <div class="field">
+              <label>Loại giao dịch *</label>
+              <select id="fin-type">
+                <option value="out">Khoản Chi (Nhập kho, mua tool, duy trì...)</option>
+                <option value="in">Khoản Thu (Bán ngoài, hoàn vốn...)</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Mô tả nội dung *</label>
+              <input class="input" id="fin-title" placeholder="Ví dụ: Nhập 50 Key LQ 1 ngày" required />
+            </div>
+
+            <div class="field">
+              <label>Số tiền (VND) *</label>
+              <input class="input" type="number" id="fin-amount" placeholder="500000" min="1000" required />
+            </div>
+
+            <button class="btn accent block" type="submit" id="btn-submit-fin">Lưu Giao Dịch</button>
+          </form>
+        </div>
+
+        <!-- Bảng danh sách ghi chép thu chi -->
+        <div class="card pad-lg">
+          <h3>Lịch sử ghi chép thu chi</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nội dung</th>
+                  <th>Số tiền</th>
+                  <th>Loại</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="finance-records-list">
+                <tr>
+                  <td colspan="4" class="muted" style="text-align: center;">Đang tải ghi chép...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast-root"></div>
+
+  <script type="module">
+    import { S, initAuth, fmtVND, esc, $,$$, toast, db, handleAsyncForm } from './shared.js';
+    import { collection, query, where, getDocs, addDoc, doc, deleteDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    initAuth((user) => {
+      if (!user) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+      loadFinanceRecords();
+    });
+
+    const form = $('#add-finance-form');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const type = $('#fin-type').value;
+      const title = $('#fin-title').value.trim();
+      const amount = Number($('#fin-amount').value) || 0;
+      const btnSubmit = $('#btn-submit-fin');
+
+      await handleAsyncForm(btnSubmit, async () => {
+        try {
+          await addDoc(collection(db, 'seller_finances'), {
+            sellerId: S.user.uid,
+            type: type,
+            title: title,
+            amount: amount,
+            createdAt: serverTimestamp()
+          });
+
+          toast('Đã lưu giao dịch thu chi thành công!', 'ok');
+          form.reset();
+          loadFinanceRecords();
+        } catch (err) {
+          console.error(err);
+          toast('Lỗi khi lưu giao dịch', 'err');
+        }
+      });
+    });
+
+    async function loadFinanceRecords() {
+      const tbody = $('#finance-records-list');
+      try {
+        const qFin = query(
+          collection(db, 'seller_finances'),
+          where('sellerId', '==', S.user.uid)
+        );
+
+        const snap = await getDocs(qFin);
+
+        let totalIn = 0;
+        let totalOut = 0;
+
+        if (snap.empty) {
+          tbody.innerHTML = `<tr><td colspan="4" class="muted" style="text-align: center; padding: 16px;">Chưa có ghi chép thu chi nào.</td></tr>`;
+          $('#fin-total-in').textContent = '0đ';
+          $('#fin-total-out').textContent = '0đ';
+          $('#fin-net-balance').textContent = '0đ';
+          return;
+        }
+
+        tbody.innerHTML = snap.docs.map(docSnap => {
+          const item = docSnap.data();
+          const isOut = item.type === 'out';
+          const amt = Number(item.amount || 0);
+
+          if (isOut) totalOut += amt;
+          else totalIn += amt;
+
+          return `
+            <tr>
+              <td><strong>${esc(item.title)}</strong></td>
+              <td style="color:${isOut ? 'var(--err)' : 'var(--ok)'}; font-weight:600;">
+                ${isOut ? '-' : '+'}${fmtVND(amt)}
+              </td>
+              <td><span class="badge ${isOut ? 'err' : 'ok'}">${isOut ? 'Chi' : 'Thu'}</span></td>
+              <td>
+                <button class="btn err sm btn-del-fin" data-id="${docSnap.id}">Xóa</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        $('#fin-total-in').textContent = fmtVND(totalIn);
+        $('#fin-total-out').textContent = fmtVND(totalOut);
+        $('#fin-net-balance').textContent = fmtVND(totalIn - totalOut);
+
+        bindFinanceEvents();
+
+      } catch (err) {
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan="4" class="muted" style="text-align: center;">Không thể tải dữ liệu.</td></tr>`;
+      }
+    }
+
+    function bindFinanceEvents() {
+      $$('.btn-del-fin').forEach(btn => {
+        btn.onclick = async (e) => {
+          const id = e.currentTarget.getAttribute('data-id');
+          if (!confirm('Bạn có chắc chắn muốn xóa bản ghi này?')) return;
+
+          try {
+            await deleteDoc(doc(db, 'seller_finances', id));
+            toast('Đã xóa ghi chép!', 'ok');
+            loadFinanceRecords();
+          } catch (err) {
+            toast('Lỗi khi xóa ghi chép', 'err');
+          }
+        };
+      });
+    }
+  </script>
+</body>
+</html>
